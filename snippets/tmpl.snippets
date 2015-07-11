@@ -1,0 +1,57 @@
+# Perl expressions
+snippet [%
+	[% ${1} %]${2}
+snippet [%=
+	[%= ${1} %]${2}
+snippet [%==
+	[%== ${1} %]${2}
+# Checkbox input
+snippet check
+	[%= check_box ${1} => '${2}'${3} %]${4}
+# File input
+snippet file
+	[%= file_field '${1}'${2} %]${3}
+# Form
+snippet f
+	[%= form_for '${1}' => begin %]
+	  ${2}
+	[% end %]
+# Hidden input
+snippet hidden
+	[%= hidden_field '${1}'${2} %]${3}
+# Image
+snippet img
+	[%= image '${1}'${2} %]${3}
+# Input
+snippet input
+	[%= input_tag '${1}', type => '${2}'${3} %]${4}
+# JavaScript
+snippet script
+	[%= javascript ${1} %]${2:[% end %]}
+# Link to
+snippet a
+	[%= link_to '${1}' => '${2}' %]${3}
+# Password
+snippet pass
+	[%= password_field '${1}' %]
+# Submit
+snippet submit
+	[%= submit_button ${1}%]
+	${2}
+# URL
+snippet url
+	[%= url_for '${1}' %]
+# Text field
+snippet in
+	[%= text_field '${1}'${2} %]${3}
+## Some Perl binds
+# Foreach
+snippet for
+	% for my $${1} (${2}) {
+	    ${3}
+	% }
+# If
+snippet if
+	% if (${1}) {
+	    ${2}
+	% }

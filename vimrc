@@ -1,5 +1,5 @@
 """ SUMMARY                                                     
-" VERSION: 3.0.0
+" VERSION: 3.1.0
 " To view summary of this file run this (require foldutil plugin):
 "	:FoldMatching ^""" -1
 
@@ -26,8 +26,6 @@
 "   + lint								
 "
 " Подобрать новую цветовую схему? http://habrahabr.ru/blogs/vim/134194/
-"
-" Написать плагин для indent/align=>tab/space (или пофиксить существующий).
 "
 " Проверить работу переназначенных кнопок через ssh и в текстовой консоли.
 
@@ -86,10 +84,11 @@ set formatoptions+=n			" авто-перенос длинных строк вн�
 set textwidth=74			" граница для переформатирования и авто-переноса
 set formatoptions+=l			" отключить авто-перенос строк которые УЖЕ длиннее textwidth
 set nowrap				" не выводить длинные строки на нескольких строках
-set listchars+=extends:~		" выводить индикатор длинных строк
+set listchars=eol:¬,nbsp:•,tab:▸·	" при `set list` показывать eol, nbsp и tab
+set listchars+=extends:›,precedes:‹	" при `set nowrap` выводить индикатор длинных строк
+set showbreak=↪ 			" при `set wrap` выводить индикатор длинных строк
 set sidescrolloff=1			" коррекция из-за индикатора длинных строк
 set sidescroll=1			" плавный горизонтальный скроллинг
-set listchars+=nbsp:•,tab:»·		" при `set list` показывать tab и nbsp плюс к eol
 " - поиск
 set incsearch				" искать по мере набора
 set nohlsearch				" не подсвечивать результаты поиска
@@ -98,11 +97,16 @@ set backspace=indent,eol,start		" разрешить <BS>-ом удалять в
 set ruler				" всё время показывать позицию курсора внизу
 set completeopt=			" автодополнение в режиме вставки не выводит меню
 set wildmenu				" <Tab> в командной строке выводит меню
-set wildcharm=<Tab>			" вызов меню командной строки из скрипта (нужно для <F6>)
-set wildignore=*.swp,*.bak,*.dis,*.sbl	" не выводить эти файлы при автодополнении
+set wildcharm=<Tab>			" вызов меню командной строки из скрипта
+set wildignore=*.sw?,*.bak,*.orig	" не выводить эти файлы при автодополнении
+set wildignore+=.hg,.git,.svn
+set wildignore+=*.dis,*.sbl
+set wildignore+=*.o,*.obj,*.manifest
+set wildignore+=*.jpg,*.gif,*.png,*.jpeg,*.ico
 set wildignore+=*/patch/prev/**
 set wildignore+=*/_Inline/**
 set showcmd				" показывать нажимаемые кнопки в командном режиме
+set notimeout ttimeout ttimeoutlen=100 	" таймаут для одиночных кнопок, но не комбинаций
 set mouse=a				" поддержка мыши во всех режимах
 set nomodeline				" эта фича - дыра в безопасности, отключаем
 set shortmess+=I			" не выводить заставку при старте vi
@@ -117,6 +121,7 @@ set keymodel=startsel			" Shift со стрелками начинает выд�
 "   ...	выделенный текст копируется автоматически, Ctrl+Insert просто снимает выделение
 vnoremap <C-Insert>	<Esc>
 " - подсветка синтаксиса
+set synmaxcol=1000 			" не подсвечивать слишком длинные строчки
 colorscheme powerman
 let perl_include_pod = 1		" подсвечивать POD внутри скриптов
 let perl_string_as_statement = 1	" кавычки подсвечивать не как строку, а как if, while, ...
@@ -127,7 +132,7 @@ let htmlperl_string_as_statement = 1	" perl внутри html (без POD, но 
 " Позволяет держать каждый плагин в отдельном подкаталоге, а не смешивать
 " их все в ~/.vim/plugin/.
 runtime bundle/pathogen/autoload/pathogen.vim
-call pathogen#infect()
+execute pathogen#infect()
 
 """ Улучшенный вариант команды:                                 % 
 " Plugin: matchit
@@ -159,6 +164,7 @@ let g:LargeFile = 6			" in MB, default value is 20
 
 """ Просмотр документации help/man/perldoc/etc.:                <F1>, K, q 
 " Plugin: viewdoc
+let g:viewdoc_man_cmd = 'LANG=en_US.UTF-8 /usr/bin/man'
 let g:ViewDoc_css = 'ViewDoc_help_custom'
 
 """ Сохранение:                                                 <F2> 
@@ -244,9 +250,11 @@ endfunction
 " Plugin: tcomment
 " TODO Пусть работает, пока работает. А потом придётся написать свой плагин,
 " т.к. простых реализаций нужной мне тривиальной функциональности пока нет.
+" Либо форкнуть https://github.com/tpope/vim-commentary
 let g:tcommentOptions = {'col': 1}
 set commentstring=#\ %s
 autocmd FileType fluxkeys		setlocal commentstring=!%s
+autocmd FileType less			setlocal commentstring=//\ %s
 " - закомментировать/раскомментировать: #
 nnoremap #	:TComment<CR><Down>
 vnoremap #	:TComment<CR>`><Down>
@@ -259,15 +267,32 @@ vnoremap <C-c>	Ygv:TComment!<CR>`>p<Insert>
 
 """ Дописывание текущего слова:                                 <Tab>, <S-Tab> 
 " Plugin: supertab
-let g:SuperTabDefaultCompletionType = "context"
-let g:SuperTabNoCompleteAfter = ['^', '\k\@<!']
+" Plugin: html5
+au BufEnter * 	call s:SetupSuperTab()
+function! s:SetupSuperTab()
+	if &ft == 'html'
+		" omni-complete using html5 plugin
+		" html templates with header in separate file may need to set
+		" b:html_omni_flavor or b:html_omni (not sure) to "html5"
+		let g:SuperTabNoCompleteAfter = ['^', '\s']
+		call SuperTabSetDefaultCompletionType("<c-x><c-o>")
+	else
+		let g:SuperTabNoCompleteAfter = ['^', '\k\@<!']
+		call SuperTabSetDefaultCompletionType("context")
+	endif
+endfunction
 
 """ Сниппеты:                                                   <Tab> 
 " Plugin: snipMate
 let g:snips_author = "Alex Efros"
 
+""" Отступы/выравнивание:                                       <Tab> 
+" Plugin: Smart Tabs
+let g:ctab_disable_checkalign = 1 " эта непонятная фича ломает позицию курсора после <CR>
+
 """ Проверка кода на ошибки при сохранении                      <F11>, <F12> 
 " Plugin: syntastic
+let g:syntastic_check_on_wq = 0
 let g:syntastic_enable_signs = 0
 let g:syntastic_echo_current_error = 0
 let g:syntastic_auto_jump = 1
@@ -275,30 +300,15 @@ let g:syntastic_auto_loc_list = 1
 let g:syntastic_loc_list_height = 3
 " - отключить проверку из-за "ошибок" в html-шаблонах
 let g:syntastic_mode_map = { 'passive_filetypes': ['html'] }
+" - disable perlcritic
+"    TODO don't disable podchecker
+"    TODO enable perlcritic for .pm files (and use t/.perlcritic if available)
+let g:syntastic_perl_checkers = ['perl']
 " - переход к следующей/предыдущей ошибке: <F12>/<F11>
 imap <silent> <F11>	<C-O>:execute "try<Bar>lprev<Bar>catch<Bar>lclose<Bar>endtry"<CR>
 imap <silent> <F12>	<C-O>:execute "try<Bar>lnext<Bar>catch<Bar>lclose<Bar>endtry"<CR>
 nmap <silent> <F11>	:execute "try<Bar>lprev<Bar>catch<Bar>lclose<Bar>endtry"<CR>
 nmap <silent> <F12>	:execute "try<Bar>lnext<Bar>catch<Bar>lclose<Bar>endtry"<CR>
-" - добавить perlcritic плюс к обычной проверке синтаксиса perl
-" TODO	попробовать ускорить perlcritic:
-"	- глянуть http://www.vim.org/scripts/script.php?script_id=3431
-"	- запустить его клиент-сервером (глянуть на
-"	  http://blog.jrock.us/posts/App::Persistent.pod и
-"	  http://search.cpan.org/perldoc?PPerl)
-"	- попробовать добавить активное кеширование проверяемых кусков кода
-"	  или кеширование разбора кода (PPI)
-"	- останавливаться найдя первые N ошибок
-"	- запускать по очереди разные severity level (-5 .. -1)
-"	  используя -s/--only
-"	- запускать разные severity level на разных ядрах проца
-"	- NYTProf
-"	- реже/в последнюю очередь запускать правила которые тормозят:
-"	  Certain polices like like RequireTidyCode are considerably more
-"	  intensive than others. Also, any policy that has 'PPI::Document'
-"	  or 'PPI::Token::Word' in the applies_to method tends to be
-"	  slower than other policies that have a more narrow focus.
-" let g:syntastic_perl_efm_program = 'sh -c ''t=$(tempfile); perl '.$VIMRUNTIME.'/tools/efm_perl.pl -c -f $t $0 &>/dev/null; if [ -s $t ]; then cat $t; rm $t; else perlcritic --quiet --verbose "\%f:\%l:\%m\n" $0; fi'''
 
 """ Открытие группы файлов в отдельных табах (эмуляция vi -p)   
 autocmd VimEnter * nested		if argc() > 1 && !&diff | tab sball | tabfirst | endif
@@ -321,8 +331,8 @@ autocmd FileType vim,sh,javascript	setlocal formatoptions-=t
 autocmd FileType limbo,c,cpp,go		setlocal formatoptions-=t
 autocmd FileType html			setlocal formatoptions-=t
 " - большой отступ стимулирует уменьшать сложность/вложенность кода
-autocmd FileType vim,sh,javascript	setlocal softtabstop=8 shiftwidth=8
-autocmd FileType limbo,c,cpp,go		setlocal softtabstop=8 shiftwidth=8
+autocmd FileType vim,sh,javascript	setlocal softtabstop=0 shiftwidth=8
+autocmd FileType limbo,c,cpp,go		setlocal softtabstop=0 shiftwidth=8
 " - пока выравниваем всё пробелами
 autocmd FileType perl			setlocal expandtab
 " - комментариев не бывает, а настройка по умолчанию мешает спискам
@@ -354,6 +364,9 @@ nnoremap <Leader>/	:Ack!<Space>
 """ HTML Zen Coding                                             <C-E>, <C-F> 
 " Plugin: Sparkup
 let g:sparkupNextMapping = '<C-F>'
+
+""" Сравнение двух блоков в одном файле                         :Linediff 
+" Plugin: linediff
 
 """ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 " Экспериментальные или связанные с локальными файлами
@@ -413,15 +426,16 @@ autocmd BufNewFile,BufRead *.txt        set ft=asciidoc
 " Использование вспомогательных скриптов при проверке синтаксиса некоторых
 " perl-скриптов для подгрузки всех нужных (для проверяемого) модулей и
 " файлов, плюс дополнительная фильтрация неактуальных warning-ов
-autocmd BufRead */proj/perl/*.pm	let g:syntastic_perl_efm_program = "check_module"
-autocmd BufRead */t/*.t			let g:syntastic_perl_efm_program = "check_tests"
-autocmd BufRead */t/*.pm		let g:syntastic_perl_efm_program = "check_tests"
-autocmd BufRead */proj/rajeev/*		if &ft == "perl" | let g:syntastic_perl_efm_program = s:proj=="ASDF" ? "check_project" : "check_narada" | endif
-autocmd BufRead */parsers/[^.]*		let g:syntastic_perl_efm_program = "check_parsers"
+autocmd BufRead */proj/perl/*.pm        let g:syntastic_perl_perl_exe = "check_perl"
+autocmd BufRead */proj/soft/*.pm        let g:syntastic_perl_perl_exe = "check_perl"
+autocmd BufRead */t/*.t			let g:syntastic_perl_perl_exe = "check_perl"
+autocmd BufRead */t/*.pm		let g:syntastic_perl_perl_exe = "check_perl"
+autocmd BufRead */proj/rajeev/*		let g:syntastic_perl_perl_exe = "check_perl"
+autocmd BufRead */parsers/[^.]*		let g:syntastic_perl_perl_exe = "check_perl"
 
 """ Автоматический запуск команд после изменения файла          
 autocmd BufWritePre  *			let b:was_modified = &modified
-autocmd BufWritePost *			if b:was_modified && s:proj=="Narada" && (&ft == "perl" || &ft == "html") | call system("fastcgi_restart") | endif
+autocmd BufWritePost *			if b:was_modified && s:proj=="Narada" && (&ft == "perl" || &ft == "html" || &ft == "html.epl" || &ft == "html.tmpl") | call system("fastcgi_restart") | endif
 autocmd BufWritePost *.dot		if b:was_modified && filereadable("index.txt") | call system("touch index.txt") | endif
 
 """ Почта                                                       
@@ -442,10 +456,14 @@ function! s:ShowForm()
 endfunction
 command! ShowForm :call <SID>ShowForm()
 
-""" Определение текущей группы подсветки:                       <Leader>hi, <Leader>HI 
+""" Определение текущей группы подсветки:                       <Leader>hi, <Leader>HI, <Leader>SS 
 nmap <silent> <Leader>hi	:echo
 	\     "hi<" . synIDattr(           synID(line("."),col("."),1) ,"name") . ">" .
 	\ " trans<" . synIDattr(           synID(line("."),col("."),0) ,"name") . ">" .
 	\    " lo<" . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
 nmap <silent> <Leader>HI	:autocmd CursorMoved <buffer> normal \hi<CR>
+nmap <silent> <Leader>SS	:autocmd CursorMoved <buffer> :call <SID>SynStack()<CR>
+function! s:SynStack()
+  echo join(map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")'), " > ")
+endfunc
 

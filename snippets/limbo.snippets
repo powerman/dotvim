@@ -160,3 +160,8 @@ snippet ifn
 	if(${1:`substitute(getline(line('.')-1), '^\s*(\?\(\w\+\).*', '\1', '')`} == nil)
 		fail(sprint("${2}: %r"));
 
+# for list
+snippet forl
+	for(${1:} := ${2:}; $1 != nil; $1 = tl $1){
+		${3:}
+	}

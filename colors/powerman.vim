@@ -29,6 +29,11 @@ hi qfError				ctermfg=9   ctermbg=NONE    cterm=NONE
 hi perlMethod				ctermfg=7   ctermbg=NONE    cterm=NONE
 hi perlType				ctermfg=2   ctermbg=NONE    cterm=NONE
 hi perlNOT				ctermfg=6   ctermbg=NONE    cterm=bold
+""" mojo
+hi PerlInside				            ctermbg=0                
+hi MojoStart				ctermfg=12  ctermbg=0
+hi MojoSingleStart			ctermfg=12  ctermbg=0
+hi MojoEnd				ctermfg=12  ctermbg=0
 """ perl внутри html
 hi htmlperlDelimiter			ctermfg=4   ctermbg=0	    cterm=bold
 hi htmlperlBlock			ctermfg=7   ctermbg=0	    cterm=NONE
@@ -60,6 +65,19 @@ hi htmlperlNotEmptyLine			ctermfg=7   ctermbg=1	    cterm=bold
 hi htmlperlElseIfError			ctermfg=2   ctermbg=1	    cterm=NONE
 hi htmlperlSubPrototypeError		ctermfg=7   ctermbg=1	    cterm=bold
 hi htmlperlSubError			ctermfg=7   ctermbg=1	    cterm=bold
+""" javascript внутри template
+hi JSTmplBlock                                      ctermbg=17
+hi tmpljavaScriptParens                             ctermbg=17
+hi tmpljavaScriptValue                              ctermbg=17
+hi tmpljavaScriptConditional            ctermfg=7   ctermbg=17      cterm=bold
+hi tmpljavaScriptOperator               ctermfg=7   ctermbg=17      cterm=bold
+hi tmpljavaScriptBraces                 ctermfg=2   ctermbg=17      cterm=bold
+hi tmpljavaScriptIdentifier             ctermfg=2   ctermbg=17      cterm=bold
+hi tmpljavaScriptFunction               ctermfg=2   ctermbg=17      cterm=bold
+hi tmpljavaScriptStringS                ctermfg=3   ctermbg=17      cterm=bold
+hi tmpljavaScriptStringD                ctermfg=3   ctermbg=17      cterm=bold
+hi tmpljavaScriptRegexpString           ctermfg=3   ctermbg=17      cterm=bold
+hi tmpljavaScriptType                   ctermfg=81  ctermbg=17      
 
 if &t_Co > 8
     """ Базовые
