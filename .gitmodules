@@ -58,3 +58,15 @@
 [submodule "bundle/AnsiEsc"]
 	path = bundle/AnsiEsc
 	url = https://github.com/powerman/vim-plugin-AnsiEsc
+[submodule "bundle/ag"]
+	path = bundle/ag
+	url = https://github.com/rking/ag.vim
+[submodule "bundle/fugitive"]
+	path = bundle/fugitive
+	url = https://github.com/tpope/vim-fugitive
+[submodule "bundle/go"]
+	path = bundle/go
+	url = https://github.com/fatih/vim-go
+[submodule "bundle/tagbar"]
+	path = bundle/tagbar
+	url = https://github.com/majutsushi/tagbar

@@ -90,11 +90,26 @@ if &t_Co > 8
     hi TabLine			ctermfg=15	ctermbg=234	cterm=NONE
     hi TabLineFill		ctermfg=15	ctermbg=234	cterm=NONE
     hi TabLineSel		ctermfg=15	ctermbg=239	cterm=NONE
+    hi Pmenu                    ctermfg=245     ctermbg=19      cterm=NONE
+    hi PmenuSel                 ctermfg=245     ctermbg=17      cterm=NONE
 "    hi StatusLine		ctermfg=15	ctermbg=234	cterm=NONE
 "    hi StatusLineNC		ctermfg=242	ctermbg=234	cterm=NONE
     """ asciidoc
     hi asciidocXref		ctermfg=115	ctermbg=NONE	cterm=underline
     hi asciidocLink		ctermfg=115	ctermbg=NONE	cterm=underline
+    hi link asciidocSubscriptDelimiter                  SpecialChar
+    hi link asciidocSuperscriptDelimiter                SpecialChar
+    hi link asciidocMonospacedDelimiter                 SpecialChar
+    hi link asciidocMonospaced2Delimiter                SpecialChar
+    hi link asciidocUnconstrainedMonospacedDelimiter    SpecialChar
+    hi link asciidocEmphasizedDelimiter                 SpecialChar
+    hi link asciidocEmphasized2Delimiter                SpecialChar
+    hi link asciidocUnconstrainedEmphasizedDelimiter    SpecialChar
+    hi link asciidocBoldDelimiter                       SpecialChar
+    hi link asciidocUnconstrainedBoldDelimiter          SpecialChar
+    hi link asciidocUnquotedDelimiter                   SpecialChar
+    hi link asciidocUnconstrainedUnquotedDelimiter      SpecialChar
+    hi link asciidocConcealUnReplacement                SpecialChar
 endif
 
 """ spell
@@ -113,3 +128,4 @@ else
     autocmd BufEnter *	if &ft == "perl" |  hi SpellLocal ctermbg=0	| endif
     autocmd BufLeave *			    hi SpellLocal ctermbg=NONE
 endif
+

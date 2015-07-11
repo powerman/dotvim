@@ -1,5 +1,5 @@
 """ SUMMARY                                                     
-" VERSION: 3.3.0
+" VERSION: 3.4.0
 " To view summary of this file run this (require foldutil plugin):
 "	:FoldMatching ^""" -1
 
@@ -145,10 +145,13 @@ set sidescroll=1			" плавный горизонтальный скролли�
 " - поиск
 set incsearch				" искать по мере набора
 set nohlsearch				" не подсвечивать результаты поиска
+" - сравнение
+set diffopt+=vertical                   " по умолчанию открывать diff вертикально
 " - общие фичи
 set backspace=indent,eol,start		" разрешить <BS>-ом удалять всё что угодно
 set ruler				" всё время показывать позицию курсора внизу
 set completeopt=			" автодополнение в режиме вставки не выводит меню
+set pumheight=5                         " высота меню автодополнения
 set wildmenu				" <Tab> в командной строке выводит меню
 set wildcharm=<Tab>			" вызов меню командной строки из скрипта
 set wildignore=*.sw?,*.bak,*.orig	" не выводить эти файлы при автодополнении
@@ -158,6 +161,7 @@ set wildignore+=*.o,*.obj,*.manifest
 set wildignore+=*.jpg,*.gif,*.png,*.jpeg,*.ico
 set wildignore+=*/patch/prev/**
 set wildignore+=*/_Inline/**
+set wildignore+=_live/**
 set showcmd				" показывать нажимаемые кнопки в командном режиме
 set notimeout ttimeout ttimeoutlen=100 	" таймаут для одиночных кнопок, но не комбинаций
 set mouse=a				" поддержка мыши во всех режимах
@@ -211,6 +215,12 @@ let g:autosess_dir = '~/.cache/vim/autosess/'
 " Plugin: largefile
 let g:LargeFile = 6			" in MB, default value is 20
 
+""" Поддержка Git                                               :Gstatus, :Gdiff, …
+" Plugin: fugitive
+set statusline=%<%f\ %h%m%r%{fugitive#statusline()}%=%-14.(%l,%c%V%)\ %P
+cnoreabbrev Glog Gllog
+cnoreabbrev Ggrep Glgrep
+
 """ Простое ручное управление свёрткой (folding):               :FoldMatching 
 " Plugin: foldutil
 " Plugin: genutils (нужен для foldutil)
@@ -255,6 +265,10 @@ nnoremap <F4>		:set paste<CR><Insert>
 """ Вкл/Выкл перенос строк:                                     <F5> 
 inoremap <F5>	<C-O>:set wrap!<CR>
 nnoremap <F5>	:set wrap!<CR>
+
+""" Навигация по ctags                                          <F6>
+" Plugin: tagbar
+nnoremap <silent> <F6> :TagbarToggle<CR>
 
 """ Выход (если все файлы записаны):                            <F10> 
 inoremap <F10>	<Esc>:qa<CR>
@@ -308,6 +322,7 @@ endfunction
 " Либо форкнуть https://github.com/tpope/vim-commentary
 let g:tcommentOptions = {'col': 1}
 set commentstring=#\ %s
+autocmd FileType fluxbox		setlocal commentstring=#\ %s
 autocmd FileType fluxkeys		setlocal commentstring=!%s
 autocmd FileType less			setlocal commentstring=//\ %s
 " - закомментировать/раскомментировать: #
@@ -323,19 +338,17 @@ vnoremap <C-c>	Ygv:TComment!<CR>`>p<Insert>
 """ Дописывание текущего слова:                                 <Tab>, <S-Tab> 
 " Plugin: supertab
 " Plugin: html5
-au BufEnter * 	call s:SetupSuperTab()
-function! s:SetupSuperTab()
-	if &ft == 'html'
-		" omni-complete using html5 plugin
-		" html templates with header in separate file may need to set
-		" b:html_omni_flavor or b:html_omni (not sure) to "html5"
-		let g:SuperTabNoCompleteAfter = ['^', '\s']
-		call SuperTabSetDefaultCompletionType("<c-x><c-o>")
-	else
-		let g:SuperTabNoCompleteAfter = ['^', '\k\@<!']
-		call SuperTabSetDefaultCompletionType("context")
-	endif
-endfunction
+" Plugin: vim-go
+let g:SuperTabDefaultCompletionType = "context"
+autocmd FileType perl               let b:SuperTabNoCompleteAfter = ['^', '\k\@<!']
+autocmd FileType html,gohtmltmpl    let b:SuperTabNoCompleteAfter = ['^']
+autocmd FileType gohtmltmpl         setlocal omnifunc=htmlcomplete#CompleteTags
+autocmd FileType gohtmltmpl         let b:html_omni_flavor="html5"
+autocmd FileType *
+    \ if &omnifunc != '' |
+    \   call SuperTabChain(&omnifunc, "<c-p>") |
+    \ endif
+autocmd FileType html,gohtmltmpl    call SuperTabSetDefaultCompletionType("<c-x><c-u>")
 
 """ Сниппеты:                                                   <Tab> 
 " Plugin: snipMate
@@ -386,19 +399,43 @@ autocmd BufWinEnter *			syntax sync fromstart
 " - отключить форматирование кода (оставить форматирование комментариев)
 autocmd FileType perl			setlocal formatoptions-=t
 autocmd FileType vim,sh,javascript	setlocal formatoptions-=t
-autocmd FileType limbo,c,cpp,go		setlocal formatoptions-=t
+autocmd FileType limbo,c,cpp		setlocal formatoptions-=t
 autocmd FileType html			setlocal formatoptions-=t
 " - большой отступ стимулирует уменьшать сложность/вложенность кода
 autocmd FileType vim,sh,javascript	setlocal softtabstop=0 shiftwidth=8
-autocmd FileType limbo,c,cpp,go		setlocal softtabstop=0 shiftwidth=8
+autocmd FileType limbo,c,cpp		setlocal softtabstop=0 shiftwidth=8
+autocmd FileType go                     setlocal softtabstop=0 shiftwidth=0
+autocmd FileType go                     runtime indent/go.vim
 " - пока выравниваем всё пробелами
 autocmd FileType perl			setlocal expandtab
-" - комментариев не бывает, а настройка по умолчанию мешает спискам
-autocmd FileType asciidoc		setlocal comments=
+autocmd FileType migrate                setlocal expandtab
+" - объявить блочные элементы разметки комментариями и запретить их форматировать по gq
+"   * двухстрочные заголовки 1-4 уровней не поддерживаются
+"   * заголовки параграфа поддерживаются только начинающиеся на большую букву
+"   * блоки которые нет смысла форматировать не поддерживаются:
+"       ---- (listing)
+"       ++++ (passthrough)
+"       .... (literal)
+"       [source]
+"         indented literal
+"       |==== (table)
+"   * две строки подряд начинающиеся на одинаковый "комментарий" будут некорректно
+"     объединяться в одну:
+"       [attribute1]
+"       [attribute2]
+"       **** первый элемент списка глубиной 4
+"       **** второй элемент списка глубиной 4
+" TODO Альтернативное решение: https://github.com/dahu/vim-asciidoc
+autocmd FileType asciidoc		setlocal comments=://,:==,:****,:____,fb:-,fb:*,fb:**,fb:***,fb:****,fb:*****,fb:.,fb:..,fb:...,fb:....,fb:.....,:[,:--,:+,:.A,:.B,:.C,:.D,:.E,:.F,:.G,:.H,:.I,:.J,:.K,:.L,:.M,:.N,:.O,:.P,:.Q,:.R,:.S,:.T,:.U,:.V,:.W,:.X,:.Y,:.Z,:.А,:.Б,:.В,:.Г,:.Д,:.Е,:.Ё,:.Ж,:.З,:.И,:.Й,:.К,:.Л,:.М,:.Н,:.О,:.П,:.Р,:.С,:.Т,:.У,:.Ф,:.Х,:.Ц,:.Ч,:.Ш,:.Щ,:.Ъ,:.Ы,:.Ь,:.Э,:.Ю,:.Я
+autocmd FileType asciidoc		setlocal formatoptions-=c
+autocmd FileType asciidoc		setlocal formatoptions-=r
+autocmd FileType asciidoc		setlocal formatoptions-=o
 " - авто-перенос длинных строк в списках
 autocmd FileType asciidoc		setlocal formatlistpat=^\\s*\\(-\\\\|\\*\\+\\\\|\\.\\+\\\\|[A-Za-z]\\.\\\\|[0-9]\\+\\.\\)\\s\\+
 " - маленький отступ в html
 autocmd FileType html,html.tmpl         setlocal softtabstop=2 shiftwidth=2 expandtab
+" - коммиты в git
+autocmd Filetype gitcommit              setlocal textwidth=72
 
 """ 80-column margin                                            
 autocmd FileType perl			setlocal colorcolumn=81,82,83,84,85
@@ -411,15 +448,18 @@ autocmd BufReadPost,FileReadPost *	if expand('<afile>') != 'quickfix' && !&reado
 autocmd BufWritePre,FileWritePre *	if expand('<afile>') != 'quickfix' && !&readonly && !&diff && &ft != 'diff' | mkview   | endif
 
 """ Enter Insert mode                                           <CR> 
-nnoremap <CR>	A<CR>
+autocmd BufWinEnter * if expand('<afile>') != 'quickfix' && !&readonly && !&diff && &ft != 'diff' && &ft != 'qf' && &ft != 'tagbar' | exe 'nnoremap <buffer> <CR> A<CR>' | elseif &ft != 'tagbar' | exe 'silent! nunmap <buffer> <CR>' | endif
 
 """ Enter commands without <Shift>                              ; 
 nnoremap ;	:
 
 """ Search in files                                             <Leader>/ 
-" Plugin: ack
+" Plugin: ack or ag
 " Require: /usr/bin/ack http://betterthangrep.com/ (emerge sys-apps/ack)
-nnoremap <Leader>/	:Ack!<Space>
+" Require: /usr/bin/ag http://betterthanack.com/ (emerge sys-apps/the_silver_searcher)
+" nnoremap <Leader>/	:Ack!<Space>
+nnoremap <Leader>/	:Ag!<Space>
+let g:ag_mapping_message=0
 
 """ HTML Zen Coding                                             <C-E>, <C-F> 
 " Plugin: Sparkup
@@ -427,6 +467,48 @@ let g:sparkupNextMapping = '<C-F>'
 
 """ Сравнение двух блоков в одном файле                         :Linediff 
 " Plugin: linediff
+
+""" Поддержка Go                                                <Leader>…, :Go…
+" Plugin: vim-go
+let g:go_highlight_functions = 1
+let g:go_highlight_methods = 1
+let g:go_highlight_structs = 1
+let g:go_highlight_operators = 1
+let g:go_highlight_build_constraints = 1
+let g:go_fmt_command = "goimports"
+let g:go_fmt_fail_silently = 1
+let g:go_doc_keywordprg_enabled = 0
+let g:go_highlight_trailing_whitespace_error = 0
+autocmd FileType go nmap <buffer> <nowait> <Leader>r     <Plug>(go-run)
+autocmd FileType go nmap <buffer> <nowait> <Leader>b     <Plug>(go-build)
+autocmd FileType go nmap <buffer> <nowait> <Leader>t     <Plug>(go-test)
+autocmd FileType go nmap <buffer> <nowait> <Leader>T     <Plug>(go-test-func)
+autocmd FileType go nmap <buffer> <nowait> <Leader>c     <Plug>(go-coverage)
+autocmd FileType go nmap <buffer> <nowait> <Leader>gd    <Plug>(go-def-tab)
+autocmd FileType go nmap <buffer> <nowait> <Leader>gb    <Plug>(go-doc-browser)
+autocmd FileType go nmap <buffer> <nowait> <Leader>s     <Plug>(go-implements)
+autocmd FileType go nmap <buffer> <nowait> <Leader>i     <Plug>(go-info)
+autocmd FileType go nmap <buffer> <nowait> <Leader>e     <Plug>(go-rename)
+
+""" Улучшенная строка статуса                                   
+" Plugin: vim-airline
+" if !exists('g:airline_symbols')
+"   let g:airline_symbols = {}
+" endif
+" let g:airline_left_sep = '▶'
+" let g:airline_right_sep = '◀'
+" let g:airline_symbols.linenr = '⏎'
+" let g:airline_symbols.branch = 'Ύ'
+" let g:airline_symbols.paste = '∥'
+" let g:airline_symbols.whitespace = 'Ξ'
+" runtime themes/airline-powerman.vim
+" let g:airline_theme='powerman'
+" " let g:airline_theme='bubblegum'
+" " let g:airline_theme='durant'
+" " let g:airline_theme='powerlineish'
+" " let g:airline_theme='sol'
+" " let g:airline_theme='ubaryd'
+" set laststatus=2
 
 """ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 " Экспериментальные или связанные с локальными файлами
@@ -442,6 +524,10 @@ let root  = filereadable("config/version")		? "."
 	\ : filereadable("../config/version")		? ".."
 	\ : filereadable("../../config/version")	? "../.."
 	\ : filereadable("../../../config/version")	? "../../.."
+	\ : filereadable("VERSION")	                ? "."
+	\ : filereadable("../VERSION")		        ? ".."
+	\ : filereadable("../../VERSION")	        ? "../.."
+	\ : filereadable("../../../VERSION")	        ? "../../.."
 	\ :						  ""
 if !empty(root)
 	execute "set path=.,".root.",".root."/template,".root."/public/css,".root."/public/js,".root."/t,".root."/perl,".root."/opt/*/*/module,".root."/opt/*/*/appl/cmd,".root."/opt/*/*/appl/lib,".","
@@ -475,23 +561,26 @@ autocmd FileType c			setlocal path+=/usr/include
 autocmd FileType limbo			setlocal path+=/usr/inferno/module,/usr/inferno/appl/cmd,/usr/inferno/appl/lib
 " default ftplugin/perl.vim replace user's path, so we have to restore it
 autocmd FileType perl			execute "setlocal path=".s:proj_path.",".&l:path
+" - do not copy @INC dirs to path to avoid slowdown while searching hundreds perl modules
+let perlpath = ""
 
 
 """ Улучшение определения типа файлов                           
-autocmd BufRead */.fluxbox/keys		set ft=fluxkeys
-autocmd BufRead */.opera/cache*		set ft=html
-autocmd BufNewFile,BufRead *.txt        set ft=asciidoc
+autocmd BufRead */.fluxbox/keys		        set ft=fluxkeys
+autocmd BufRead */.opera/cache*		        set ft=html
+autocmd BufNewFile,BufRead TODO*,BUG*,README*   set ft=asciidoc
+autocmd BufNewFile,BufRead *.txt,*.adoc         set ft=asciidoc
+autocmd BufNewFile,BufRead *.md                 set ft=markdown
+autocmd BufNewFile,BufRead migrate,*.migrate    set ft=migrate
+autocmd BufNewFile,BufRead *.t                  set ft=perl
+autocmd BufNewFile,BufRead *.html.tmpl          set ft=html.tmpl
 
 """ Особая проверка синтаксиса для некоторых файлов             
 " Использование вспомогательных скриптов при проверке синтаксиса некоторых
 " perl-скриптов для подгрузки всех нужных (для проверяемого) модулей и
 " файлов, плюс дополнительная фильтрация неактуальных warning-ов
-autocmd BufRead */proj/perl/*.pm        let g:syntastic_perl_perl_exe = "check_perl"
-autocmd BufRead */proj/soft/*.pm        let g:syntastic_perl_perl_exe = "check_perl"
-autocmd BufRead */t/*.t			let g:syntastic_perl_perl_exe = "check_perl"
-autocmd BufRead */t/*.pm		let g:syntastic_perl_perl_exe = "check_perl"
-autocmd BufRead */proj/rajeev/*		let g:syntastic_perl_perl_exe = "check_perl"
-autocmd BufRead */parsers/[^.]*		let g:syntastic_perl_perl_exe = "check_perl"
+autocmd BufRead */proj/*.pm             let g:syntastic_perl_perl_exe = "check_perl"
+autocmd BufRead */t/*.t                 let g:syntastic_perl_perl_exe = "check_perl"
 
 " bootswatch:
 " - заблокировать автоматическую компиляцию в .css (плагин vim-less)
