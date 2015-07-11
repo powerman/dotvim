@@ -1,0 +1,162 @@
+# implement Command
+snippet impl
+	implement ${1:`substitute(Filename('$1'), '^.', '\u&', '')`};
+
+	include "sys.m";
+		sys: Sys;
+		sprint: import sys;
+	include "draw.m";
+	include "opt/powerman/logger/module/logger.m";
+		logger: Logger;
+		log, ERR, WARN, NOTICE, INFO, DEBUG: import logger;
+	include "arg.m";
+	
+
+	$1: module
+	{
+		init: fn(nil: ref Draw->Context, argv: list of string);
+	};
+
+	init(nil: ref Draw->Context, argv: list of string)
+	{
+		sys		=  load Sys Sys->PATH;
+		logger		=  checkload(load Logger Logger->PATH, "Logger");
+		logger->init();
+		arg		:= checkload(load Arg Arg->PATH, "Arg");
+		arg->init(argv);
+		logger->progname(arg->progname());
+
+		arg->setusage(sprint("%s [-v]", arg->progname()));
+		while((p := arg->opt()) != 0)
+			case p {
+			'v' =>	logger->verbose++;
+			* =>	arg->usage();
+			}
+		argv = arg->argv();
+		if(len argv != 0)
+			arg->usage();
+
+		${2}
+	}
+
+
+
+
+	###
+
+	fail(s: string)
+	{
+		if(logger != nil)
+			log(ERR, s);
+		else
+			sys->fprint(sys->fildes(2), "%s\n", s);
+		raise "fail:"+s;
+	}
+
+	checkload[T](x: T, s: string): T
+	{
+		if(x == nil)
+			fail(sprint("load: %s: %r", s));
+		return x;
+	}
+
+	pidctl(pid: int, s: string): int
+	{
+		f := sprint("#p/%d/ctl", pid);
+		fd := sys->open(f, Sys->OWRITE);
+		if(fd == nil || sys->fprint(fd, "%s", s) < 0){
+			log(DEBUG, sprint("pidctl(%d, %s): %r", pid, s));
+			return 0;
+		}
+		return 1;
+	}
+
+	file2chan(dir, file: string, mode: int): ref Sys->FileIO
+	{
+		fio := sys->file2chan(dir, file+".tmp");
+		if(fio == nil)
+			fail(sprint("file2chan %s/%s.tmp: %r", dir, file));
+	
+		d := Sys->nulldir;
+		d.name = file;
+		d.mode = mode;
+		if(sys->wstat(dir+"/"+file+".tmp", d) == -1)
+			fail(sprint("wstat %s/%s.tmp: %r", dir, file));
+		
+		return fio;
+	}
+
+	readfile(f: string): array of byte
+	{
+		fd := sys->open(f, Sys->OREAD);
+		if(fd == nil){
+			log(DEBUG, sprint("readfile(%q): %r", f));
+			return nil;
+		}
+		return readfd(fd);
+	}
+
+	readfd(fd: ref Sys->FD): array of byte
+	{
+		buf := array[0] of byte;
+		d := array[Sys->ATOMICIO] of byte;
+		for(;;){
+			n := sys->read(fd, d, len d);
+			if(n < 0){
+				log(DEBUG, sprint("readfd: %r"));
+				return nil;
+			}
+			if(n == 0)
+				break;
+			nbuf := array[len buf+n] of byte;
+			nbuf[:] = buf;
+			nbuf[len buf:] = d[:n];
+			buf = nbuf;
+		}
+		return buf;
+	}
+
+# include *
+snippet include hashtable
+	include "opt/powerman/hashtable/module/hashtable.m";
+		hashtable: HashTable;
+		Hash: import hashtable;
+
+snippet include iobuf
+	include "opt/powerman/iobuf/module/iobuf.m";
+		iobuf: IOBuf;
+		ReadBuf, WriteBuf: import iobuf;
+
+snippet include cjson
+	include "cjson.m";
+		cjson: CJSON;
+		JSON2Token, Token2JSON, END_OBJ, UNK_KEY: import cjson;
+
+snippet include dial
+	include "dial.m";
+		dial: Dial;
+		Connection: import dial;
+
+snippet include registries
+	include "registries.m";
+		registries: Registries;
+		Service, Registry, Attributes: import registries;
+
+snippet include re2
+	include "re2.m";
+		re2: Re2;
+		re, RE: import re2;
+
+# load
+snippet load
+	checkload(load ${1:} $1->PATH, "$1");
+
+# fail
+snippet fail
+	fail(sprint("${1}"));
+
+# if nil
+snippet ifn
+	if(${1:`substitute(getline(line('.')-1), '^\s*(\?\(\w\+\).*', '\1', '')`} == nil)
+		fail(sprint("${2}: %r"));
+

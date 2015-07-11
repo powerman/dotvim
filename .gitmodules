@@ -1,0 +1,42 @@
+[submodule "bundle/ack"]
+	path = bundle/ack
+	url = https://github.com/mileszs/ack.vim
+[submodule "bundle/autosess"]
+	path = bundle/autosess
+	url = https://github.com/powerman/vim-plugin-autosess
+[submodule "bundle/command-t"]
+	path = bundle/command-t
+	url = git://git.wincent.com/command-t.git
+[submodule "bundle/foldutil"]
+	path = bundle/foldutil
+	url = https://github.com/vim-scripts/foldutil.vim
+[submodule "bundle/genutils"]
+	path = bundle/genutils
+	url = https://github.com/vim-scripts/genutils
+[submodule "bundle/largefile"]
+	path = bundle/largefile
+	url = https://github.com/vim-scripts/largefile
+[submodule "bundle/ruscmd"]
+	path = bundle/ruscmd
+	url = https://github.com/powerman/vim-plugin-ruscmd
+[submodule "bundle/snipmate"]
+	path = bundle/snipmate
+	url = https://github.com/msanders/snipmate.vim
+[submodule "bundle/supertab"]
+	path = bundle/supertab
+	url = https://github.com/ervandew/supertab
+[submodule "bundle/syntastic"]
+	path = bundle/syntastic
+	url = https://github.com/scrooloose/syntastic
+[submodule "bundle/tcomment"]
+	path = bundle/tcomment
+	url = https://github.com/tomtom/tcomment_vim
+[submodule "bundle/viewdoc"]
+	path = bundle/viewdoc
+	url = https://github.com/powerman/vim-plugin-viewdoc
+[submodule "bundle/gnupg"]
+	path = bundle/gnupg
+	url = https://github.com/jamessan/vim-gnupg
+[submodule "bundle/pathogen"]
+	path = bundle/pathogen
+	url = https://github.com/tpope/vim-pathogen
