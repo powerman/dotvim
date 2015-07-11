@@ -1,5 +1,5 @@
 """ SUMMARY                                                     
-" VERSION: 3.2.0
+" VERSION: 3.3.0
 " To view summary of this file run this (require foldutil plugin):
 "	:FoldMatching ^""" -1
 
@@ -57,6 +57,59 @@ endfunction
 " - система
 if &term == "xterm"
     set term=xterm-256color
+endif
+if &term == "screen"
+    set term=screen-256color
+    map  [1;5A <C-Up>
+    map  [1;5B <C-Down>
+    map  [1;5C <C-Right>
+    map  [1;5D <C-Left>
+    map  [2;5~ <C-Insert>
+    map  [3^   <C-Delete>
+    map  [1;5H <C-Home>
+    map  [1;5F <C-End>
+    map  [5;5~ <C-PageUp>
+    map  [6;5~ <C-PageDown>
+    map  [1;3A <A-Up>
+    map  [1;3B <A-Down>
+    map  [1;3C <A-Right>
+    map  [1;3D <A-Left>
+    map  [1;3H <A-Home>
+    map  [1;3F <A-End>
+    map  [5;3~ <A-PageUp>
+    map  [6;3~ <A-PageDown>
+    map  [1;2A <S-Up>
+    map  [1;2B <S-Down>
+    map  [1;2C <S-Right>
+    map  [1;2D <S-Left>
+    map  [3;2~ <S-Delete>
+    map  [1;2H <S-Home>
+    map  [1;2F <S-End>
+    imap [1;5A <C-Up>
+    imap [1;5B <C-Down>
+    imap [1;5C <C-Right>
+    imap [1;5D <C-Left>
+    imap [2;5~ <C-Insert>
+    imap [3^   <C-Delete>
+    imap [1;5H <C-Home>
+    imap [1;5F <C-End>
+    imap [5;5~ <C-PageUp>
+    imap [6;5~ <C-PageDown>
+    imap [1;3A <A-Up>
+    imap [1;3B <A-Down>
+    imap [1;3C <A-Right>
+    imap [1;3D <A-Left>
+    imap [1;3H <A-Home>
+    imap [1;3F <A-End>
+    imap [5;3~ <A-PageUp>
+    imap [6;3~ <A-PageDown>
+    imap [1;2A <S-Up>
+    imap [1;2B <S-Down>
+    imap [1;2C <S-Right>
+    imap [1;2D <S-Left>
+    imap [3;2~ <S-Delete>
+    imap [1;2H <S-Home>
+    imap [1;2F <S-End>
 endif
 set fileencodings=ucs-bom,utf-8,koi8-r,default
 " - предыдущая версия/состояние текста
