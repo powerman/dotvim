@@ -1,5 +1,5 @@
 """ SUMMARY                                                     
-" VERSION: 3.1.0
+" VERSION: 3.2.0
 " To view summary of this file run this (require foldutil plugin):
 "	:FoldMatching ^""" -1
 
@@ -85,7 +85,7 @@ set textwidth=74			" граница для переформатирования 
 set formatoptions+=l			" отключить авто-перенос строк которые УЖЕ длиннее textwidth
 set nowrap				" не выводить длинные строки на нескольких строках
 set listchars=eol:¬,nbsp:•,tab:▸·	" при `set list` показывать eol, nbsp и tab
-set listchars+=extends:›,precedes:‹	" при `set nowrap` выводить индикатор длинных строк
+set listchars+=extends:→,precedes:←	" при `set nowrap` выводить индикатор длинных строк
 set showbreak=↪ 			" при `set wrap` выводить индикатор длинных строк
 set sidescrolloff=1			" коррекция из-за индикатора длинных строк
 set sidescroll=1			" плавный горизонтальный скроллинг
@@ -166,6 +166,8 @@ let g:LargeFile = 6			" in MB, default value is 20
 " Plugin: viewdoc
 let g:viewdoc_man_cmd = 'LANG=en_US.UTF-8 /usr/bin/man'
 let g:ViewDoc_css = 'ViewDoc_help_custom'
+let g:viewdoc_copy_to_search_reg = 1
+let g:viewdoc_perldoc_format = 'ansi'
 
 """ Сохранение:                                                 <F2> 
 inoremap <F2>	<C-O>:w<CR>
@@ -304,6 +306,7 @@ let g:syntastic_mode_map = { 'passive_filetypes': ['html'] }
 "    TODO don't disable podchecker
 "    TODO enable perlcritic for .pm files (and use t/.perlcritic if available)
 let g:syntastic_perl_checkers = ['perl']
+let g:syntastic_enable_perl_checker = 1
 " - переход к следующей/предыдущей ошибке: <F12>/<F11>
 imap <silent> <F11>	<C-O>:execute "try<Bar>lprev<Bar>catch<Bar>lclose<Bar>endtry"<CR>
 imap <silent> <F12>	<C-O>:execute "try<Bar>lnext<Bar>catch<Bar>lclose<Bar>endtry"<CR>
@@ -320,6 +323,8 @@ autocmd TabEnter *	if tabpagenr() != 1 && tabpagenr() == s:leave_tab | tabprevio
 
 """ Автоматически сворачивать отдельные файлы в патчах          
 autocmd FileType diff			silent! FoldMatching ^diff -1
+
+let g:vim_markdown_folding_disabled=0
 
 """ Форсировать качественную подсветку синтаксиса (но медленную)
 autocmd BufWinEnter *			syntax sync fromstart
@@ -339,6 +344,8 @@ autocmd FileType perl			setlocal expandtab
 autocmd FileType asciidoc		setlocal comments=
 " - авто-перенос длинных строк в списках
 autocmd FileType asciidoc		setlocal formatlistpat=^\\s*\\(-\\\\|\\*\\+\\\\|\\.\\+\\\\|[A-Za-z]\\.\\\\|[0-9]\\+\\.\\)\\s\\+
+" - маленький отступ в html
+autocmd FileType html,html.tmpl         setlocal softtabstop=2 shiftwidth=2 expandtab
 
 """ 80-column margin                                            
 autocmd FileType perl			setlocal colorcolumn=81,82,83,84,85
@@ -433,6 +440,12 @@ autocmd BufRead */t/*.pm		let g:syntastic_perl_perl_exe = "check_perl"
 autocmd BufRead */proj/rajeev/*		let g:syntastic_perl_perl_exe = "check_perl"
 autocmd BufRead */parsers/[^.]*		let g:syntastic_perl_perl_exe = "check_perl"
 
+" bootswatch:
+" - заблокировать автоматическую компиляцию в .css (плагин vim-less)
+" - проверять синтаксис подгружая все .less файлы проекта
+autocmd BufReadPre */bootswatch/*.less  let b:did_ftplugin = 1
+autocmd BufRead */bootswatch.less       let g:syntastic_less_lessc_args="--no-color ../global/build.less /dev/null"
+
 """ Автоматический запуск команд после изменения файла          
 autocmd BufWritePre  *			let b:was_modified = &modified
 autocmd BufWritePost *			if b:was_modified && s:proj=="Narada" && (&ft == "perl" || &ft == "html" || &ft == "html.epl" || &ft == "html.tmpl") | call system("fastcgi_restart") | endif
@@ -456,6 +469,17 @@ function! s:ShowForm()
 endfunction
 command! ShowForm :call <SID>ShowForm()
 
+""" Переформатирование html                                     :Tidy 
+function! s:Tidy()
+	let oldft=&ft
+	filetype indent on
+	set ft=html
+	normal gg=G
+	filetype indent off
+	let &ft=oldft
+endfunction
+command! Tidy :call <SID>Tidy()
+
 """ Определение текущей группы подсветки:                       <Leader>hi, <Leader>HI, <Leader>SS 
 nmap <silent> <Leader>hi	:echo
 	\     "hi<" . synIDattr(           synID(line("."),col("."),1) ,"name") . ">" .
@@ -466,4 +490,6 @@ nmap <silent> <Leader>SS	:autocmd CursorMoved <buffer> :call <SID>SynStack()<CR>
 function! s:SynStack()
   echo join(map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")'), " > ")
 endfunc
+
+""" Unsorted
 

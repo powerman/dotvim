@@ -1,3 +1,6 @@
+" append more keywords
+syn keyword asciidocToDo BUG
+
 " allow ) as first char
 " allow -−~^+`_ around
 syn match asciidocQuotedMonospaced   /\(^\|[-−~^+`_| \t([.,=\]]\)\@<=+\([ \n\t]\)\@!\(.\|\n\(\s*\n\)\@!\)\{-}\S\(+\([-−~^+`_| \t)[\],.?!;:=]\|$\)\@=\)/ contains=asciidocEntityRef

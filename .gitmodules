@@ -55,3 +55,6 @@
 [submodule "bundle/Smart-Tabs"]
 	path = bundle/Smart-Tabs
 	url = https://github.com/powerman/Smart-Tabs
+[submodule "bundle/AnsiEsc"]
+	path = bundle/AnsiEsc
+	url = https://github.com/powerman/vim-plugin-AnsiEsc
