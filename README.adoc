@@ -1,0 +1,16 @@
+= ~/.vim/
+
+My settings for Vim. See comments in link:vimrc[] for list of supported
+features (in Russian).
+
+== Install
+
+. Remove `~/.vimrc` and `~/.vim/`.
+. `git clone --recursive http://github.com/powerman/dotvim ~/.vim`
+
+== Update
+
+. `cd ~/.vim`
+. `git pull`
+. `git submodule update`
+
