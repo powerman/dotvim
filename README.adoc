@@ -7,10 +7,18 @@ features (in Russian).
 
 . Remove `~/.vimrc` and `~/.vim/`.
 . `git clone --recursive http://github.com/powerman/dotvim ~/.vim`
+. `cd ~/.vim/bundle/command-t/ruby/command-t`
+. `make clean`
+. `ruby extconf.rb`
+. `make`
 
 == Update
 
 . `cd ~/.vim`
 . `git pull`
 . `git submodule update`
+. `cd ~/.vim/bundle/command-t/ruby/command-t`
+. `make clean`
+. `ruby extconf.rb`
+. `make`
 
