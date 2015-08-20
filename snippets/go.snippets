@@ -105,6 +105,12 @@ snippet errn
 	if err != nil {
 		return err
 	}
+# error snippet in main
+snippet errf
+	if err != nil {
+		log.Fatal(err)
+	}
+	${0}
 # error snippet in TestFunc
 snippet errt
 	if err != nil {
@@ -252,7 +258,7 @@ snippet ter
 # test fatal error
 snippet terf
 	if err != nil {
-	    t.Fatalf("${1}")
+		t.Fatalf("${1}")
 	}
 # variable declaration
 snippet var
