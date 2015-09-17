@@ -6,7 +6,7 @@
 	url = https://github.com/powerman/vim-plugin-autosess
 [submodule "bundle/command-t"]
 	path = bundle/command-t
-	url = git://git.wincent.com/command-t.git
+	url = https://github.com/wincent/command-t
 [submodule "bundle/foldutil"]
 	path = bundle/foldutil
 	url = https://github.com/vim-scripts/foldutil.vim
