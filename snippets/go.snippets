@@ -275,3 +275,22 @@ snippet eq
 		fmt.Printf("%s:%d:\n\n\texp: %#v\n\n\tgot: %#v\n\n", filepath.Base(file), line, $1, $2)
 		t.FailNow()
 	}
+# declare cases in tests
+snippet cases
+	cases := []struct {
+		${1}
+	}{
+		{},
+	}
+	for _, c := range cases {
+	}
+# test res vs want
+snippet want
+	if ${1:res} != ${2:c.want} {
+		t.Errorf("${3} = %v, want %v", $1, $2)
+	}
+# test err vs wanterr
+snippet wanterr
+	if fmt.Sprintf("%#v", ${1:err}) != fmt.Sprintf("%#v", ${2:c.wanterr}) {
+		t.Errorf("${3}, err = %#v, want %#v", $1, $2)
+	}
