@@ -373,6 +373,8 @@ let g:syntastic_mode_map = { 'passive_filetypes': ['html'] }
 "    TODO enable perlcritic for .pm files (and use t/.perlcritic if available)
 let g:syntastic_perl_checkers = ['perl']
 let g:syntastic_enable_perl_checker = 1
+" - disable creating binaries in current dir
+let g:syntastic_go_go_build_args = '-o /dev/null'
 " - переход к следующей/предыдущей ошибке: <F12>/<F11>
 imap <silent> <F11>	<C-O>:execute "try<Bar>lprev<Bar>catch<Bar>lclose<Bar>endtry"<CR>
 imap <silent> <F12>	<C-O>:execute "try<Bar>lnext<Bar>catch<Bar>lclose<Bar>endtry"<CR>
