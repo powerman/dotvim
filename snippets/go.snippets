@@ -117,15 +117,13 @@ snippet errt
 	if err != nil {
 		t.Fatal(err)
 	}
-
+	${0}
 # error snippet with two return values
 snippet errn,
 	if err != nil {
-		return ${2}$1, err
+		return ${1}, err
 	}
 	${0}
-
-
 # error snippet handle and return
 snippet errh
 	if err != nil {
@@ -133,7 +131,6 @@ snippet errh
 		return
 	}
 	${0}
-
 # json snippet
 snippet json
 	\`json:"${1:keyName}"\`
