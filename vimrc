@@ -437,7 +437,7 @@ autocmd FileType asciidoc		setlocal formatlistpat=^\\s*\\(-\\\\|\\*\\+\\\\|\\.\\
 " - маленький отступ в html
 autocmd FileType html,html.tmpl         setlocal softtabstop=2 shiftwidth=2 expandtab
 " - коммиты в git
-autocmd Filetype gitcommit              setlocal textwidth=72
+autocmd FileType gitcommit              setlocal textwidth=72
 
 """ 80-column margin                                            
 autocmd FileType perl			setlocal colorcolumn=81,82,83,84,85
@@ -534,6 +534,10 @@ let root  = filereadable("config/version")		? "."
 if !empty(root)
 	execute "set path=.,".root.",".root."/template,".root."/public/css,".root."/public/js,".root."/t,".root."/perl,".root."/opt/*/*/module,".root."/opt/*/*/appl/cmd,".root."/opt/*/*/appl/lib,".","
 	execute "set tags=".root."/tmp/tags"
+	let s:cwd = getcwd()
+	execute "lcd ".root
+	execute "autocmd BufNewFile,BufRead * lcd! ".getcwd()
+	execute "lcd ".s:cwd
 	let s:proj = "Narada"
 endif
 " - ASDF project
