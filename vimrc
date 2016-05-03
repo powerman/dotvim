@@ -561,6 +561,22 @@ if !empty(root)
 	execute "set path=.,".root.",".root."/module,".root."/appl/cmd,".root."/appl/lib,".","
 	let s:proj = "Inferno"
 endif
+" - Git project
+let root  = isdirectory(".git")		        ? "."
+	\ : isdirectory("../.git")		? ".."
+	\ : isdirectory("../../.git")	        ? "../.."
+	\ : isdirectory("../../../.git")	? "../../.."
+	\ : isdirectory("../../../../.git")	? "../../../.."
+	\ : isdirectory("../../../../../.git")	? "../../../../.."
+	\ :					  ""
+if !empty(root)
+	execute "set path=.,".root.",".root."/template,".root."/public/css,".root."/public/js,".root."/t,".","
+	execute "set tags=".root."/tmp/tags"
+	let s:cwd = getcwd()
+	execute "lcd ".root
+	execute "autocmd BufNewFile,BufRead * lcd! ".getcwd()
+	execute "lcd ".s:cwd
+endif
 let s:proj_path = &path
 " - file type specific
 autocmd FileType c			setlocal path+=/usr/include
@@ -640,4 +656,3 @@ function! s:SynStack()
 endfunc
 
 """ Unsorted
-
