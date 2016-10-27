@@ -73,3 +73,6 @@
 [submodule "bundle/vim-swift"]
 	path = bundle/vim-swift
 	url = https://github.com/toyamarinyon/vim-swift.git
+[submodule "bundle/ansible"]
+	path = bundle/ansible
+	url = https://github.com/pearofducks/ansible-vim
