@@ -435,121 +435,119 @@ else
   syn sync minlines=0
 endif
 
-command -nargs=+ HiLink hi def link <args>
 
 " NOTE: If you're linking new highlight groups to htmlperlString, please also put
 "       them into b:match_skip in ftplugin/htmlperl.vim.
 
 " The default highlighting.
-HiLink htmlperlSharpBang		PreProc
-HiLink htmlperlControl		PreProc
-HiLink htmlperlInclude		Include
-HiLink htmlperlSpecial		Special
-HiLink htmlperlString		String
-HiLink htmlperlCharacter		Character
-HiLink htmlperlNumber		Number
-HiLink htmlperlFloat		Float
-HiLink htmlperlType			Type
-HiLink htmlperlIdentifier		Identifier
-HiLink htmlperlLabel		Label
-HiLink htmlperlStatement		Statement
-HiLink htmlperlConditional		Conditional
-HiLink htmlperlRepeat		Repeat
-HiLink htmlperlOperator		Operator
-HiLink htmlperlFunction		Keyword
-HiLink htmlperlSubName		Function
-HiLink htmlperlSubPrototype		Type
-HiLink htmlperlSubAttributes	PreProc
-HiLink htmlperlSubAttributesCont	htmlperlSubAttributes
-HiLink htmlperlComment		Comment
-HiLink htmlperlTodo			Todo
+hi def link htmlperlSharpBang		PreProc
+hi def link htmlperlControl		PreProc
+hi def link htmlperlInclude		Include
+hi def link htmlperlSpecial		Special
+hi def link htmlperlString		String
+hi def link htmlperlCharacter		Character
+hi def link htmlperlNumber		Number
+hi def link htmlperlFloat		Float
+hi def link htmlperlType			Type
+hi def link htmlperlIdentifier		Identifier
+hi def link htmlperlLabel		Label
+hi def link htmlperlStatement		Statement
+hi def link htmlperlConditional		Conditional
+hi def link htmlperlRepeat		Repeat
+hi def link htmlperlOperator		Operator
+hi def link htmlperlFunction		Keyword
+hi def link htmlperlSubName		Function
+hi def link htmlperlSubPrototype		Type
+hi def link htmlperlSubAttributes	PreProc
+hi def link htmlperlSubAttributesCont	htmlperlSubAttributes
+hi def link htmlperlComment		Comment
+hi def link htmlperlTodo			Todo
 if exists("htmlperl_string_as_statement")
-  HiLink htmlperlStringStartEnd	htmlperlStatement
+  hi def link htmlperlStringStartEnd	htmlperlStatement
 else
-  HiLink htmlperlStringStartEnd	htmlperlString
+  hi def link htmlperlStringStartEnd	htmlperlString
 endif
-HiLink htmlperlVStringV		htmlperlStringStartEnd
-HiLink htmlperlList			htmlperlStatement
-HiLink htmlperlMisc			htmlperlStatement
-HiLink htmlperlVarPlain		htmlperlIdentifier
-HiLink htmlperlVarPlain2		htmlperlIdentifier
-HiLink htmlperlArrow		htmlperlIdentifier
-HiLink htmlperlFiledescRead		htmlperlIdentifier
-HiLink htmlperlFiledescStatement	htmlperlIdentifier
-HiLink htmlperlVarSimpleMember	htmlperlIdentifier
-HiLink htmlperlVarSimpleMemberName 	htmlperlString
-HiLink htmlperlVarNotInMatches	htmlperlIdentifier
-HiLink htmlperlVarSlash		htmlperlIdentifier
-HiLink htmlperlQQ			htmlperlString
-HiLink htmlperlHereDoc		htmlperlString
-HiLink htmlperlStringUnexpanded	htmlperlString
-HiLink htmlperlSubstitutionSQ	htmlperlString
-HiLink htmlperlSubstitutionGQQ	htmlperlString
-HiLink htmlperlTranslationGQ	htmlperlString
-HiLink htmlperlMatch		htmlperlString
-HiLink htmlperlMatchStartEnd	htmlperlStatement
-HiLink htmlperlFormatName		htmlperlIdentifier
-HiLink htmlperlFormatField		htmlperlString
-HiLink htmlperlPackageDecl		htmlperlType
-HiLink htmlperlStorageClass		htmlperlType
-HiLink htmlperlPackageRef		htmlperlType
-HiLink htmlperlStatementPackage	htmlperlStatement
-HiLink htmlperlStatementStorage	htmlperlStatement
-HiLink htmlperlStatementControl	htmlperlStatement
-HiLink htmlperlStatementScalar	htmlperlStatement
-HiLink htmlperlStatementRegexp	htmlperlStatement
-HiLink htmlperlStatementNumeric	htmlperlStatement
-HiLink htmlperlStatementList	htmlperlStatement
-HiLink htmlperlStatementHash	htmlperlStatement
-HiLink htmlperlStatementIOfunc	htmlperlStatement
-HiLink htmlperlStatementFiledesc	htmlperlStatement
-HiLink htmlperlStatementVector	htmlperlStatement
-HiLink htmlperlStatementFiles	htmlperlStatement
-HiLink htmlperlStatementFlow	htmlperlStatement
-HiLink htmlperlStatementInclude	htmlperlStatement
-HiLink htmlperlStatementProc	htmlperlStatement
-HiLink htmlperlStatementSocket	htmlperlStatement
-HiLink htmlperlStatementIPC		htmlperlStatement
-HiLink htmlperlStatementNetwork	htmlperlStatement
-HiLink htmlperlStatementPword	htmlperlStatement
-HiLink htmlperlStatementTime	htmlperlStatement
-HiLink htmlperlStatementMisc	htmlperlStatement
-HiLink htmlperlStatementIndirObj	htmlperlStatement
+hi def link htmlperlVStringV		htmlperlStringStartEnd
+hi def link htmlperlList			htmlperlStatement
+hi def link htmlperlMisc			htmlperlStatement
+hi def link htmlperlVarPlain		htmlperlIdentifier
+hi def link htmlperlVarPlain2		htmlperlIdentifier
+hi def link htmlperlArrow		htmlperlIdentifier
+hi def link htmlperlFiledescRead		htmlperlIdentifier
+hi def link htmlperlFiledescStatement	htmlperlIdentifier
+hi def link htmlperlVarSimpleMember	htmlperlIdentifier
+hi def link htmlperlVarSimpleMemberName 	htmlperlString
+hi def link htmlperlVarNotInMatches	htmlperlIdentifier
+hi def link htmlperlVarSlash		htmlperlIdentifier
+hi def link htmlperlQQ			htmlperlString
+hi def link htmlperlHereDoc		htmlperlString
+hi def link htmlperlStringUnexpanded	htmlperlString
+hi def link htmlperlSubstitutionSQ	htmlperlString
+hi def link htmlperlSubstitutionGQQ	htmlperlString
+hi def link htmlperlTranslationGQ	htmlperlString
+hi def link htmlperlMatch		htmlperlString
+hi def link htmlperlMatchStartEnd	htmlperlStatement
+hi def link htmlperlFormatName		htmlperlIdentifier
+hi def link htmlperlFormatField		htmlperlString
+hi def link htmlperlPackageDecl		htmlperlType
+hi def link htmlperlStorageClass		htmlperlType
+hi def link htmlperlPackageRef		htmlperlType
+hi def link htmlperlStatementPackage	htmlperlStatement
+hi def link htmlperlStatementStorage	htmlperlStatement
+hi def link htmlperlStatementControl	htmlperlStatement
+hi def link htmlperlStatementScalar	htmlperlStatement
+hi def link htmlperlStatementRegexp	htmlperlStatement
+hi def link htmlperlStatementNumeric	htmlperlStatement
+hi def link htmlperlStatementList	htmlperlStatement
+hi def link htmlperlStatementHash	htmlperlStatement
+hi def link htmlperlStatementIOfunc	htmlperlStatement
+hi def link htmlperlStatementFiledesc	htmlperlStatement
+hi def link htmlperlStatementVector	htmlperlStatement
+hi def link htmlperlStatementFiles	htmlperlStatement
+hi def link htmlperlStatementFlow	htmlperlStatement
+hi def link htmlperlStatementInclude	htmlperlStatement
+hi def link htmlperlStatementProc	htmlperlStatement
+hi def link htmlperlStatementSocket	htmlperlStatement
+hi def link htmlperlStatementIPC		htmlperlStatement
+hi def link htmlperlStatementNetwork	htmlperlStatement
+hi def link htmlperlStatementPword	htmlperlStatement
+hi def link htmlperlStatementTime	htmlperlStatement
+hi def link htmlperlStatementMisc	htmlperlStatement
+hi def link htmlperlStatementIndirObj	htmlperlStatement
 
-HiLink htmlperlMethod		htmlperlIdentifier
-HiLink htmlperlFunctionPRef		htmlperlType
-HiLink htmlperlPOD			htmlperlComment
-HiLink htmlperlShellCommand		htmlperlString
-HiLink htmlperlSpecialAscii		htmlperlSpecial
-HiLink htmlperlSpecialDollar	htmlperlSpecial
-HiLink htmlperlSpecialString	htmlperlSpecial
-HiLink htmlperlSpecialStringU	htmlperlSpecial
-HiLink htmlperlSpecialMatch		htmlperlSpecial
-HiLink htmlperlDATA			htmlperlComment
+hi def link htmlperlMethod		htmlperlIdentifier
+hi def link htmlperlFunctionPRef		htmlperlType
+hi def link htmlperlPOD			htmlperlComment
+hi def link htmlperlShellCommand		htmlperlString
+hi def link htmlperlSpecialAscii		htmlperlSpecial
+hi def link htmlperlSpecialDollar	htmlperlSpecial
+hi def link htmlperlSpecialString	htmlperlSpecial
+hi def link htmlperlSpecialStringU	htmlperlSpecial
+hi def link htmlperlSpecialMatch		htmlperlSpecial
+hi def link htmlperlDATA			htmlperlComment
 
 " NOTE: Due to a bug in Vim (or more likely, a misunderstanding on my part),
 "       I had to remove the transparent property from the following regions
 "       in order to get them to highlight correctly.  Feel free to remove
 "       these and reinstate the transparent property if you know how.
-HiLink htmlperlParensSQ		htmlperlString
-HiLink htmlperlBracketsSQ		htmlperlString
-HiLink htmlperlBracesSQ		htmlperlString
-HiLink htmlperlAnglesSQ		htmlperlString
+hi def link htmlperlParensSQ		htmlperlString
+hi def link htmlperlBracketsSQ		htmlperlString
+hi def link htmlperlBracesSQ		htmlperlString
+hi def link htmlperlAnglesSQ		htmlperlString
 
-HiLink htmlperlParensDQ		htmlperlString
-HiLink htmlperlBracketsDQ		htmlperlString
-HiLink htmlperlBracesDQ		htmlperlString
-HiLink htmlperlAnglesDQ		htmlperlString
+hi def link htmlperlParensDQ		htmlperlString
+hi def link htmlperlBracketsDQ		htmlperlString
+hi def link htmlperlBracesDQ		htmlperlString
+hi def link htmlperlAnglesDQ		htmlperlString
 
-HiLink htmlperlSpecialStringU2	htmlperlString
+hi def link htmlperlSpecialStringU2	htmlperlString
 
 " Possible errors
-HiLink htmlperlNotEmptyLine		Error
-HiLink htmlperlElseIfError		Error
-HiLink htmlperlSubPrototypeError	Error
-HiLink htmlperlSubError		Error
+hi def link htmlperlNotEmptyLine		Error
+hi def link htmlperlElseIfError		Error
+hi def link htmlperlSubPrototypeError	Error
+hi def link htmlperlSubError		Error
 
-delcommand HiLink
 
 " Syncing to speed up processing
 "

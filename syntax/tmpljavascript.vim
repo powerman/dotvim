@@ -10,15 +10,12 @@
 " Last Change:	2012 Oct 05
 " 		2013 Jun 12: adjusted tmpljavaScriptRegexpString (Kevin Locke)
 
-" For version 5.x: Clear all syntax items
-" For version 6.x: Quit when a syntax file was already loaded
 " tuning parameters:
 " unlet tmpljavaScript_fold
 
 if !exists("main_syntax")
-  if version < 600
-    syntax clear
-  elseif exists("b:current_syntax")
+  " quit when a syntax file was already loaded
+  if exists("b:current_syntax")
     finish
   endif
   let main_syntax = 'tmpljavascript'
@@ -28,11 +25,6 @@ endif
 
 let s:cpo_save = &cpo
 set cpo&vim
-
-" Drop fold if it set but vim doesn't support it.
-if version < 600 && exists("tmpljavaScript_fold")
-  unlet tmpljavaScript_fold
-endif
 
 
 syn keyword tmpljavaScriptCommentTodo      TODO FIXME XXX TBD contained
@@ -87,51 +79,41 @@ if main_syntax == "tmpljavascript"
 endif
 
 " Define the default highlighting.
-" For version 5.7 and earlier: only when not done already
-" For version 5.8 and later: only when an item doesn't have highlighting yet
-if version >= 508 || !exists("did_javascript_syn_inits")
-  if version < 508
-    let did_javascript_syn_inits = 1
-    command -nargs=+ HiLink hi link <args>
-  else
-    command -nargs=+ HiLink hi def link <args>
-  endif
-  HiLink tmpljavaScriptComment		Comment
-  HiLink tmpljavaScriptLineComment		Comment
-  HiLink tmpljavaScriptCommentTodo		Todo
-  HiLink tmpljavaScriptSpecial		Special
-  HiLink tmpljavaScriptStringS		String
-  HiLink tmpljavaScriptStringD		String
-  HiLink tmpljavaScriptCharacter		Character
-  HiLink tmpljavaScriptSpecialCharacter	tmpljavaScriptSpecial
-  HiLink tmpljavaScriptNumber		tmpljavaScriptValue
-  HiLink tmpljavaScriptConditional		Conditional
-  HiLink tmpljavaScriptRepeat		Repeat
-  HiLink tmpljavaScriptBranch		Conditional
-  HiLink tmpljavaScriptOperator		Operator
-  HiLink tmpljavaScriptType			Type
-  HiLink tmpljavaScriptStatement		Statement
-  HiLink tmpljavaScriptFunction		Function
-  HiLink tmpljavaScriptBraces		Function
-  HiLink tmpljavaScriptError		Error
-  HiLink tmpljavaScrParenError		tmpljavaScriptError
-  HiLink tmpljavaScriptNull			Keyword
-  HiLink tmpljavaScriptBoolean		Boolean
-  HiLink tmpljavaScriptRegexpString		String
+" Only when an item doesn't have highlighting yet
+hi def link tmpljavaScriptComment		Comment
+hi def link tmpljavaScriptLineComment		Comment
+hi def link tmpljavaScriptCommentTodo		Todo
+hi def link tmpljavaScriptSpecial		Special
+hi def link tmpljavaScriptStringS		String
+hi def link tmpljavaScriptStringD		String
+hi def link tmpljavaScriptCharacter		Character
+hi def link tmpljavaScriptSpecialCharacter	tmpljavaScriptSpecial
+hi def link tmpljavaScriptNumber		tmpljavaScriptValue
+hi def link tmpljavaScriptConditional		Conditional
+hi def link tmpljavaScriptRepeat		Repeat
+hi def link tmpljavaScriptBranch		Conditional
+hi def link tmpljavaScriptOperator		Operator
+hi def link tmpljavaScriptType			Type
+hi def link tmpljavaScriptStatement		Statement
+hi def link tmpljavaScriptFunction		Function
+hi def link tmpljavaScriptBraces		Function
+hi def link tmpljavaScriptError		Error
+hi def link tmpljavaScrParenError		tmpljavaScriptError
+hi def link tmpljavaScriptNull			Keyword
+hi def link tmpljavaScriptBoolean		Boolean
+hi def link tmpljavaScriptRegexpString		String
 
-  HiLink tmpljavaScriptIdentifier		Identifier
-  HiLink tmpljavaScriptLabel		Label
-  HiLink tmpljavaScriptException		Exception
-  HiLink tmpljavaScriptMessage		Keyword
-  HiLink tmpljavaScriptGlobal		Keyword
-  HiLink tmpljavaScriptMember		Keyword
-  HiLink tmpljavaScriptDeprecated		Exception 
-  HiLink tmpljavaScriptReserved		Keyword
-  HiLink tmpljavaScriptDebug		Debug
-  HiLink tmpljavaScriptConstant		Label
+hi def link tmpljavaScriptIdentifier		Identifier
+hi def link tmpljavaScriptLabel		Label
+hi def link tmpljavaScriptException		Exception
+hi def link tmpljavaScriptMessage		Keyword
+hi def link tmpljavaScriptGlobal		Keyword
+hi def link tmpljavaScriptMember		Keyword
+hi def link tmpljavaScriptDeprecated		Exception 
+hi def link tmpljavaScriptReserved		Keyword
+hi def link tmpljavaScriptDebug		Debug
+hi def link tmpljavaScriptConstant		Label
 
-  delcommand HiLink
-endif
 
 let b:current_syntax = "tmpljavascript"
 if main_syntax == 'tmpljavascript'
