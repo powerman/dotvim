@@ -252,6 +252,7 @@ let g:CommandTMaxFiles = 30000
 let g:CommandTMaxHeight = 20
 let g:CommandTMinHeight = 20
 let g:CommandTRefreshMap = '<C-r>'
+let g:CommandTMatchWindowReverse = 0
 
 """ Вкл/Выкл вставку as-is (paste mode):                        <F4> 
 " в INSERT: <F4> переключает paste/nopaste
