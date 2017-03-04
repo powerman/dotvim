@@ -447,8 +447,8 @@ autocmd FileType limbo,c,cpp,go		setlocal colorcolumn=81,82,83,84,85
 autocmd FileType mail,asciidoc		setlocal colorcolumn=81,82,83,84,85
 
 """ Save & restore folding                                      
-autocmd BufReadPost,FileReadPost *	if expand('<afile>') != 'quickfix' && !&readonly && !&diff && &ft != 'diff' | loadview | endif
-autocmd BufWritePre,FileWritePre *	if expand('<afile>') != 'quickfix' && !&readonly && !&diff && &ft != 'diff' | mkview   | endif
+autocmd BufReadPost,FileReadPost *	if expand('<afile>') != 'quickfix' && !&readonly && !&diff && &ft != 'diff' && &ft != 'mail' | loadview | endif
+autocmd BufWritePre,FileWritePre *	if expand('<afile>') != 'quickfix' && !&readonly && !&diff && &ft != 'diff' && &ft != 'mail' | mkview   | endif
 
 """ Enter Insert mode                                           <CR> 
 autocmd BufWinEnter * if expand('<afile>') != 'quickfix' && !&readonly && !&diff && &ft != 'diff' && &ft != 'qf' && &ft != 'tagbar' | exe 'nnoremap <buffer> <CR> A<CR>' | elseif &ft != 'tagbar' | exe 'silent! nunmap <buffer> <CR>' | endif
@@ -617,13 +617,15 @@ autocmd BufWritePost *			if b:was_modified && s:proj=="Narada" && (&ft == "perl"
 autocmd BufWritePost *.dot		if b:was_modified && filereadable("index.txt") | call system("touch index.txt") | endif
 
 """ Почта                                                       
+" добавить в начало письма приветствие
 " удалить подписи в конце письма, в т.ч. процитированные
-" удалить лишние пустые строки перед подписью
+" удалить лишние пустые строки (включая процитированные) перед подписью
 " установить курсор перед подписью
 " перейти в режим вставки
 autocmd FileType mail
-	\ %s/\(\(>\s\?\)\+\s*\n\)\+\(\(>\s\?\)\+\)-- \?\r\?\n\(\3.*\n\)\+//e |
-	\ %s/^\n\+\n-- \n/-- /e |
+	\ if match(getline(1), "^On [A-Z]\\|^$") == 0 | execute "0r~/.greeting" | endif |
+	\ %s/^\(\(>\s\?\)\+\s*\n\)*\(\(>\s\?\)\+\)-- \?\r\?\n\(\3.*\n\)\+//e |
+	\ %s/^\(\(>\s\?\)\+\s*\n\)*\n\+-- \n/-- /e |
 	\ call search("^\\n\\n-- \\n") |
 	\ if !empty(getline(line('.')-1)) | execute "normal o" | endif |
 	\ startinsert
