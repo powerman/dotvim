@@ -25,6 +25,9 @@ hi Todo						    ctermbg=3	    cterm=NONE
 """ vim
 hi vimBracket				ctermfg=2   ctermbg=NONE    cterm=bold
 hi qfError				ctermfg=9   ctermbg=NONE    cterm=NONE
+""" mail
+hi mailQuoted1				ctermfg=6   ctermbg=0	    cterm=NONE
+hi mailQuoted2				ctermfg=2   ctermbg=0	    cterm=NONE
 """ perl
 hi perlMethod				ctermfg=7   ctermbg=NONE    cterm=NONE
 hi perlType				ctermfg=2   ctermbg=NONE    cterm=NONE
