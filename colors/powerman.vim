@@ -8,7 +8,7 @@ let colors_name = "powerman"
 """ Базовые
 hi Normal				ctermfg=7   ctermbg=4	    cterm=NONE
 hi Comment				ctermfg=6   ctermbg=0	    cterm=NONE
-hi PreProc				ctermfg=5   ctermbg=0       cterm=bold
+hi PreProc				ctermfg=5   ctermbg=0	    cterm=bold
 hi Constant				ctermfg=3   ctermbg=NONE    cterm=bold
 hi Special				ctermfg=5   ctermbg=NONE    cterm=bold
 hi Identifier				ctermfg=2   ctermbg=NONE    cterm=bold
@@ -30,7 +30,7 @@ hi perlMethod				ctermfg=7   ctermbg=NONE    cterm=NONE
 hi perlType				ctermfg=2   ctermbg=NONE    cterm=NONE
 hi perlNOT				ctermfg=6   ctermbg=NONE    cterm=bold
 """ mojo
-hi PerlInside				            ctermbg=0                
+hi PerlInside					    ctermbg=0
 hi MojoStart				ctermfg=12  ctermbg=0
 hi MojoSingleStart			ctermfg=12  ctermbg=0
 hi MojoEnd				ctermfg=12  ctermbg=0
@@ -66,18 +66,18 @@ hi htmlperlElseIfError			ctermfg=2   ctermbg=1	    cterm=NONE
 hi htmlperlSubPrototypeError		ctermfg=7   ctermbg=1	    cterm=bold
 hi htmlperlSubError			ctermfg=7   ctermbg=1	    cterm=bold
 """ javascript внутри template
-hi JSTmplBlock                                      ctermbg=17
-hi tmpljavaScriptParens                             ctermbg=17
-hi tmpljavaScriptValue                              ctermbg=17
-hi tmpljavaScriptConditional            ctermfg=7   ctermbg=17      cterm=bold
-hi tmpljavaScriptOperator               ctermfg=7   ctermbg=17      cterm=bold
-hi tmpljavaScriptBraces                 ctermfg=2   ctermbg=17      cterm=bold
-hi tmpljavaScriptIdentifier             ctermfg=2   ctermbg=17      cterm=bold
-hi tmpljavaScriptFunction               ctermfg=2   ctermbg=17      cterm=bold
-hi tmpljavaScriptStringS                ctermfg=3   ctermbg=17      cterm=bold
-hi tmpljavaScriptStringD                ctermfg=3   ctermbg=17      cterm=bold
-hi tmpljavaScriptRegexpString           ctermfg=3   ctermbg=17      cterm=bold
-hi tmpljavaScriptType                   ctermfg=81  ctermbg=17      
+hi JSTmplBlock					    ctermbg=17
+hi tmpljavaScriptParens				    ctermbg=17
+hi tmpljavaScriptValue				    ctermbg=17
+hi tmpljavaScriptConditional		ctermfg=7   ctermbg=17	    cterm=bold
+hi tmpljavaScriptOperator		ctermfg=7   ctermbg=17	    cterm=bold
+hi tmpljavaScriptBraces			ctermfg=2   ctermbg=17	    cterm=bold
+hi tmpljavaScriptIdentifier		ctermfg=2   ctermbg=17	    cterm=bold
+hi tmpljavaScriptFunction		ctermfg=2   ctermbg=17	    cterm=bold
+hi tmpljavaScriptStringS		ctermfg=3   ctermbg=17	    cterm=bold
+hi tmpljavaScriptStringD		ctermfg=3   ctermbg=17	    cterm=bold
+hi tmpljavaScriptRegexpString		ctermfg=3   ctermbg=17	    cterm=bold
+hi tmpljavaScriptType			ctermfg=81  ctermbg=17
 
 if &t_Co > 8
     """ Базовые
@@ -90,39 +90,39 @@ if &t_Co > 8
     hi TabLine			ctermfg=15	ctermbg=234	cterm=NONE
     hi TabLineFill		ctermfg=15	ctermbg=234	cterm=NONE
     hi TabLineSel		ctermfg=15	ctermbg=239	cterm=NONE
-    hi Pmenu                    ctermfg=245     ctermbg=19      cterm=NONE
-    hi PmenuSel                 ctermfg=245     ctermbg=17      cterm=NONE
+    hi Pmenu			ctermfg=245	ctermbg=19	cterm=NONE
+    hi PmenuSel			ctermfg=245	ctermbg=17	cterm=NONE
 "    hi StatusLine		ctermfg=15	ctermbg=234	cterm=NONE
 "    hi StatusLineNC		ctermfg=242	ctermbg=234	cterm=NONE
     """ asciidoc
     hi asciidocXref		ctermfg=115	ctermbg=NONE	cterm=underline
     hi asciidocLink		ctermfg=115	ctermbg=NONE	cterm=underline
-    hi link asciidocSubscriptDelimiter                  SpecialChar
-    hi link asciidocSuperscriptDelimiter                SpecialChar
-    hi link asciidocMonospacedDelimiter                 SpecialChar
-    hi link asciidocMonospaced2Delimiter                SpecialChar
-    hi link asciidocUnconstrainedMonospacedDelimiter    SpecialChar
-    hi link asciidocEmphasizedDelimiter                 SpecialChar
-    hi link asciidocEmphasized2Delimiter                SpecialChar
-    hi link asciidocUnconstrainedEmphasizedDelimiter    SpecialChar
-    hi link asciidocBoldDelimiter                       SpecialChar
-    hi link asciidocUnconstrainedBoldDelimiter          SpecialChar
-    hi link asciidocUnquotedDelimiter                   SpecialChar
-    hi link asciidocUnconstrainedUnquotedDelimiter      SpecialChar
-    hi link asciidocConcealUnReplacement                SpecialChar
+    hi link asciidocSubscriptDelimiter			SpecialChar
+    hi link asciidocSuperscriptDelimiter		SpecialChar
+    hi link asciidocMonospacedDelimiter			SpecialChar
+    hi link asciidocMonospaced2Delimiter		SpecialChar
+    hi link asciidocUnconstrainedMonospacedDelimiter	SpecialChar
+    hi link asciidocEmphasizedDelimiter			SpecialChar
+    hi link asciidocEmphasized2Delimiter		SpecialChar
+    hi link asciidocUnconstrainedEmphasizedDelimiter	SpecialChar
+    hi link asciidocBoldDelimiter			SpecialChar
+    hi link asciidocUnconstrainedBoldDelimiter		SpecialChar
+    hi link asciidocUnquotedDelimiter			SpecialChar
+    hi link asciidocUnconstrainedUnquotedDelimiter	SpecialChar
+    hi link asciidocConcealUnReplacement		SpecialChar
 endif
 
 """ spell
 if &t_Co > 8
-    hi SpellBad			ctermfg=NONE    ctermbg=NONE    cterm=underline
-    hi SpellCap			ctermfg=NONE    ctermbg=NONE    cterm=NONE
-    hi SpellLocal		ctermfg=NONE    ctermbg=NONE    cterm=underline
-    hi SpellRare		ctermfg=NONE    ctermbg=NONE    cterm=NONE
+    hi SpellBad			ctermfg=NONE	ctermbg=NONE	cterm=underline
+    hi SpellCap			ctermfg=NONE	ctermbg=NONE	cterm=NONE
+    hi SpellLocal		ctermfg=NONE	ctermbg=NONE	cterm=underline
+    hi SpellRare		ctermfg=NONE	ctermbg=NONE	cterm=NONE
 else
-    hi SpellCap			ctermfg=NONE	ctermbg=NONE    cterm=NONE
-    hi SpellRare		ctermfg=NONE	ctermbg=NONE    cterm=NONE
-    hi SpellBad			ctermfg=3	ctermbg=NONE    cterm=NONE
-    hi SpellLocal		ctermfg=3	ctermbg=NONE    cterm=NONE
+    hi SpellCap			ctermfg=NONE	ctermbg=NONE	cterm=NONE
+    hi SpellRare		ctermfg=NONE	ctermbg=NONE	cterm=NONE
+    hi SpellBad			ctermfg=3	ctermbg=NONE	cterm=NONE
+    hi SpellLocal		ctermfg=3	ctermbg=NONE	cterm=NONE
     autocmd BufEnter *	if &ft == "perl" |  hi SpellBad ctermbg=0	| endif
     autocmd BufLeave *			    hi SpellBad ctermbg=NONE
     autocmd BufEnter *	if &ft == "perl" |  hi SpellLocal ctermbg=0	| endif
