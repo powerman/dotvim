@@ -1,7 +1,7 @@
 " Vim script for testing colors
-" Maintainer:   Bram Moolenaar <Bram@vim.org>
-" Contributors: Rafael Garcia-Suarez, Charles Campbell
-" Last Change:  2006 Feb 20
+" Maintainer:	Bram Moolenaar <Bram@vim.org>
+" Contributors:	Rafael Garcia-Suarez, Charles Campbell
+" Last Change:	2008 Jun 04
 
 " edit this file, then do ":source %", and check if the colors match
 
@@ -539,20 +539,30 @@
 " Open this file in a window if it isn't edited yet.
 " Use the current window if it's empty.
 if expand('%:p') != expand('<sfile>:p')
-  if &mod || line('$') != 1 || getline(1) != ''
-    exe "new " . expand('<sfile>')
+  let s:fname = expand('<sfile>')
+  if exists('*fnameescape')
+    let s:fname = fnameescape(s:fname)
   else
-    exe "edit " . expand('<sfile>')
+    let s:fname = escape(s:fname, ' \|')
   endif
+  if &mod || line('$') != 1 || getline(1) != ''
+    exe "new " . s:fname
+  else
+    exe "edit " . s:fname
+  endif
+  unlet s:fname
 endif
 
 syn clear
 8
-while search("_on_", "W") < 540
-  let col1 = substitute(expand("<cword>"), '\(\S\+\)_on_\S\+', '\1', "")
-  let col2 = substitute(expand("<cword>"), '\S\+_on_\(\S\+\)', '\1', "")
+while search("_on_", "W") <= 537
+  let col1 = substitute(expand("<cword>"), '\(\w\+\)_on_\w\+', '\1', "")
+  let col2 = substitute(expand("<cword>"), '\w\+_on_\(\w\+\)', '\1', "")
+  try
   exec 'hi col_'.col1.'_'.col2.' ctermfg='.col1.' guifg='.col1.' ctermbg='.col2.' guibg='.col2
+  catch
+  endtry
   exec 'syn keyword col_'.col1.'_'.col2.' '.col1.'_on_'.col2
 endwhile
-8,539g/^"......\S/call search('^"......','e')|let w=expand("<cword>")|let c=substitute(w,'color_', '', '')|exec 'hi col_'.w.' ctermfg='.c| exec 'syn keyword col_'.w." ".w
+8,537g/^"......\S/call search('^"......','e') | let w=expand("<cword>") | let c=substitute(w,'color_', '', '') | try | exec 'hi col_'.w.' ctermfg='.c | catch | endtry | exec 'syn keyword col_'.w." ".w
 nohlsearch
