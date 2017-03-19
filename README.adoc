@@ -5,20 +5,24 @@ features (in Russian).
 
 == Install
 
-. Remove `~/.vimrc` and `~/.vim/`.
-. `git clone --recursive https://github.com/powerman/dotvim ~/.vim`
-. `cd ~/.vim/bundle/command-t/ruby/command-t`
-. `make clean`
-. `ruby extconf.rb`
-. `make`
+Remove `~/.vimrc` and `~/.vim/`, then:
+
+```
+git clone --recursive https://github.com/powerman/dotvim ~/.vim
+cd ~/.vim/bundle/command-t/ruby/command-t
+make clean
+ruby extconf.rb
+make
+```
 
 == Update
 
-. `cd ~/.vim`
-. `git pull`
-. `git submodule update`
-. `cd ~/.vim/bundle/command-t/ruby/command-t`
-. `make clean`
-. `ruby extconf.rb`
-. `make`
-
+```
+cd ~/.vim
+git pull
+git submodule update
+cd ~/.vim/bundle/command-t/ruby/command-t
+make clean
+ruby extconf.rb
+make
+```
