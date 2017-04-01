@@ -586,7 +586,8 @@ autocmd FileType limbo			setlocal path+=/usr/inferno/module,/usr/inferno/appl/cm
 autocmd FileType perl			execute "setlocal path=".s:proj_path.",".&l:path
 " - do not copy @INC dirs to path to avoid slowdown while searching hundreds perl modules
 let perlpath = ""
-
+" complement binfmt gorun support - check only this source file when in /bin/
+autocmd BufNewFile,BufRead */bin/*.go   let b:syntastic_go_go_build_args=g:syntastic_go_go_build_args.' '.expand('%:p')
 
 """ Улучшение определения типа файлов                           
 autocmd BufRead */.fluxbox/keys		        set ft=fluxkeys
