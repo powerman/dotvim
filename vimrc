@@ -159,6 +159,7 @@ set wildignore+=.hg,.git,.svn
 set wildignore+=*.dis,*.sbl
 set wildignore+=*.o,*.obj,*.manifest
 set wildignore+=*.jpg,*.gif,*.png,*.jpeg,*.ico
+set wildignore+=*.zwc
 set wildignore+=*/patch/prev/**
 set wildignore+=*/_Inline/**
 set wildignore+=_live/**
@@ -385,6 +386,10 @@ let g:syntastic_perl_checkers = ['perl']
 let g:syntastic_enable_perl_checker = 1
 " - disable creating binaries in current dir
 let g:syntastic_go_go_build_args = '-o /dev/null'
+" - filtering useless messages
+let g:syntastic_zsh_zsh_quiet_messages = {
+	\ "regex":      ['no such user or named directory'],
+        \ }
 " - переход к следующей/предыдущей ошибке: <F12>/<F11>
 imap <silent> <F11>	<C-O>:execute "try<Bar>lprev<Bar>catch<Bar>lclose<Bar>endtry"<CR>
 imap <silent> <F12>	<C-O>:execute "try<Bar>lnext<Bar>catch<Bar>lclose<Bar>endtry"<CR>
@@ -410,11 +415,11 @@ autocmd BufWinEnter *			syntax sync fromstart
 """ Стиль форматирования разных типов файлов                    
 " - отключить форматирование кода (оставить форматирование комментариев)
 autocmd FileType perl			setlocal formatoptions-=t
-autocmd FileType vim,sh,javascript	setlocal formatoptions-=t
+autocmd FileType vim,sh,zsh,javascript	setlocal formatoptions-=t
 autocmd FileType limbo,c,cpp		setlocal formatoptions-=t
 autocmd FileType html			setlocal formatoptions-=t
 " - большой отступ стимулирует уменьшать сложность/вложенность кода
-autocmd FileType vim,sh,javascript	setlocal softtabstop=0 shiftwidth=8
+autocmd FileType vim,sh,zsh,javascript	setlocal softtabstop=0 shiftwidth=8
 autocmd FileType limbo,c,cpp		setlocal softtabstop=0 shiftwidth=8
 autocmd FileType go                     setlocal softtabstop=0 shiftwidth=0
 autocmd FileType go                     runtime indent/go.vim
@@ -451,7 +456,7 @@ autocmd FileType gitcommit              setlocal textwidth=72
 
 """ 80-column margin                                            
 autocmd FileType perl			setlocal colorcolumn=81,82,83,84,85
-autocmd FileType sh,javascript		setlocal colorcolumn=81,82,83,84,85
+autocmd FileType sh,zsh,javascript	setlocal colorcolumn=81,82,83,84,85
 autocmd FileType limbo,c,cpp,go		setlocal colorcolumn=81,82,83,84,85
 autocmd FileType mail,asciidoc		setlocal colorcolumn=81,82,83,84,85
 
@@ -607,6 +612,7 @@ autocmd BufNewFile,BufRead *.md                 set ft=markdown
 autocmd BufNewFile,BufRead migrate,*.migrate    set ft=migrate
 autocmd BufNewFile,BufRead *.t                  set ft=perl
 autocmd BufNewFile,BufRead *.html.tmpl          set ft=html.tmpl
+autocmd BufNewFile,BufRead *zsh*functions/*     set ft=zsh
 
 """ Особая проверка синтаксиса для некоторых файлов             
 " Использование вспомогательных скриптов при проверке синтаксиса некоторых
