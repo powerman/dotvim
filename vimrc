@@ -131,7 +131,7 @@ set copyindent				" использовать те же символы для о�
 set preserveindent			"   1) autoindent; 2) изменении глубины отступа
 "   ... коррекция smartindent: сохранять отступ для комментариев
 inoremap #	X#
-set formatoptions+=ro			" продолжать комментарий на следующей строке
+set formatoptions+=roj			" продолжать комментарий на следующей строке
 set formatoptions+=n			" авто-перенос длинных строк внутри списков
 " - вывод текста
 set textwidth=74			" граница для переформатирования и авто-переноса
@@ -183,6 +183,10 @@ colorscheme powerman
 let perl_include_pod = 1		" подсвечивать POD внутри скриптов
 let perl_string_as_statement = 1	" кавычки подсвечивать не как строку, а как if, while, ...
 let htmlperl_string_as_statement = 1	" perl внутри html (без POD, но с кавычками)
+
+" Avoid conflict with vim-textobj-comment (which defines 'ic' motion).
+" This should be set before loading TComment plugin.
+let g:tcommentTextObjectInlineComment = ''
 
 """ Подключение плагинов из .vim/bundle/                        
 " Plugin: pathogen
@@ -335,6 +339,11 @@ vnoremap #	:TComment<CR>`><Down>
 inoremap <C-c>	<C-O>Y<C-O>:TComment!<CR><C-O>p
 nnoremap <C-c>	VYgv:TComment!<CR>`>V"_Yp<Insert>
 vnoremap <C-c>	Ygv:TComment!<CR>`>p<Insert>
+
+""" Работа с комментариями:                                     ic, ac, aC 
+" Plugin: vim-textobj-comment
+" Сокращённая комбинация в стиле Q} для переформатирования комментария.
+nmap QC Qac
 
 """ Дописывание текущего слова:                                 <Tab>, <S-Tab> 
 " Plugin: supertab
