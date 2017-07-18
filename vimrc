@@ -345,6 +345,8 @@ vnoremap <C-c>	Ygv:TComment!<CR>`>p<Insert>
 " Plugin: vim-textobj-comment
 " Сокращённая комбинация в стиле Q} для переформатирования комментария.
 nmap QC Qac
+" Ручное определение конца текущего параграфа в текущем комментарии.
+autocmd FileType go nnoremap <buffer> Q} gq/\m\%#.*\(^\s*\/\/.*\)\@<=\(\n\s*\/\/.*\S.*\)*\(\n\s*\)*\ze/e+1<CR>
 
 """ Дописывание текущего слова:                                 <Tab>, <S-Tab> 
 " Plugin: supertab
@@ -602,6 +604,8 @@ autocmd FileType perl			execute "setlocal path=".s:proj_path.",".&l:path
 let perlpath = ""
 " complement binfmt gorun support - check only this source file when in /bin/
 autocmd BufNewFile,BufRead */bin/*.go   let b:syntastic_go_go_build_args=g:syntastic_go_go_build_args.' '.expand('%:p')
+" packages which depends on static libgit2/git2go
+autocmd BufNewFile,BufRead */vcprompt-fast/*.go let b:syntastic_go_go_build_args=g:syntastic_go_go_build_args.' -tags static -buildmode pie'
 
 """ Улучшение определения типа файлов                           
 autocmd BufRead */.fluxbox/keys		        set ft=fluxkeys
