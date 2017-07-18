@@ -82,3 +82,6 @@
 [submodule "bundle/vim-textobj-comment"]
 	path = bundle/vim-textobj-comment
 	url = https://github.com/glts/vim-textobj-comment
+[submodule "bundle/raml"]
+	path = bundle/raml
+	url = https://github.com/IN3D/vim-raml
