@@ -509,6 +509,10 @@ autocmd FileType go nmap <buffer> <nowait> <Leader>s     <Plug>(go-implements)
 autocmd FileType go nmap <buffer> <nowait> <Leader>i     <Plug>(go-info)
 autocmd FileType go nmap <buffer> <nowait> <Leader>e     <Plug>(go-rename)
 
+""" Поддержка Graphviz                                          <Leader>…, :Graphviz…
+" Plugin: WM Graphviz
+let g:WMGraphviz_output="png"
+
 """ Улучшенная строка статуса                                   
 " Plugin: vim-airline
 " if !exists('g:airline_symbols')
@@ -635,6 +639,7 @@ autocmd BufRead */bootswatch.less       let g:syntastic_less_lessc_args="--no-co
 autocmd BufWritePre  *			let b:was_modified = &modified
 autocmd BufWritePost *			if b:was_modified && s:proj=="Narada" && (&ft == "perl" || &ft == "html" || &ft == "html.epl" || &ft == "html.tmpl") | call system("fastcgi_restart") | endif
 autocmd BufWritePost *.dot		if b:was_modified && filereadable("index.txt") | call system("touch index.txt") | endif
+autocmd BufWritePost *.dot		if b:was_modified && !filereadable("index.txt") | silent execute "GraphvizCompile" | endif
 
 """ Почта                                                       
 " добавить в начало письма приветствие
@@ -679,3 +684,4 @@ function! s:SynStack()
 endfunc
 
 """ Unsorted
+
