@@ -247,7 +247,7 @@ vnoremap <F2>	<Esc>:w<CR>gv
 " nnoremap <F3>	:tabfind<Space>
 " vnoremap <F3>	<Esc>:tabfind<Space>
 " Plugin: Command-T
-inoremap <F3>	<C-O>:CommandT<CR>
+inoremap <F3>	<Esc>:CommandT<CR>
 nnoremap <F3>	:CommandT<CR>
 vnoremap <F3>	<Esc>:CommandT<CR>
 let g:CommandTCancelMap = '<F3>'
