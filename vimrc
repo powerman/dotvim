@@ -353,15 +353,21 @@ autocmd FileType go nnoremap <buffer> Q} gq/\m\%#.*\(^\s*\/\/.*\)\@<=\(\n\s*\/\/
 " Plugin: html5
 " Plugin: vim-go
 let g:SuperTabDefaultCompletionType = "context"
-autocmd FileType perl               let b:SuperTabNoCompleteAfter = ['^', '\k\@<!']
-autocmd FileType html,gohtmltmpl    let b:SuperTabNoCompleteAfter = ['^']
+autocmd FileType *
+    \ let b:SuperTabNoCompleteAfter = ['^','\s'] |
+    \ call SuperTabSetDefaultCompletionType("<c-p>") |
+    \ if &ft == 'gohtmltmpl' || &ft == 'html' |
+    \   let b:SuperTabNoCompleteAfter = ['^'] |
+    \   call SuperTabSetDefaultCompletionType("<c-x><c-u>") |
+    \ elseif &ft == 'perl' |
+    \   let b:SuperTabNoCompleteAfter = ['^', '\k\@<!'] |
+    \ endif
 autocmd FileType gohtmltmpl         setlocal omnifunc=htmlcomplete#CompleteTags
 autocmd FileType gohtmltmpl         let b:html_omni_flavor="html5"
 autocmd FileType *
     \ if &omnifunc != '' |
     \   call SuperTabChain(&omnifunc, "<c-p>") |
     \ endif
-autocmd FileType html,gohtmltmpl    call SuperTabSetDefaultCompletionType("<c-x><c-u>")
 
 """ Сниппеты:                                                   <Tab> 
 " Plugin: snipMate
