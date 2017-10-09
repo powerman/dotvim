@@ -250,14 +250,15 @@ vnoremap <F2>	<Esc>:w<CR>gv
 inoremap <F3>	<Esc>:CommandT<CR>
 nnoremap <F3>	:CommandT<CR>
 vnoremap <F3>	<Esc>:CommandT<CR>
-let g:CommandTCancelMap = '<F3>'
 let g:CommandTAcceptSelectionMap = '<C-e>'
 let g:CommandTAcceptSelectionTabMap = '<CR>'
+let g:CommandTCancelMap = '<F3>'
+let g:CommandTMatchWindowReverse = 0
 let g:CommandTMaxFiles = 30000
 let g:CommandTMaxHeight = 20
 let g:CommandTMinHeight = 20
 let g:CommandTRefreshMap = '<C-r>'
-let g:CommandTMatchWindowReverse = 0
+let g:CommandTScanDotDirectories = 1
 
 """ Вкл/Выкл вставку as-is (paste mode):                        <F4> 
 " в INSERT: <F4> переключает paste/nopaste
