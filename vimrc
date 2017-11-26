@@ -332,6 +332,7 @@ set commentstring=#\ %s
 autocmd FileType fluxbox		setlocal commentstring=#\ %s
 autocmd FileType fluxkeys		setlocal commentstring=!%s
 autocmd FileType less			setlocal commentstring=//\ %s
+autocmd FileType dot			setlocal commentstring=//\ %s
 " - закомментировать/раскомментировать: #
 nnoremap #	:TComment<CR><Down>
 vnoremap #	:TComment<CR>`><Down>
