@@ -33,6 +33,9 @@ hi link zshOperator Statement
 hi link zshFunction Function
 hi link zshVariable Identifier
 hi link zshVariableDef Identifier
+""" markdown
+hi link markdownCode Identifier
+hi link markdownCodeBlock Identifier
 """ perl
 hi perlMethod				ctermfg=7   ctermbg=NONE    cterm=NONE
 hi perlType				ctermfg=2   ctermbg=NONE    cterm=NONE
@@ -102,7 +105,11 @@ if &t_Co > 8
     hi PmenuSel			ctermfg=245	ctermbg=17	cterm=NONE
 "    hi StatusLine		ctermfg=15	ctermbg=234	cterm=NONE
 "    hi StatusLineNC		ctermfg=242	ctermbg=234	cterm=NONE
+    """ markdown
+    hi markdownItalic           ctermfg=81      ctermbg=NONE    cterm=italic
     """ asciidoc
+    hi asciidocQuotedEmphasized ctermfg=81      ctermbg=NONE    cterm=italic
+    hi asciidocQuotedEmphasized2 ctermfg=81     ctermbg=NONE    cterm=italic
     hi asciidocXref		ctermfg=115	ctermbg=NONE	cterm=underline
     hi asciidocLink		ctermfg=115	ctermbg=NONE	cterm=underline
     hi link asciidocSubscriptDelimiter			SpecialChar
