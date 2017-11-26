@@ -5,7 +5,7 @@ hi def link markdownToDo Todo
 " Fix list continuation lines indented with 4+ spaces.
 " TODO: Add support for code blocks inside lists.
 syn cluster markdownBlock contains=markdownH1,markdownH2,markdownH3,markdownH4,markdownH5,markdownH6,markdownBlockquote,markdownList,markdownCodeBlock,markdownRule
-syn region markdownList start="\%(^\%(>\s\)*\)\@<=\%(\t\| \{0,4\}\)\%([-*+]\|\d\+\.\)\%(\s\+\S\)\@=" end=/\%(^\%(>\s\)*\s*$\)\@=/ contains=markdownListMarker,markdownOrderedListMarker,@markdownInline,markdownBlockquote
+syn region markdownList start="\%(^\%(>\s\)*\)\@<=\%(\t\| \{0,4\}\)\%([-*+]\|\d\+\.\)\%(\s\+\S\)\@=" end=/\%(^\%(>\s\)*\s*$\)\@=/ contains=markdownListMarker,markdownOrderedListMarker,@markdownInline,markdownBlockquote,markdownToDo
 syn clear markdownListMarker
 syn match markdownListMarker "\%(^\%(>\s\)*\)\@<=\s*[-*+]\%(\s\+\S\)\@=" contained
 
