@@ -3,7 +3,7 @@
 " Maintainer:    vim-htmlperl <vim-htmlperl@googlegroups.com>
 " Homepage:      http://github.com/vim-htmlperl/vim-htmlperl/tree/master
 " Bugs/requests: http://github.com/vim-htmlperl/vim-htmlperl/issues
-" Last Change:   2013-07-23
+" Last Change:   2017-09-12
 " Contributors:  Andy Lester <andy@petdance.com>
 "                Hinrik Örn Sigurðsson <hinrik.sig@gmail.com>
 "                Lukas Mai <l.mai.web.de>
@@ -28,8 +28,9 @@
 " unlet htmlperl_fold
 " unlet htmlperl_fold_blocks
 " unlet htmlperl_nofold_packages
-" let htmlperl_nofold_subs = 1
+" unlet htmlperl_nofold_subs
 " unlet htmlperl_fold_anonymous_subs
+" unlet htmlperl_no_subprototype_error
 
 if exists("b:current_syntax")
   finish
@@ -37,11 +38,6 @@ endif
 
 let s:cpo_save = &cpo
 set cpo&vim
-
-if exists('&regexpengine')
-  let s:regexpengine=&regexpengine
-  set regexpengine=1
-endif
 
 " POD starts with ^=<word> and ends with ^=cut
 
@@ -83,7 +79,7 @@ syn match htmlperlControl			"\<\%(BEGIN\|CHECK\|INIT\|END\|UNITCHECK\)\>\_s*" ne
 
 syn match htmlperlStatementStorage		"\<\%(my\|our\|local\|state\)\>"
 syn match htmlperlStatementControl		"\<\%(return\|last\|next\|redo\|goto\|break\)\>"
-syn match htmlperlStatementScalar		"\<\%(chom\=p\|chr\|crypt\|r\=index\|lc\%(first\)\=\|length\|ord\|pack\|sprintf\|substr\|uc\%(first\)\=\)\>"
+syn match htmlperlStatementScalar		"\<\%(chom\=p\|chr\|crypt\|r\=index\|lc\%(first\)\=\|length\|ord\|pack\|sprintf\|substr\|fc\|uc\%(first\)\=\)\>"
 syn match htmlperlStatementRegexp		"\<\%(pos\|quotemeta\|split\|study\)\>"
 syn match htmlperlStatementNumeric		"\<\%(abs\|atan2\|cos\|exp\|hex\|int\|log\|oct\|rand\|sin\|sqrt\|srand\)\>"
 syn match htmlperlStatementList		"\<\%(splice\|unshift\|shift\|push\|pop\|join\|reverse\|grep\|map\|sort\|unpack\)\>"
@@ -94,9 +90,9 @@ syn match htmlperlStatementFiledesc		"\<\%(fcntl\|flock\|ioctl\|open\%(dir\)\=\|
 syn match htmlperlStatementVector		"\<vec\>"
 syn match htmlperlStatementFiles		"\<\%(ch\%(dir\|mod\|own\|root\)\|glob\|link\|mkdir\|readlink\|rename\|rmdir\|symlink\|umask\|unlink\|utime\)\>"
 syn match htmlperlStatementFiles		"-[rwxoRWXOezsfdlpSbctugkTBMAC]\>"
-syn match htmlperlStatementFlow		"\<\%(caller\|die\|dump\|eval\|exit\|wantarray\)\>"
-syn match htmlperlStatementInclude		"\<\%(require\|import\)\>"
-syn match htmlperlStatementInclude		"\<\%(use\|no\)\s\+\%(\%(attributes\|attrs\|autouse\|parent\|base\|big\%(int\|num\|rat\)\|blib\|bytes\|charnames\|constant\|diagnostics\|encoding\%(::warnings\)\=\|feature\|fields\|filetest\|if\|integer\|less\|lib\|locale\|mro\|open\|ops\|overload\|re\|sigtrap\|sort\|strict\|subs\|threads\%(::shared\)\=\|utf8\|vars\|version\|vmsish\|warnings\%(::register\)\=\)\>\)\="
+syn match htmlperlStatementFlow		"\<\%(caller\|die\|dump\|eval\|exit\|wantarray\|evalbytes\)\>"
+syn match htmlperlStatementInclude		"\<\%(require\|import\|unimport\)\>"
+syn match htmlperlStatementInclude		"\<\%(use\|no\)\s\+\%(\%(attributes\|attrs\|autodie\|autouse\|parent\|base\|big\%(int\|num\|rat\)\|blib\|bytes\|charnames\|constant\|diagnostics\|encoding\%(::warnings\)\=\|feature\|fields\|filetest\|if\|integer\|less\|lib\|locale\|mro\|open\|ops\|overload\|overloading\|re\|sigtrap\|sort\|strict\|subs\|threads\%(::shared\)\=\|utf8\|vars\|version\|vmsish\|warnings\%(::register\)\=\)\>\)\="
 syn match htmlperlStatementProc		"\<\%(alarm\|exec\|fork\|get\%(pgrp\|ppid\|priority\)\|kill\|pipe\|set\%(pgrp\|priority\)\|sleep\|system\|times\|wait\%(pid\)\=\)\>"
 syn match htmlperlStatementSocket		"\<\%(accept\|bind\|connect\|get\%(peername\|sock\%(name\|opt\)\)\|listen\|recv\|send\|setsockopt\|shutdown\|socket\%(pair\)\=\)\>"
 syn match htmlperlStatementIPC		"\<\%(msg\%(ctl\|get\|rcv\|snd\)\|sem\%(ctl\|get\|op\)\|shm\%(ctl\|get\|read\|write\)\)\>"
@@ -108,7 +104,7 @@ syn match htmlperlStatementMisc		"\<\%(warn\|format\|formline\|reset\|scalar\|pr
 
 syn keyword htmlperlTodo			TODO TODO: TBD TBD: FIXME FIXME: XXX XXX: NOTE NOTE: contained
 
-syn region htmlperlStatementIndirObjWrap   matchgroup=htmlperlStatementIndirObj start="\<\%(map\|grep\|sort\|printf\=\|say\|system\|exec\)\>\s*{" end="}" contains=@htmlperlTop,htmlperlBraces extend
+syn region htmlperlStatementIndirObjWrap   matchgroup=htmlperlStatementIndirObj start="\%(\<\%(map\|grep\|sort\|printf\=\|say\|system\|exec\)\>\s*\)\@<={" end="}" transparent extend
 
 syn match htmlperlLabel      "^\s*\h\w*\s*::\@!\%(\<v\d\+\s*:\)\@<!"
 
@@ -125,7 +121,7 @@ syn match htmlperlLabel      "^\s*\h\w*\s*::\@!\%(\<v\d\+\s*:\)\@<!"
 " Special variables first ($^A, ...) and ($|, $', ...)
 syn match  htmlperlVarPlain		 "$^[ACDEFHILMNOPRSTVWX]\="
 syn match  htmlperlVarPlain		 "$[\\\"\[\]'&`+*.,;=%~!?@#$<>(-]"
-syn match  htmlperlVarPlain		 "%+"
+syn match  htmlperlVarPlain		 "@[-+]"
 syn match  htmlperlVarPlain		 "$\%(0\|[1-9]\d*\)"
 " Same as above, but avoids confusion in $::foo (equivalent to $main::foo)
 syn match  htmlperlVarPlain		 "$::\@!"
@@ -143,41 +139,46 @@ syn match  htmlperlPackageRef	 "[$@#%*&]\%(\%(::\|'\)\=\I\i*\%(\%(::\|'\)\I\i*\)
 " just set the variable "htmlperl_no_extended_vars"...
 
 if !exists("htmlperl_no_scope_in_variables")
-  syn match  htmlperlVarPlain       "\%([@$]\|\$#\)\$*\%(\I\i*\)\=\%(\%(::\|'\)\I\i*\)*\%(::\|\i\@<=\)" contains=htmlperlPackageRef nextgroup=htmlperlVarMember,htmlperlVarSimpleMember,htmlperlMethod
-  syn match  htmlperlVarPlain2                   "%\$*\%(\I\i*\)\=\%(\%(::\|'\)\I\i*\)*\%(::\|\i\@<=\)" contains=htmlperlPackageRef
+  syn match  htmlperlVarPlain       "\%([@$]\|\$#\)\$*\%(\I\i*\)\=\%(\%(::\|'\)\I\i*\)*\%(::\|\i\@<=\)" contains=htmlperlPackageRef nextgroup=htmlperlVarMember,htmlperlVarSimpleMember,htmlperlMethod,htmlperlPostDeref
+  syn match  htmlperlVarPlain2                   "%\$*\%(\I\i*\)\=\%(\%(::\|'\)\I\i*\)*\%(::\|\i\@<=\)" contains=htmlperlPackageRef nextgroup=htmlperlVarMember,htmlperlVarSimpleMember,htmlperlMethod,htmlperlPostDeref
 
 else
-  syn match  htmlperlVarPlain       "\%([@$]\|\$#\)\$*\%(\I\i*\)\=\%(\%(::\|'\)\I\i*\)*\%(::\|\i\@<=\)" nextgroup=htmlperlVarMember,htmlperlVarSimpleMember,htmlperlMethod
-  syn match  htmlperlVarPlain2                   "%\$*\%(\I\i*\)\=\%(\%(::\|'\)\I\i*\)*\%(::\|\i\@<=\)"
+  syn match  htmlperlVarPlain       "\%([@$]\|\$#\)\$*\%(\I\i*\)\=\%(\%(::\|'\)\I\i*\)*\%(::\|\i\@<=\)" nextgroup=htmlperlVarMember,htmlperlVarSimpleMember,htmlperlMethod,htmlperlPostDeref
+  syn match  htmlperlVarPlain2                   "%\$*\%(\I\i*\)\=\%(\%(::\|'\)\I\i*\)*\%(::\|\i\@<=\)" nextgroup=htmlperlVarMember,htmlperlVarSimpleMember,htmlperlMethod,htmlperlPostDeref
 
 endif
 
+syn match  htmlperlVarPlain2	 "%[-+]"
+
 if !exists("htmlperl_no_extended_vars")
   syn cluster htmlperlExpr		contains=htmlperlStatementIndirObjWrap,htmlperlStatementScalar,htmlperlStatementRegexp,htmlperlStatementNumeric,htmlperlStatementList,htmlperlStatementHash,htmlperlStatementFiles,htmlperlStatementTime,htmlperlStatementMisc,htmlperlVarPlain,htmlperlVarPlain2,htmlperlVarNotInMatches,htmlperlVarSlash,htmlperlVarBlock,htmlperlVarBlock2,htmlperlShellCommand,htmlperlFloat,htmlperlNumber,htmlperlStringUnexpanded,htmlperlString,htmlperlQQ,htmlperlArrow,htmlperlBraces
-  syn region htmlperlArrow		matchgroup=htmlperlArrow start="->\s*(" end=")" contains=@htmlperlExpr nextgroup=htmlperlVarMember,htmlperlVarSimpleMember,htmlperlMethod contained
-  syn region htmlperlArrow		matchgroup=htmlperlArrow start="->\s*\[" end="\]" contains=@htmlperlExpr nextgroup=htmlperlVarMember,htmlperlVarSimpleMember,htmlperlMethod contained
-  syn region htmlperlArrow		matchgroup=htmlperlArrow start="->\s*{" end="}" contains=@htmlperlExpr nextgroup=htmlperlVarMember,htmlperlVarSimpleMember,htmlperlMethod contained
-  syn match  htmlperlArrow		"->\s*{\s*\I\i*\s*}" contains=htmlperlVarSimpleMemberName nextgroup=htmlperlVarMember,htmlperlVarSimpleMember,htmlperlMethod contained
-  syn region htmlperlArrow		matchgroup=htmlperlArrow start="->\s*\$*\I\i*\s*(" end=")" contains=@htmlperlExpr nextgroup=htmlperlVarMember,htmlperlVarSimpleMember,htmlperlMethod contained
-  syn region htmlperlVarBlock	matchgroup=htmlperlVarPlain start="\%($#\|[$@]\)\$*{" skip="\\}" end=+}\|\%(\%(<<\%('\|"\)\?\)\@=\)+ contains=@htmlperlExpr nextgroup=htmlperlVarMember,htmlperlVarSimpleMember,htmlperlMethod extend
-  syn region htmlperlVarBlock2	matchgroup=htmlperlVarPlain start="[%&*]\$*{" skip="\\}" end=+}\|\%(\%(<<\%('\|"\)\?\)\@=\)+ contains=@htmlperlExpr nextgroup=htmlperlVarMember,htmlperlVarSimpleMember,htmlperlMethod extend
-  syn match  htmlperlVarPlain2	"[%&*]\$*{\I\i*}" nextgroup=htmlperlVarMember,htmlperlVarSimpleMember,htmlperlMethod extend
-  syn match  htmlperlVarPlain	"\%(\$#\|[@$]\)\$*{\I\i*}" nextgroup=htmlperlVarMember,htmlperlVarSimpleMember,htmlperlMethod extend
-  syn region htmlperlVarMember	matchgroup=htmlperlVarPlain start="\%(->\)\={" skip="\\}" end="}" contained contains=@htmlperlExpr nextgroup=htmlperlVarMember,htmlperlVarSimpleMember,htmlperlMethod extend
-  syn match  htmlperlVarSimpleMember	"\%(->\)\={\s*\I\i*\s*}" nextgroup=htmlperlVarMember,htmlperlVarSimpleMember,htmlperlMethod contains=htmlperlVarSimpleMemberName contained extend
+  syn region htmlperlArrow		matchgroup=htmlperlArrow start="->\s*(" end=")" contains=@htmlperlExpr nextgroup=htmlperlVarMember,htmlperlVarSimpleMember,htmlperlMethod,htmlperlPostDeref contained
+  syn region htmlperlArrow		matchgroup=htmlperlArrow start="->\s*\[" end="\]" contains=@htmlperlExpr nextgroup=htmlperlVarMember,htmlperlVarSimpleMember,htmlperlMethod,htmlperlPostDeref contained
+  syn region htmlperlArrow		matchgroup=htmlperlArrow start="->\s*{" end="}" contains=@htmlperlExpr nextgroup=htmlperlVarMember,htmlperlVarSimpleMember,htmlperlMethod,htmlperlPostDeref contained
+  syn match  htmlperlArrow		"->\s*{\s*\I\i*\s*}" contains=htmlperlVarSimpleMemberName nextgroup=htmlperlVarMember,htmlperlVarSimpleMember,htmlperlMethod,htmlperlPostDeref contained
+  syn region htmlperlArrow		matchgroup=htmlperlArrow start="->\s*\$*\I\i*\s*(" end=")" contains=@htmlperlExpr nextgroup=htmlperlVarMember,htmlperlVarSimpleMember,htmlperlMethod,htmlperlPostDeref contained
+  syn region htmlperlVarBlock	matchgroup=htmlperlVarPlain start="\%($#\|[$@]\)\$*{" skip="\\}" end=+}\|\%(\%(<<\%('\|"\)\?\)\@=\)+ contains=@htmlperlExpr nextgroup=htmlperlVarMember,htmlperlVarSimpleMember,htmlperlMethod,htmlperlPostDeref extend
+  syn region htmlperlVarBlock2	matchgroup=htmlperlVarPlain start="[%&*]\$*{" skip="\\}" end=+}\|\%(\%(<<\%('\|"\)\?\)\@=\)+ contains=@htmlperlExpr nextgroup=htmlperlVarMember,htmlperlVarSimpleMember,htmlperlMethod,htmlperlPostDeref extend
+  syn match  htmlperlVarPlain2	"[%&*]\$*{\I\i*}" nextgroup=htmlperlVarMember,htmlperlVarSimpleMember,htmlperlMethod,htmlperlPostDeref extend
+  syn match  htmlperlVarPlain	"\%(\$#\|[@$]\)\$*{\I\i*}" nextgroup=htmlperlVarMember,htmlperlVarSimpleMember,htmlperlMethod,htmlperlPostDeref extend
+  syn region htmlperlVarMember	matchgroup=htmlperlVarPlain start="\%(->\)\={" skip="\\}" end="}" contained contains=@htmlperlExpr nextgroup=htmlperlVarMember,htmlperlVarSimpleMember,htmlperlMethod,htmlperlPostDeref extend
+  syn match  htmlperlVarSimpleMember	"\%(->\)\={\s*\I\i*\s*}" nextgroup=htmlperlVarMember,htmlperlVarSimpleMember,htmlperlMethod,htmlperlPostDeref contains=htmlperlVarSimpleMemberName contained extend
   syn match  htmlperlVarSimpleMemberName	"\I\i*" contained
-  syn region htmlperlVarMember	matchgroup=htmlperlVarPlain start="\%(->\)\=\[" skip="\\]" end="]" contained contains=@htmlperlExpr nextgroup=htmlperlVarMember,htmlperlVarSimpleMember,htmlperlMethod extend
-  syn match htmlperlPackageConst	"__PACKAGE__" nextgroup=htmlperlMethod
-  syn match  htmlperlMethod		"->\$*\I\i*" contained nextgroup=htmlperlVarSimpleMember,htmlperlVarMember,htmlperlMethod
+  syn region htmlperlVarMember	matchgroup=htmlperlVarPlain start="\%(->\)\=\[" skip="\\]" end="]" contained contains=@htmlperlExpr nextgroup=htmlperlVarMember,htmlperlVarSimpleMember,htmlperlMethod,htmlperlPostDeref extend
+  syn match htmlperlPackageConst	"__PACKAGE__" nextgroup=htmlperlMethod,htmlperlPostDeref
+  syn match  htmlperlMethod		"->\$*\I\i*" contained nextgroup=htmlperlVarSimpleMember,htmlperlVarMember,htmlperlMethod,htmlperlPostDeref
+  syn match  htmlperlPostDeref	"->\%($#\|[$@%&*]\)\*" contained nextgroup=htmlperlVarSimpleMember,htmlperlVarMember,htmlperlMethod,htmlperlPostDeref
+  syn region  htmlperlPostDeref	start="->\%($#\|[$@%&*]\)\[" skip="\\]" end="]" contained contains=@htmlperlExpr nextgroup=htmlperlVarSimpleMember,htmlperlVarMember,htmlperlMethod,htmlperlPostDeref
+  syn region  htmlperlPostDeref	matchgroup=htmlperlPostDeref start="->\%($#\|[$@%&*]\){" skip="\\}" end="}" contained contains=@htmlperlExpr nextgroup=htmlperlVarSimpleMember,htmlperlVarMember,htmlperlMethod,htmlperlPostDeref
 endif
 
 " File Descriptors
 syn match  htmlperlFiledescRead	"<\h\w*>"
 
-syn match  htmlperlFiledescStatementComma	"(\=\s*\u\w*\s*,"me=e-1 transparent contained contains=htmlperlFiledescStatement
-syn match  htmlperlFiledescStatementNocomma "(\=\s*\u\w*\s*[^, \t]"me=e-1 transparent contained contains=htmlperlFiledescStatement
+syn match  htmlperlFiledescStatementComma	"(\=\s*\<\u\w*\>\s*,"me=e-1 transparent contained contains=htmlperlFiledescStatement
+syn match  htmlperlFiledescStatementNocomma "(\=\s*\<\u\w*\>\s*[^, \t]"me=e-1 transparent contained contains=htmlperlFiledescStatement
 
-syn match  htmlperlFiledescStatement	"\u\w*" contained
+syn match  htmlperlFiledescStatement	"\<\u\w*\>" contained
 
 " Special characters in strings and matches
 syn match  htmlperlSpecialString	"\\\%(\o\{1,3}\|x\%({\x\+}\|\x\{1,2}\)\|c.\|[^cx]\)" contained extend
@@ -241,20 +242,18 @@ syn region htmlperlAnglesDQ		start=+<+ end=+>+ extend contained contains=htmlper
 
 
 " Simple version of searches and matches
-syn region htmlperlMatch	matchgroup=htmlperlMatchStartEnd start=+\<\%(::\|'\|->\)\@<!m\>\s*\z([^[:space:]'([{<#]\)+ end=+\z1[msixpodualgc]*+ contains=@htmlperlInterpMatch keepend extend
-syn region htmlperlMatch	matchgroup=htmlperlMatchStartEnd start=+\<\%(::\|'\|->\)\@<!m#+ end=+#[msixpodualgc]*+ contains=@htmlperlInterpMatch keepend extend
-syn region htmlperlMatch	matchgroup=htmlperlMatchStartEnd start=+\<\%(::\|'\|->\)\@<!m\s*'+ end=+'[msixpodualgc]*+ contains=@htmlperlInterpSQ keepend extend
-syn region htmlperlMatch	matchgroup=htmlperlMatchStartEnd start=+\<\%(::\|'\|->\)\@<!m\s*/+ end=+/[msixpodualgc]*+ contains=@htmlperlInterpSlash keepend extend
-syn region htmlperlMatch	matchgroup=htmlperlMatchStartEnd start=+\<\%(::\|'\|->\)\@<!m\s*(+ end=+)[msixpodualgc]*+ contains=@htmlperlInterpMatch,htmlperlParensDQ keepend extend
-
-" A special case for m{}, m<> and m[] which allows for comments and extra whitespace in the pattern
-syn region htmlperlMatch	matchgroup=htmlperlMatchStartEnd start=+\<\%(::\|'\|->\)\@<!m\s*{+ end=+}[msixpodualgc]*+ contains=@htmlperlInterpMatch,htmlperlComment,htmlperlBracesDQ extend
-syn region htmlperlMatch	matchgroup=htmlperlMatchStartEnd start=+\<\%(::\|'\|->\)\@<!m\s*<+ end=+>[msixpodualgc]*+ contains=@htmlperlInterpMatch,htmlperlAnglesDQ keepend extend
-syn region htmlperlMatch	matchgroup=htmlperlMatchStartEnd start=+\<\%(::\|'\|->\)\@<!m\s*\[+ end=+\][msixpodualgc]*+ contains=@htmlperlInterpMatch,htmlperlComment,htmlperlBracketsDQ keepend extend
+syn region htmlperlMatch	matchgroup=htmlperlMatchStartEnd start=+\<\%(::\|'\|->\)\@<!m\>\s*\z([^[:space:]'([{<#]\)+ end=+\z1[msixpodualgcn]*+ contains=@htmlperlInterpMatch keepend extend
+syn region htmlperlMatch	matchgroup=htmlperlMatchStartEnd start=+\<\%(::\|'\|->\)\@<!m#+ end=+#[msixpodualgcn]*+ contains=@htmlperlInterpMatch keepend extend
+syn region htmlperlMatch	matchgroup=htmlperlMatchStartEnd start=+\<\%(::\|'\|->\)\@<!m\s*'+ end=+'[msixpodualgcn]*+ contains=@htmlperlInterpSQ keepend extend
+syn region htmlperlMatch	matchgroup=htmlperlMatchStartEnd start=+\<\%(::\|'\|->\)\@<!m\s*/+ end=+/[msixpodualgcn]*+ contains=@htmlperlInterpSlash keepend extend
+syn region htmlperlMatch	matchgroup=htmlperlMatchStartEnd start=+\<\%(::\|'\|->\)\@<!m\s*(+ end=+)[msixpodualgcn]*+ contains=@htmlperlInterpMatch,htmlperlParensDQ keepend extend
+syn region htmlperlMatch	matchgroup=htmlperlMatchStartEnd start=+\<\%(::\|'\|->\)\@<!m\s*{+ end=+}[msixpodualgcn]*+ contains=@htmlperlInterpMatch,htmlperlBracesDQ extend
+syn region htmlperlMatch	matchgroup=htmlperlMatchStartEnd start=+\<\%(::\|'\|->\)\@<!m\s*<+ end=+>[msixpodualgcn]*+ contains=@htmlperlInterpMatch,htmlperlAnglesDQ keepend extend
+syn region htmlperlMatch	matchgroup=htmlperlMatchStartEnd start=+\<\%(::\|'\|->\)\@<!m\s*\[+ end=+\][msixpodualgcn]*+ contains=@htmlperlInterpMatch,htmlperlBracketsDQ keepend extend
 
 " Below some hacks to recognise the // variant. This is virtually impossible to catch in all
 " cases as the / is used in so many other ways, but these should be the most obvious ones.
-syn region htmlperlMatch	matchgroup=htmlperlMatchStartEnd start="\%([$@%&*]\@<!\%(\<split\|\<while\|\<if\|\<unless\|\.\.\|[-+*!~(\[{=]\)\s*\)\@<=/\%(/=\)\@!" start=+^/\%(/=\)\@!+ start=+\s\@<=/\%(/=\)\@![^[:space:][:digit:]$@%=]\@=\%(/\_s*\%([([{$@%&*[:digit:]"'`]\|\_s\w\|[[:upper:]_abd-fhjklnqrt-wyz]\)\)\@!+ skip=+\\/+ end=+/[msixpodualgc]*+ contains=@htmlperlInterpSlash extend
+syn region htmlperlMatch	matchgroup=htmlperlMatchStartEnd start="\%([$@%&*]\@<!\%(\<split\|\<while\|\<if\|\<unless\|\.\.\|[-+*!~(\[{=]\)\s*\)\@<=/\%(/=\)\@!" start=+^/\%(/=\)\@!+ start=+\s\@<=/\%(/=\)\@![^[:space:][:digit:]$@%=]\@=\%(/\_s*\%([([{$@%&*[:digit:]"'`]\|\_s\w\|[[:upper:]_abd-fhjklnqrt-wyz]\)\)\@!+ skip=+\\/+ end=+/[msixpodualgcn]*+ contains=@htmlperlInterpSlash extend
 
 
 " Substitutions
@@ -267,12 +266,12 @@ syn region htmlperlMatch	matchgroup=htmlperlMatchStartEnd start=+\<\%(::\|'\|->\
 syn region htmlperlMatch	matchgroup=htmlperlMatchStartEnd start=+\<\%(::\|'\|->\)\@<!s\s*<+ end=+>+ contains=@htmlperlInterpMatch,htmlperlAnglesDQ nextgroup=htmlperlSubstitutionGQQ skipwhite skipempty skipnl keepend extend
 syn region htmlperlMatch	matchgroup=htmlperlMatchStartEnd start=+\<\%(::\|'\|->\)\@<!s\s*\[+ end=+\]+ contains=@htmlperlInterpMatch,htmlperlBracketsDQ nextgroup=htmlperlSubstitutionGQQ skipwhite skipempty skipnl keepend extend
 syn region htmlperlMatch	matchgroup=htmlperlMatchStartEnd start=+\<\%(::\|'\|->\)\@<!s\s*{+ end=+}+ contains=@htmlperlInterpMatch,htmlperlBracesDQ nextgroup=htmlperlSubstitutionGQQ skipwhite skipempty skipnl keepend extend
-syn region htmlperlSubstitutionGQQ		matchgroup=htmlperlMatchStartEnd start=+\z([^[:space:]'([{<]\)+ end=+\z1[msixpodualgcer]*+ keepend contained contains=@htmlperlInterpDQ extend
-syn region htmlperlSubstitutionGQQ		matchgroup=htmlperlMatchStartEnd start=+(+ end=+)[msixpodualgcer]*+ contained contains=@htmlperlInterpDQ,htmlperlParensDQ keepend extend
-syn region htmlperlSubstitutionGQQ		matchgroup=htmlperlMatchStartEnd start=+\[+ end=+\][msixpodualgcer]*+ contained contains=@htmlperlInterpDQ,htmlperlBracketsDQ keepend extend
-syn region htmlperlSubstitutionGQQ		matchgroup=htmlperlMatchStartEnd start=+{+ end=+}[msixpodualgcer]*+ contained contains=@htmlperlInterpDQ,htmlperlBracesDQ keepend extend extend
-syn region htmlperlSubstitutionGQQ		matchgroup=htmlperlMatchStartEnd start=+<+ end=+>[msixpodualgcer]*+ contained contains=@htmlperlInterpDQ,htmlperlAnglesDQ keepend extend
-syn region htmlperlSubstitutionSQ		matchgroup=htmlperlMatchStartEnd start=+'+  end=+'[msixpodualgcer]*+ contained contains=@htmlperlInterpSQ keepend extend
+syn region htmlperlSubstitutionGQQ		matchgroup=htmlperlMatchStartEnd start=+\z([^[:space:]'([{<]\)+ end=+\z1[msixpodualgcern]*+ keepend contained contains=@htmlperlInterpDQ extend
+syn region htmlperlSubstitutionGQQ		matchgroup=htmlperlMatchStartEnd start=+(+ end=+)[msixpodualgcern]*+ contained contains=@htmlperlInterpDQ,htmlperlParensDQ keepend extend
+syn region htmlperlSubstitutionGQQ		matchgroup=htmlperlMatchStartEnd start=+\[+ end=+\][msixpodualgcern]*+ contained contains=@htmlperlInterpDQ,htmlperlBracketsDQ keepend extend
+syn region htmlperlSubstitutionGQQ		matchgroup=htmlperlMatchStartEnd start=+{+ end=+}[msixpodualgcern]*+ contained contains=@htmlperlInterpDQ,htmlperlBracesDQ keepend extend extend
+syn region htmlperlSubstitutionGQQ		matchgroup=htmlperlMatchStartEnd start=+<+ end=+>[msixpodualgcern]*+ contained contains=@htmlperlInterpDQ,htmlperlAnglesDQ keepend extend
+syn region htmlperlSubstitutionSQ		matchgroup=htmlperlMatchStartEnd start=+'+  end=+'[msixpodualgcern]*+ contained contains=@htmlperlInterpSQ keepend extend
 
 " Translations
 " htmlperlMatch is the first part, htmlperlTranslation* is the second, translator part.
@@ -314,35 +313,40 @@ syn region htmlperlQQ		matchgroup=htmlperlStringStartEnd start=+\<\%(::\|'\|->\)
 syn region htmlperlQQ		matchgroup=htmlperlStringStartEnd start=+\<\%(::\|'\|->\)\@<!qw\s*{+  end=+}+ contains=@htmlperlInterpSQ,htmlperlBracesSQ keepend extend
 syn region htmlperlQQ		matchgroup=htmlperlStringStartEnd start=+\<\%(::\|'\|->\)\@<!qw\s*<+  end=+>+ contains=@htmlperlInterpSQ,htmlperlAnglesSQ keepend extend
 
-syn region htmlperlQQ		matchgroup=htmlperlStringStartEnd start=+\<\%(::\|'\|->\)\@<!qr\>\s*\z([^[:space:]#([{<'/]\)+  end=+\z1[imosx]*+ contains=@htmlperlInterpMatch keepend extend
-syn region htmlperlQQ		matchgroup=htmlperlStringStartEnd start=+\<\%(::\|'\|->\)\@<!qr\s*/+  end=+/[imosx]*+ contains=@htmlperlInterpSlash keepend extend
-syn region htmlperlQQ		matchgroup=htmlperlStringStartEnd start=+\<\%(::\|'\|->\)\@<!qr#+  end=+#[imosx]*+ contains=@htmlperlInterpMatch keepend extend
-syn region htmlperlQQ		matchgroup=htmlperlStringStartEnd start=+\<\%(::\|'\|->\)\@<!qr\s*'+  end=+'[imosx]*+ contains=@htmlperlInterpSQ keepend extend
-syn region htmlperlQQ		matchgroup=htmlperlStringStartEnd start=+\<\%(::\|'\|->\)\@<!qr\s*(+  end=+)[imosx]*+ contains=@htmlperlInterpMatch,htmlperlParensDQ keepend extend
+syn region htmlperlQQ		matchgroup=htmlperlStringStartEnd start=+\<\%(::\|'\|->\)\@<!qr\>\s*\z([^[:space:]#([{<'/]\)+  end=+\z1[imosxdual]*+ contains=@htmlperlInterpMatch keepend extend
+syn region htmlperlQQ		matchgroup=htmlperlStringStartEnd start=+\<\%(::\|'\|->\)\@<!qr\s*/+  end=+/[imosxdual]*+ contains=@htmlperlInterpSlash keepend extend
+syn region htmlperlQQ		matchgroup=htmlperlStringStartEnd start=+\<\%(::\|'\|->\)\@<!qr#+  end=+#[imosxdual]*+ contains=@htmlperlInterpMatch keepend extend
+syn region htmlperlQQ		matchgroup=htmlperlStringStartEnd start=+\<\%(::\|'\|->\)\@<!qr\s*'+  end=+'[imosxdual]*+ contains=@htmlperlInterpSQ keepend extend
+syn region htmlperlQQ		matchgroup=htmlperlStringStartEnd start=+\<\%(::\|'\|->\)\@<!qr\s*(+  end=+)[imosxdual]*+ contains=@htmlperlInterpMatch,htmlperlParensDQ keepend extend
 
 " A special case for qr{}, qr<> and qr[] which allows for comments and extra whitespace in the pattern
-syn region htmlperlQQ		matchgroup=htmlperlStringStartEnd start=+\<\%(::\|'\|->\)\@<!qr\s*{+  end=+}[imosx]*+ contains=@htmlperlInterpMatch,htmlperlBracesDQ,htmlperlComment keepend extend
-syn region htmlperlQQ		matchgroup=htmlperlStringStartEnd start=+\<\%(::\|'\|->\)\@<!qr\s*<+  end=+>[imosx]*+ contains=@htmlperlInterpMatch,htmlperlAnglesDQ,htmlperlComment keepend extend
-syn region htmlperlQQ		matchgroup=htmlperlStringStartEnd start=+\<\%(::\|'\|->\)\@<!qr\s*\[+  end=+\][imosx]*+ contains=@htmlperlInterpMatch,htmlperlBracketsDQ,htmlperlComment keepend extend
+syn region htmlperlQQ		matchgroup=htmlperlStringStartEnd start=+\<\%(::\|'\|->\)\@<!qr\s*{+  end=+}[imosxdual]*+ contains=@htmlperlInterpMatch,htmlperlBracesDQ,htmlperlComment keepend extend
+syn region htmlperlQQ		matchgroup=htmlperlStringStartEnd start=+\<\%(::\|'\|->\)\@<!qr\s*<+  end=+>[imosxdual]*+ contains=@htmlperlInterpMatch,htmlperlAnglesDQ,htmlperlComment keepend extend
+syn region htmlperlQQ		matchgroup=htmlperlStringStartEnd start=+\<\%(::\|'\|->\)\@<!qr\s*\[+  end=+\][imosxdual]*+ contains=@htmlperlInterpMatch,htmlperlBracketsDQ,htmlperlComment keepend extend
 
 " Constructs such as print <<EOF [...] EOF, 'here' documents
 "
 " XXX Any statements after the identifier are in htmlperlString colour (i.e.
 " 'if $a' in 'print <<EOF if $a'). This is almost impossible to get right it
 " seems due to the 'auto-extending nature' of regions.
+syn region htmlperlHereDocStart	matchgroup=htmlperlStringStartEnd start=+<<\z(\I\i*\)+  end=+$+     contains=@htmlperlTop oneline
+syn region htmlperlHereDocStart	matchgroup=htmlperlStringStartEnd start=+<<\s*"\z([^\\"]*\%(\\.[^\\"]*\)*\)"+ end=+$+ contains=@htmlperlTop oneline
+syn region htmlperlHereDocStart	matchgroup=htmlperlStringStartEnd start=+<<\s*'\z([^\\']*\%(\\.[^\\']*\)*\)'+ end=+$+ contains=@htmlperlTop oneline
+syn region htmlperlHereDocStart	matchgroup=htmlperlStringStartEnd start=+<<\s*""+       end=+$+     contains=@htmlperlTop oneline
+syn region htmlperlHereDocStart	matchgroup=htmlperlStringStartEnd start=+<<\s*''+       end=+$+     contains=@htmlperlTop oneline
 if exists("htmlperl_fold")
-  syn region htmlperlHereDoc	matchgroup=htmlperlStringStartEnd start=+<<\z(\I\i*\).*+    end=+^\z1$+ contains=@htmlperlInterpDQ fold extend
-  syn region htmlperlHereDoc	matchgroup=htmlperlStringStartEnd start=+<<\s*"\z([^\\"]*\%(\\.[^\\"]*\)*\)"+ end=+^\z1$+ contains=@htmlperlInterpDQ fold extend
-  syn region htmlperlHereDoc	matchgroup=htmlperlStringStartEnd start=+<<\s*'\z([^\\']*\%(\\.[^\\']*\)*\)'+ end=+^\z1$+ contains=@htmlperlInterpSQ fold extend
-  syn region htmlperlHereDoc	matchgroup=htmlperlStringStartEnd start=+<<\s*""+           end=+^$+    contains=@htmlperlInterpDQ,htmlperlNotEmptyLine fold extend
-  syn region htmlperlHereDoc	matchgroup=htmlperlStringStartEnd start=+<<\s*''+           end=+^$+    contains=@htmlperlInterpSQ,htmlperlNotEmptyLine fold extend
+  syn region htmlperlHereDoc	start=+<<\z(\I\i*\)+ matchgroup=htmlperlStringStartEnd      end=+^\z1$+ contains=htmlperlHereDocStart,@htmlperlInterpDQ fold extend
+  syn region htmlperlHereDoc	start=+<<\s*"\z([^\\"]*\%(\\.[^\\"]*\)*\)"+ matchgroup=htmlperlStringStartEnd end=+^\z1$+ contains=htmlperlHereDocStart,@htmlperlInterpDQ fold extend
+  syn region htmlperlHereDoc	start=+<<\s*'\z([^\\']*\%(\\.[^\\']*\)*\)'+ matchgroup=htmlperlStringStartEnd end=+^\z1$+ contains=htmlperlHereDocStart,@htmlperlInterpSQ fold extend
+  syn region htmlperlHereDoc	start=+<<\s*""+ matchgroup=htmlperlStringStartEnd           end=+^$+    contains=htmlperlHereDocStart,@htmlperlInterpDQ,htmlperlNotEmptyLine fold extend
+  syn region htmlperlHereDoc	start=+<<\s*''+ matchgroup=htmlperlStringStartEnd           end=+^$+    contains=htmlperlHereDocStart,@htmlperlInterpSQ,htmlperlNotEmptyLine fold extend
   syn region htmlperlAutoload	matchgroup=htmlperlStringStartEnd start=+<<\s*\(['"]\=\)\z(END_\%(SUB\|OF_FUNC\|OF_AUTOLOAD\)\)\1+ end=+^\z1$+ contains=ALL fold extend
 else
-  syn region htmlperlHereDoc	matchgroup=htmlperlStringStartEnd start=+<<\z(\I\i*\).*+    end=+^\z1$+ contains=@htmlperlInterpDQ
-  syn region htmlperlHereDoc	matchgroup=htmlperlStringStartEnd start=+<<\s*"\z([^\\"]*\%(\\.[^\\"]*\)*\)"+ end=+^\z1$+ contains=@htmlperlInterpDQ
-  syn region htmlperlHereDoc	matchgroup=htmlperlStringStartEnd start=+<<\s*'\z([^\\']*\%(\\.[^\\']*\)*\)'+ end=+^\z1$+ contains=@htmlperlInterpSQ
-  syn region htmlperlHereDoc	matchgroup=htmlperlStringStartEnd start=+<<\s*""+           end=+^$+    contains=@htmlperlInterpDQ,htmlperlNotEmptyLine
-  syn region htmlperlHereDoc	matchgroup=htmlperlStringStartEnd start=+<<\s*''+           end=+^$+    contains=@htmlperlInterpSQ,htmlperlNotEmptyLine
+  syn region htmlperlHereDoc	start=+<<\z(\I\i*\)+ matchgroup=htmlperlStringStartEnd      end=+^\z1$+ contains=htmlperlHereDocStart,@htmlperlInterpDQ
+  syn region htmlperlHereDoc	start=+<<\s*"\z([^\\"]*\%(\\.[^\\"]*\)*\)"+ matchgroup=htmlperlStringStartEnd end=+^\z1$+ contains=htmlperlHereDocStart,@htmlperlInterpDQ
+  syn region htmlperlHereDoc	start=+<<\s*'\z([^\\']*\%(\\.[^\\']*\)*\)'+ matchgroup=htmlperlStringStartEnd end=+^\z1$+ contains=htmlperlHereDocStart,@htmlperlInterpSQ
+  syn region htmlperlHereDoc	start=+<<\s*""+ matchgroup=htmlperlStringStartEnd           end=+^$+    contains=htmlperlHereDocStart,@htmlperlInterpDQ,htmlperlNotEmptyLine
+  syn region htmlperlHereDoc	start=+<<\s*''+ matchgroup=htmlperlStringStartEnd           end=+^$+    contains=htmlperlHereDocStart,@htmlperlInterpSQ,htmlperlNotEmptyLine
   syn region htmlperlAutoload	matchgroup=htmlperlStringStartEnd start=+<<\s*\(['"]\=\)\z(END_\%(SUB\|OF_FUNC\|OF_AUTOLOAD\)\)\1+ end=+^\z1$+ contains=ALL
 endif
 
@@ -356,27 +360,21 @@ syn keyword htmlperlStatementPackage	package contained
 "       sub [name] [(prototype)] {
 "
 syn match htmlperlSubError "[^[:space:];{#]" contained
-if v:version == 701 && !has('patch221')  " XXX I hope that's the right one
-    syn match htmlperlSubAttributes ":" contained
+syn match htmlperlSubAttributesCont "\h\w*\_s*\%(:\_s*\)\=" nextgroup=@htmlperlSubAttrMaybe contained
+syn region htmlperlSubAttributesCont matchgroup=htmlperlSubAttributesCont start="\h\w*(" end=")\_s*\%(:\_s*\)\=" nextgroup=@htmlperlSubAttrMaybe contained contains=@htmlperlInterpSQ,htmlperlParensSQ
+syn cluster htmlperlSubAttrMaybe contains=htmlperlSubAttributesCont,htmlperlSubError,htmlperlFakeGroup
+syn match htmlperlSubAttributes "" contained nextgroup=htmlperlSubError
+syn match htmlperlSubAttributes ":\_s*" contained nextgroup=@htmlperlSubAttrMaybe
+if get(g:, "htmlperl_sub_signatures", 0)
+    syn match htmlperlSignature +(\_[^)]*)\_s*+ nextgroup=htmlperlSubAttributes,htmlperlComment contained
 else
-    syn match htmlperlSubAttributesCont "\h\w*\_s*\%(:\_s*\)\=" nextgroup=@htmlperlSubAttrMaybe contained
-    syn region htmlperlSubAttributesCont matchgroup=htmlperlSubAttributesCont start="\h\w*(" end=")\_s*\%(:\_s*\)\=" nextgroup=@htmlperlSubAttrMaybe contained contains=@htmlperlInterpSQ,htmlperlParensSQ
-    syn cluster htmlperlSubAttrMaybe contains=htmlperlSubAttributesCont,htmlperlSubError,htmlperlFakeGroup
-    syn match htmlperlSubAttributes "" contained nextgroup=htmlperlSubError
-    syn match htmlperlSubAttributes ":\_s*" contained nextgroup=@htmlperlSubAttrMaybe
+    syn match htmlperlSubPrototypeError "(\%(\_s*\%(\%(\\\%([$@%&*]\|\[[$@%&*]\+\]\)\|[$&*]\|[@%]\%(\_s*)\)\@=\|;\%(\_s*[)$@%&*\\]\)\@=\|_\%(\_s*[);]\)\@=\)\_s*\)*\)\@>\zs\_[^)]\+" contained
+    syn match htmlperlSubPrototype +(\_[^)]*)\_s*+ nextgroup=htmlperlSubAttributes,htmlperlComment contained contains=htmlperlSubPrototypeError
 endif
-syn match htmlperlSubPrototypeError "(\%(\_s*\%(\%(\\\%([$@%&*]\|\[[$@%&*]\+\]\)\|[$&*]\|[@%]\%(\_s*)\)\@=\|;\%(\_s*[)$@%&*\\]\)\@=\|_\%(\_s*[);]\)\@=\)\_s*\)*\)\@>\zs\_[^)]\+" contained
-syn match htmlperlSubPrototype +(\_[^)]*)\_s*\|+ nextgroup=htmlperlSubAttributes,htmlperlComment contained contains=htmlperlSubPrototypeError
-syn match htmlperlSubName +\%(\h\|::\|'\w\)\%(\w\|::\|'\w\)*\_s*\|+ contained nextgroup=htmlperlSubPrototype,htmlperlComment
+
+syn match htmlperlSubName +\%(\h\|::\|'\w\)\%(\w\|::\|'\w\)*\_s*\|+ contained nextgroup=htmlperlSubPrototype,htmlperlSignature,htmlperlSubAttributes,htmlperlComment
 
 syn match htmlperlFunction +\<sub\>\_s*+ nextgroup=htmlperlSubName
-
-if !exists("htmlperl_no_scope_in_variables")
-   syn match  htmlperlFunctionPRef	"\h\w*::" contained
-
-else
-
-endif
 
 " The => operator forces a bareword to the left of it to be interpreted as
 " a string
@@ -397,10 +395,10 @@ syn match  htmlperlFormatField	"@$" contained
 
 " __END__ and __DATA__ clauses
 if exists("htmlperl_fold")
-  syntax region htmlperlDATA		start="^__DATA__$" skip="." end="." fold
+  syntax region htmlperlDATA		start="^__DATA__$" skip="." end="." contains=@htmlperlDATA fold
   syntax region htmlperlDATA		start="^__END__$" skip="." end="." contains=htmlperlPOD,@htmlperlDATA fold
 else
-  syntax region htmlperlDATA		start="^__DATA__$" skip="." end="."
+  syntax region htmlperlDATA		start="^__DATA__$" skip="." end="." contains=@htmlperlDATA
   syntax region htmlperlDATA		start="^__END__$" skip="." end="." contains=htmlperlPOD,@htmlperlDATA
 endif
 
@@ -414,9 +412,9 @@ if exists("htmlperl_fold")
     syn region htmlperlPackageFold start="^package \S\+;\s*\%(#.*\)\=$" end="^1;\=\s*\%(#.*\)\=$" end="\n\+package"me=s-1 transparent fold keepend
   endif
   if !exists("htmlperl_nofold_subs")
-    if exists("htmlperl_fold_anonymous_subs") && htmlperl_fold_anonymous_subs
-      syn region htmlperlSubFold     start="\<sub\>[^\n;]*{" end="}" transparent fold keepend extend
-      syn region htmlperlSubFold     start="\<\%(BEGIN\|END\|CHECK\|INIT\)\>\s*{" end="}" transparent fold keepend
+    if get(g:, "htmlperl_fold_anonymous_subs", 0)
+      syn region htmlperlSubFold start="\<sub\>[^{]*{" end="}" transparent fold keepend extend
+      syn region htmlperlSubFold start="\<\%(BEGIN\|END\|CHECK\|INIT\)\>\s*{" end="}" transparent fold keepend
     else
       syn region htmlperlSubFold     start="^\z(\s*\)\<sub\>.*[^};]$" end="^\z1}\s*\%(#.*\)\=$" transparent fold keepend
       syn region htmlperlSubFold start="^\z(\s*\)\<\%(BEGIN\|END\|CHECK\|INIT\|UNITCHECK\)\>.*[^};]$" end="^\z1}\s*$" transparent fold keepend
@@ -424,7 +422,7 @@ if exists("htmlperl_fold")
   endif
 
   if exists("htmlperl_fold_blocks")
-    syn region htmlperlBlockFold start="^\z(\s*\)\%(if\|elsif\|unless\|for\|while\|until\|given\)\s*(.*)\%(\s*{\)\=\s*\%(#.*\)\=$" start="^\z(\s*\)foreach\s*\%(\%(my\|our\)\=\s*\S\+\s*\)\=(.*)\%(\s*{\)\=\s*\%(#.*\)\=$" end="^\z1}\s*;\=\%(#.*\)\=$" transparent fold keepend
+    syn region htmlperlBlockFold start="^\z(\s*\)\%(if\|elsif\|unless\|for\|while\|until\|given\)\s*(.*)\%(\s*{\)\=\s*\%(#.*\)\=$" start="^\z(\s*\)for\%(each\)\=\s*\%(\%(my\|our\)\=\s*\S\+\s*\)\=(.*)\%(\s*{\)\=\s*\%(#.*\)\=$" end="^\z1}\s*;\=\%(#.*\)\=$" transparent fold keepend
     syn region htmlperlBlockFold start="^\z(\s*\)\%(do\|else\)\%(\s*{\)\=\s*\%(#.*\)\=$" end="^\z1}\s*while" end="^\z1}\s*;\=\%(#.*\)\=$" transparent fold keepend
   endif
 
@@ -434,7 +432,6 @@ else
   " fromstart above seems to set minlines even if htmlperl_fold is not set.
   syn sync minlines=0
 endif
-
 
 " NOTE: If you're linking new highlight groups to htmlperlString, please also put
 "       them into b:match_skip in ftplugin/htmlperl.vim.
@@ -458,6 +455,7 @@ hi def link htmlperlOperator		Operator
 hi def link htmlperlFunction		Keyword
 hi def link htmlperlSubName		Function
 hi def link htmlperlSubPrototype		Type
+hi def link htmlperlSignature		Type
 hi def link htmlperlSubAttributes	PreProc
 hi def link htmlperlSubAttributesCont	htmlperlSubAttributes
 hi def link htmlperlComment		Comment
@@ -516,8 +514,11 @@ hi def link htmlperlStatementMisc	htmlperlStatement
 hi def link htmlperlStatementIndirObj	htmlperlStatement
 
 hi def link htmlperlMethod		htmlperlIdentifier
+hi def link htmlperlPostDeref		htmlperlIdentifier
 hi def link htmlperlFunctionPRef		htmlperlType
-hi def link htmlperlPOD			htmlperlComment
+if !get(g:, 'htmlperl_include_pod', 1)
+  hi def link htmlperlPOD		htmlperlComment
+endif
 hi def link htmlperlShellCommand		htmlperlString
 hi def link htmlperlSpecialAscii		htmlperlSpecial
 hi def link htmlperlSpecialDollar	htmlperlSpecial
@@ -548,7 +549,6 @@ hi def link htmlperlElseIfError		Error
 hi def link htmlperlSubPrototypeError	Error
 hi def link htmlperlSubError		Error
 
-
 " Syncing to speed up processing
 "
 if !exists("htmlperl_no_sync_on_sub")
@@ -574,11 +574,6 @@ syn sync match htmlperlSyncPOD	grouphere htmlperlPOD "^=item"
 syn sync match htmlperlSyncPOD	grouphere NONE "^=cut"
 
 let b:current_syntax = "htmlperl"
-
-if exists('&regexpengine')
-  let &regexpengine=s:regexpengine
-  unlet s:regexpengine
-endif
 
 let &cpo = s:cpo_save
 unlet s:cpo_save
