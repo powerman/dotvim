@@ -88,3 +88,6 @@
 [submodule "bundle/wmgraphviz"]
 	path = bundle/wmgraphviz
 	url = https://github.com/wannesm/wmgraphviz.vim
+[submodule "bundle/vim-markdown-toc"]
+	path = bundle/vim-markdown-toc
+	url = https://github.com/mzlogin/vim-markdown-toc.git
