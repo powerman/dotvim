@@ -459,6 +459,8 @@ autocmd FileType asciidoc		setlocal formatoptions-=r
 autocmd FileType asciidoc		setlocal formatoptions-=o
 " - авто-перенос длинных строк в списках
 autocmd FileType asciidoc		setlocal formatlistpat=^\\s*\\(-\\\\|\\*\\+\\\\|\\.\\+\\\\|[A-Za-z]\\.\\\\|[0-9]\\+\\.\\)\\s\\+
+" - только пробелы в markdown
+autocmd FileType markdown               setlocal expandtab
 " - маленький отступ в html
 autocmd FileType html,html.tmpl         setlocal softtabstop=2 shiftwidth=2 expandtab
 " - коммиты в git
@@ -692,4 +694,5 @@ function! s:SynStack()
 endfunc
 
 """ Unsorted
+let g:markdown_fenced_languages = ['go']
 
