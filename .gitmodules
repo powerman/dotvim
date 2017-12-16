@@ -91,3 +91,6 @@
 [submodule "bundle/vim-markdown-toc"]
 	path = bundle/vim-markdown-toc
 	url = https://github.com/mzlogin/vim-markdown-toc.git
+[submodule "bundle/vim-toml"]
+	path = bundle/vim-toml
+	url = https://github.com/cespare/vim-toml
