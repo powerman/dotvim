@@ -499,20 +499,24 @@ let g:sparkupNextMapping = '<C-F>'
 
 """ Поддержка Go                                                <Leader>…, :Go…
 " Plugin: vim-go
-let g:go_highlight_functions = 1
-let g:go_highlight_methods = 1
-let g:go_highlight_structs = 1
-let g:go_highlight_operators = 1
-let g:go_highlight_build_constraints = 1
 let g:go_fmt_command = "goimports"
 let g:go_fmt_fail_silently = 1
 let g:go_doc_keywordprg_enabled = 0
-let g:go_highlight_trailing_whitespace_error = 0
+let g:go_template_use_pkg = 1
+let g:go_list_type = "quickfix"
+let g:go_highlight_chan_whitespace_error = 1
+let g:go_highlight_operators = 1
+let g:go_highlight_functions = 1
+let g:go_highlight_methods = 1
+let g:go_highlight_build_constraints = 1
+let g:go_highlight_generate_tags = 1
+let g:go_highlight_string_spellcheck = 1
+let g:go_highlight_format_strings = 1
 autocmd FileType go nmap <buffer> <nowait> <Leader>r     <Plug>(go-run)
 autocmd FileType go nmap <buffer> <nowait> <Leader>b     <Plug>(go-build)
 autocmd FileType go nmap <buffer> <nowait> <Leader>t     <Plug>(go-test)
 autocmd FileType go nmap <buffer> <nowait> <Leader>T     <Plug>(go-test-func)
-autocmd FileType go nmap <buffer> <nowait> <Leader>c     <Plug>(go-coverage)
+autocmd FileType go nmap <buffer> <nowait> <Leader>c     <Plug>(go-coverage-toggle)
 autocmd FileType go nmap <buffer> <nowait> <Leader>gd    <Plug>(go-def-tab)
 autocmd FileType go nmap <buffer> <nowait> <Leader>gb    <Plug>(go-doc-browser)
 autocmd FileType go nmap <buffer> <nowait> <Leader>s     <Plug>(go-implements)
