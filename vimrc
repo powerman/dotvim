@@ -18,12 +18,12 @@
 "			Python	Go	C	C++	Erlang	Haskell	
 " - :tabfind				+				
 " - syntax              +	+	+	+	+	+	
-" - документация        +						
-" - omni-complete							
-" - snippets		+		+	+	+		
+" - документация        +	+					
+" - omni-complete		+					
+" - snippets		+	+	+	+	+		
 " - ctags								
 " - syntax check        +	+	+	+	+	+	
-"   + lint								
+"   + lint			+					
 "
 " Подобрать новую цветовую схему? http://habrahabr.ru/blogs/vim/134194/
 "
@@ -354,18 +354,33 @@ autocmd FileType go nnoremap <buffer> Q} gq/\m\%#.*\(^\s*\/\/.*\)\@<=\(\n\s*\/\/
 " Plugin: supertab
 " Plugin: html5
 " Plugin: vim-go
-let g:SuperTabDefaultCompletionType = "context"
-autocmd FileType *
-    \ let b:SuperTabNoCompleteAfter = ['^','\s'] |
-    \ call SuperTabSetDefaultCompletionType("<c-p>") |
-    \ if &ft == 'gohtmltmpl' || &ft == 'html' |
-    \   let b:SuperTabNoCompleteAfter = ['^'] |
-    \   call SuperTabSetDefaultCompletionType("<c-x><c-u>") |
-    \ elseif &ft == 'perl' |
-    \   let b:SuperTabNoCompleteAfter = ['^', '\k\@<!'] |
-    \ endif
+let g:SuperTabDefaultCompletionType = 'context'
+" let g:SuperTabContextDefaultCompletionType = '<c-x><c-p>'
+let g:SuperTabCompletionContexts = ['PlainTextContext', 's:ContextText', 's:ContextDiscover']
+let g:SuperTabContextTextOmniPrecedence = ['&omnifunc', '&completefunc']
+let g:SuperTabContextDiscoverDiscovery = ['&completefunc:<c-x><c-u>', '&omnifunc:<c-x><c-o>']
+function! PlainTextContext()
+        let curline = getline('.')
+        let cnum = col('.')
+        let synname = synIDattr(synID(line('.'), cnum - 1, 1), 'name')
+        if synname =~ '\(String\|Comment\)'
+                return "\<c-p>"
+        endif
+endfunction
+" autocmd FileType *
+"     \ let b:SuperTabNoCompleteAfter = ['^','\s'] |
+"     \ if &ft == 'gohtmltmpl' || &ft == 'html' |
+"     \   let b:SuperTabNoCompleteAfter = ['^'] |
+"     \ elseif &ft == 'perl' |
+"     \   let b:SuperTabNoCompleteAfter = ['^', '\k\@<!'] |
+"     \ endif
 autocmd FileType gohtmltmpl         setlocal omnifunc=htmlcomplete#CompleteTags
 autocmd FileType gohtmltmpl         let b:html_omni_flavor="html5"
+" Set &completefunc to try both &omnifunc and some other completion in
+" case omni fails (for ex. it fails on keywords like "func" or "switch").
+" When &omnifunc is set this will result in always using first element in
+" g:SuperTabContextDiscoverDiscovery, but let's leave second in place for
+" now, to try &omnifunc in case this code will be disabled.
 autocmd FileType *
     \ if &omnifunc != '' |
     \   call SuperTabChain(&omnifunc, "<c-p>") |
