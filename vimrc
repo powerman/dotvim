@@ -354,37 +354,38 @@ autocmd FileType go nnoremap <buffer> Q} gq/\m\%#.*\(^\s*\/\/.*\)\@<=\(\n\s*\/\/
 " Plugin: supertab
 " Plugin: html5
 " Plugin: vim-go
-let g:SuperTabDefaultCompletionType = 'context'
-" let g:SuperTabContextDefaultCompletionType = '<c-x><c-p>'
-let g:SuperTabCompletionContexts = ['PlainTextContext', 's:ContextText', 's:ContextDiscover']
-let g:SuperTabContextTextOmniPrecedence = ['&omnifunc', '&completefunc']
-let g:SuperTabContextDiscoverDiscovery = ['&completefunc:<c-x><c-u>', '&omnifunc:<c-x><c-o>']
-function! PlainTextContext()
-        let curline = getline('.')
-        let cnum = col('.')
-        let synname = synIDattr(synID(line('.'), cnum - 1, 1), 'name')
-        if synname =~ '\(String\|Comment\)'
-                return "\<c-p>"
-        endif
-endfunction
-" autocmd FileType *
-"     \ let b:SuperTabNoCompleteAfter = ['^','\s'] |
-"     \ if &ft == 'gohtmltmpl' || &ft == 'html' |
-"     \   let b:SuperTabNoCompleteAfter = ['^'] |
-"     \ elseif &ft == 'perl' |
-"     \   let b:SuperTabNoCompleteAfter = ['^', '\k\@<!'] |
-"     \ endif
+
 autocmd FileType gohtmltmpl         setlocal omnifunc=htmlcomplete#CompleteTags
 autocmd FileType gohtmltmpl         let b:html_omni_flavor="html5"
-" Set &completefunc to try both &omnifunc and some other completion in
-" case omni fails (for ex. it fails on keywords like "func" or "switch").
-" When &omnifunc is set this will result in always using first element in
-" g:SuperTabContextDiscoverDiscovery, but let's leave second in place for
-" now, to try &omnifunc in case this code will be disabled.
+" WARNING: Необходимо установить все omnifunc до этой точки!
+
+" Use context-dependent completion type.
+" This mean it'll try each function from g:SuperTabCompletionContexts and
+" if no one return anything then use g:SuperTabContextDefaultCompletionType:
+" 1. s:ContextText will handle pathname completions anywhere.
+" 2. s:ContextText will handle module/class/object member completions
+"    outside of String/Comment (using &completefunc or &omnifunc, if any).
+" 3. ContextPlainText will handle String/Comment using default completion.
+" 4. s:ContextDiscover will handle everything using &completefunc, if any.
+" 5. Use default.
+let g:SuperTabDefaultCompletionType = 'context'
+let g:SuperTabCompletionContexts = ['s:ContextText', 'ContextPlainText', 's:ContextDiscover']
+let g:SuperTabContextDiscoverDiscovery = ['&completefunc:<c-x><c-u>']
+let g:SuperTabContextDefaultCompletionType = '<c-p>'
+function! ContextPlainText()
+        let synname = synIDattr(synID(line('.'), col('.') - 1, 1), 'name')
+        if synname =~ '\(String\|Comment\)'
+                exec 'let complType = "' . escape(g:SuperTabContextDefaultCompletionType, '<') . '"'
+                return complType
+        endif
+endfunction
+" Set &completefunc to try &omnifunc or default one if omni fails.
 autocmd FileType *
     \ if &omnifunc != '' |
-    \   call SuperTabChain(&omnifunc, "<c-p>") |
+    \   call SuperTabChain(&omnifunc, g:SuperTabContextDefaultCompletionType) |
     \ endif
+
+" autocmd FileType perl   let b:SuperTabNoCompleteAfter = ['^', '\k\@<!']
 
 """ Сниппеты:                                                   <Tab> 
 " Plugin: snipMate
