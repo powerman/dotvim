@@ -21,10 +21,10 @@
 	url = https://github.com/powerman/vim-plugin-ruscmd
 [submodule "bundle/snipmate"]
 	path = bundle/snipmate
-	url = https://github.com/ervandew/snipmate.vim
+	url = https://github.com/powerman/snipmate.vim
 [submodule "bundle/supertab"]
 	path = bundle/supertab
-	url = https://github.com/ervandew/supertab
+	url = https://github.com/powerman/supertab
 [submodule "bundle/syntastic"]
 	path = bundle/syntastic
 	url = https://github.com/scrooloose/syntastic
