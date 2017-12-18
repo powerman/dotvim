@@ -20,6 +20,7 @@ make
 ```
 cd ~/.vim
 git pull
+git submodule sync
 git submodule update
 cd ~/.vim/bundle/command-t/ruby/command-t
 make clean
