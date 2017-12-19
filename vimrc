@@ -487,10 +487,10 @@ autocmd FileType html,html.tmpl         setlocal softtabstop=2 shiftwidth=2 expa
 autocmd FileType gitcommit              setlocal textwidth=72
 
 """ 80-column margin                                            
-autocmd FileType perl			setlocal colorcolumn=81,82,83,84,85
-autocmd FileType sh,zsh,javascript	setlocal colorcolumn=81,82,83,84,85
-autocmd FileType limbo,c,cpp,go		setlocal colorcolumn=81,82,83,84,85
-autocmd FileType mail,asciidoc		setlocal colorcolumn=81,82,83,84,85
+" autocmd FileType perl			setlocal colorcolumn=81,82,83,84,85
+" autocmd FileType sh,zsh,javascript	setlocal colorcolumn=81,82,83,84,85
+" autocmd FileType limbo,c,cpp,go		setlocal colorcolumn=81,82,83,84,85
+autocmd FileType mail,asciidoc,markdown		setlocal colorcolumn=81,82,83,84,85
 
 """ Save & restore folding                                      
 autocmd BufReadPost,FileReadPost *	if expand('<afile>') != 'quickfix' && !&readonly && !&diff && &ft != 'diff' && &ft != 'mail' | loadview | endif
