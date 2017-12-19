@@ -10,7 +10,7 @@
 " - :tabfind            -	+	+       -	-       -	-	-	
 " - syntax              +	+	+       +	+       +	+	+	
 " - документация        +	+	+       +	+			2.1	
-" - omni-complete									
+" - omni-complete						+			
 " - snippets            +	+	+       +		+	+		
 " - ctags										
 " - syntax check		+	+       +		+	+		
@@ -355,8 +355,10 @@ autocmd FileType go nnoremap <buffer> Q} gq/\m\%#.*\(^\s*\/\/.*\)\@<=\(\n\s*\/\/
 " Plugin: html5
 " Plugin: vim-go
 
-autocmd FileType gohtmltmpl         setlocal omnifunc=htmlcomplete#CompleteTags
-autocmd FileType gohtmltmpl         let b:html_omni_flavor="html5"
+autocmd FileType markdown       setlocal omnifunc=
+autocmd FileType asciidoc       setlocal omnifunc=
+autocmd FileType gohtmltmpl     setlocal omnifunc=htmlcomplete#CompleteTags
+autocmd FileType gohtmltmpl     let b:html_omni_flavor="html5"
 " WARNING: Необходимо установить все omnifunc до этой точки!
 
 " Use context-dependent completion type.
@@ -383,6 +385,8 @@ endfunction
 autocmd FileType *
     \ if &omnifunc != '' |
     \   call SuperTabChain(&omnifunc, g:SuperTabContextDefaultCompletionType) |
+    \ else |
+    \   let b:SuperTabCompletionContexts = ['s:ContextText'] |
     \ endif
 
 " autocmd FileType perl   let b:SuperTabNoCompleteAfter = ['^', '\k\@<!']
