@@ -15,6 +15,7 @@ hi Identifier				ctermfg=2   ctermbg=NONE    cterm=bold
 hi Statement				ctermfg=7   ctermbg=NONE    cterm=bold
 hi NonText				ctermfg=6   ctermbg=NONE    cterm=NONE
 hi Underlined				ctermfg=7   ctermbg=NONE    cterm=NONE
+hi Type		                        ctermfg=5   ctermbg=NONE    cterm=bold
 " - поиск (:set hls), quickfix window (текущая ошибка)
 hi Search				ctermfg=0   ctermbg=6	    cterm=NONE
 hi Delimiter				ctermfg=6   ctermbg=NONE    cterm=NONE
@@ -36,6 +37,10 @@ hi link zshVariableDef Identifier
 """ markdown
 hi link markdownCode Identifier
 hi link markdownCodeBlock Identifier
+""" go
+hi goPredefinedIdentifiers              ctermfg=3   ctermbg=NONE    cterm=bold
+hi link goReceiverType goTypeName
+hi link goTypeConstructor NONE
 """ perl
 hi perlMethod				ctermfg=7   ctermbg=NONE    cterm=NONE
 hi perlType				ctermfg=2   ctermbg=NONE    cterm=NONE
@@ -92,7 +97,10 @@ hi tmpljavaScriptType			ctermfg=81  ctermbg=17
 
 if &t_Co > 8
     """ Базовые
-    hi Type			ctermfg=81	ctermbg=NONE	cterm=NONE
+    hi Constant			ctermfg=11      ctermbg=NONE    cterm=NONE
+    """ Go
+    hi goFunctionCall		ctermfg=81	ctermbg=NONE	cterm=NONE
+    hi goTypeName               ctermfg=170     ctermbg=NONE    cterm=bold
     """ JavaScript templates inside html
     hi JSTmplTag		ctermfg=213	ctermbg=8	cterm=NONE
     hi JSTmplDelimiter		ctermfg=13	ctermbg=0	cterm=NONE

@@ -292,24 +292,3 @@ snippet wanterr
 	if fmt.Sprintf("%#v", ${1:err}) != fmt.Sprintf("%#v", ${2:v.wanterr}) {
 		t.Errorf("${3}, err = %#v, want %#v", $1, $2)
 	}
-# test using gopkg.in/check.v1
-snippet check
-	import . "gopkg.in/check.v1"
-
-	func Test(t *testing.T) { TestingT(t) }
-
-	type ${1:Test}Suite struct{}
-
-	var _ = Suite(&$1Suite{})
-
-	func (s *$1Suite) SetUpSuite(c *C) {}
-
-	func (s *$1Suite) SetUpTest(c *C) {}
-
-	func (s *$1Suite) TearDownTest(c *C) {}
-
-	func (s *$1Suite) TearDownSuite(c *C) {}
-
-	func (s *$1Suite) Test${2:Function}(c *C) {
-		${0}
-	}

@@ -160,9 +160,10 @@ set wildignore+=*.dis,*.sbl
 set wildignore+=*.o,*.obj,*.manifest
 set wildignore+=*.jpg,*.gif,*.png,*.jpeg,*.ico
 set wildignore+=*.zwc
-set wildignore+=*/patch/prev/**
-set wildignore+=*/_Inline/**
-set wildignore+=_live/**
+set wildignore+=*/patch/prev/*
+set wildignore+=_Inline
+set wildignore+=_live
+set wildignore+=node_modules,bower_components
 set showcmd				" показывать нажимаемые кнопки в командном режиме
 set notimeout ttimeout ttimeoutlen=100 	" таймаут для одиночных кнопок, но не комбинаций
 set mouse=a				" поддержка мыши во всех режимах
@@ -416,6 +417,7 @@ let g:syntastic_perl_checkers = ['perl']
 let g:syntastic_enable_perl_checker = 1
 " - disable creating binaries in current dir
 let g:syntastic_go_go_build_args = '-o /dev/null'
+let g:syntastic_go_go_test_args = '-tags integration'
 " - filtering useless messages
 let g:syntastic_zsh_zsh_quiet_messages = {
 	\ "regex":      ['no such user or named directory'],
@@ -482,7 +484,8 @@ autocmd FileType asciidoc		setlocal formatlistpat=^\\s*\\(-\\\\|\\*\\+\\\\|\\.\\
 " - только пробелы в markdown
 autocmd FileType markdown               setlocal expandtab
 " - маленький отступ в html
-autocmd FileType html,html.tmpl         setlocal softtabstop=2 shiftwidth=2 expandtab
+autocmd FileType html,html.tmpl         setlocal softtabstop=4 shiftwidth=4 expandtab
+autocmd FileType gohtmltmpl             setlocal softtabstop=4 shiftwidth=4 expandtab
 " - коммиты в git
 autocmd FileType gitcommit              setlocal textwidth=72
 
@@ -524,14 +527,21 @@ let g:go_fmt_fail_silently = 1
 let g:go_doc_keywordprg_enabled = 0
 let g:go_template_use_pkg = 1
 let g:go_list_type = "quickfix"
+let g:go_highlight_array_whitespace_error = 1
 let g:go_highlight_chan_whitespace_error = 1
+let g:go_highlight_extra_types = 1
 let g:go_highlight_operators = 1
 let g:go_highlight_functions = 1
-let g:go_highlight_methods = 1
+let g:go_highlight_function_arguments = 0
+let g:go_highlight_function_calls = 1
+let g:go_highlight_types = 1
+let g:go_highlight_fields = 0
 let g:go_highlight_build_constraints = 1
 let g:go_highlight_generate_tags = 1
 let g:go_highlight_string_spellcheck = 1
 let g:go_highlight_format_strings = 1
+let g:go_highlight_variable_declarations = 0
+let g:go_highlight_variable_assignments = 0
 autocmd FileType go nmap <buffer> <nowait> <Leader>r     <Plug>(go-run)
 autocmd FileType go nmap <buffer> <nowait> <Leader>b     <Plug>(go-build)
 autocmd FileType go nmap <buffer> <nowait> <Leader>t     <Plug>(go-test)
@@ -648,12 +658,15 @@ autocmd BufNewFile,BufRead */vcprompt-fast/*.go let b:syntastic_go_go_build_args
 """ Улучшение определения типа файлов                           
 autocmd BufRead */.fluxbox/keys		        set ft=fluxkeys
 autocmd BufRead */.opera/cache*		        set ft=html
+autocmd BufNewFile,BufRead *nginx*/*            set ft=nginx
 autocmd BufNewFile,BufRead TODO*,BUG*,README*   set ft=asciidoc
 autocmd BufNewFile,BufRead *.txt,*.adoc         set ft=asciidoc
 autocmd BufNewFile,BufRead *.md                 set ft=markdown
 autocmd BufNewFile,BufRead migrate,*.migrate    set ft=migrate
 autocmd BufNewFile,BufRead *.t                  set ft=perl
 autocmd BufNewFile,BufRead *.html.tmpl          set ft=html.tmpl
+autocmd BufNewFile,BufRead */go/src/*.tmpl      set ft=gotexttmpl
+autocmd BufNewFile,BufRead */go/src/*.html.tmpl set ft=gohtmltmpl
 autocmd BufNewFile,BufRead *zsh*functions/*     set ft=zsh
 
 """ Особая проверка синтаксиса для некоторых файлов             
