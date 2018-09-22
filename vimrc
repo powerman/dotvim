@@ -486,6 +486,8 @@ autocmd FileType markdown               setlocal expandtab
 " - маленький отступ в html
 autocmd FileType html,html.tmpl         setlocal softtabstop=4 shiftwidth=4 expandtab
 autocmd FileType gohtmltmpl             setlocal softtabstop=4 shiftwidth=4 expandtab
+" - вернуть отступ в шаблонах nginx
+autocmd FileType gonginxtmpl            setlocal softtabstop=8 shiftwidth=8 noexpandtab
 " - коммиты в git
 autocmd FileType gitcommit              setlocal textwidth=72
 
@@ -667,6 +669,7 @@ autocmd BufNewFile,BufRead *.t                  set ft=perl
 autocmd BufNewFile,BufRead *.html.tmpl          set ft=html.tmpl
 autocmd BufNewFile,BufRead */go/src/*.tmpl      set ft=gotexttmpl
 autocmd BufNewFile,BufRead */go/src/*.html.tmpl set ft=gohtmltmpl
+autocmd BufNewFile,BufRead *nginx*/*.tmpl       set ft=gonginxtmpl
 autocmd BufNewFile,BufRead *zsh*functions/*     set ft=zsh
 
 """ Особая проверка синтаксиса для некоторых файлов             
