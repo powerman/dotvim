@@ -495,7 +495,8 @@ autocmd FileType gitcommit              setlocal textwidth=72
 " autocmd FileType perl			setlocal colorcolumn=81,82,83,84,85
 " autocmd FileType sh,zsh,javascript	setlocal colorcolumn=81,82,83,84,85
 " autocmd FileType limbo,c,cpp,go		setlocal colorcolumn=81,82,83,84,85
-autocmd FileType mail,asciidoc,markdown		setlocal colorcolumn=81,82,83,84,85
+" autocmd FileType asciidoc,markdown		setlocal colorcolumn=81,82,83,84,85
+autocmd FileType mail	                setlocal colorcolumn=81,82,83,84,85
 
 """ Save & restore folding                                      
 autocmd BufReadPost,FileReadPost *	if expand('<afile>') != 'quickfix' && !&readonly && !&diff && &ft != 'diff' && &ft != 'mail' | loadview | endif
