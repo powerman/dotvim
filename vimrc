@@ -416,6 +416,7 @@ let g:syntastic_mode_map = { 'passive_filetypes': ['html'] }
 let g:syntastic_perl_checkers = ['perl']
 let g:syntastic_enable_perl_checker = 1
 " - disable creating binaries in current dir
+let g:syntastic_go_checkers = ['go']
 let g:syntastic_go_go_build_args = '-o /dev/null'
 let g:syntastic_go_go_test_args = '-tags integration'
 " - filtering useless messages
