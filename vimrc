@@ -161,6 +161,7 @@ set wildignore+=*.o,*.obj,*.manifest
 set wildignore+=*.jpg,*.gif,*.png,*.jpeg,*.ico
 set wildignore+=*.zwc
 set wildignore+=*/patch/prev/*
+set wildignore+=*/vendor/*
 set wildignore+=_Inline
 set wildignore+=_live
 set wildignore+=node_modules,bower_components
@@ -536,7 +537,7 @@ let g:go_highlight_chan_whitespace_error = 1
 let g:go_highlight_extra_types = 1
 let g:go_highlight_operators = 1
 let g:go_highlight_functions = 1
-let g:go_highlight_function_arguments = 0
+let g:go_highlight_function_parameters = 0
 let g:go_highlight_function_calls = 1
 let g:go_highlight_types = 1
 let g:go_highlight_fields = 0
@@ -546,6 +547,8 @@ let g:go_highlight_string_spellcheck = 1
 let g:go_highlight_format_strings = 1
 let g:go_highlight_variable_declarations = 0
 let g:go_highlight_variable_assignments = 0
+let g:go_build_tags = "integration"
+let g:go_metalinter_command = "golangci-lint"
 autocmd FileType go nmap <buffer> <nowait> <Leader>r     <Plug>(go-run)
 autocmd FileType go nmap <buffer> <nowait> <Leader>b     <Plug>(go-build)
 autocmd FileType go nmap <buffer> <nowait> <Leader>t     <Plug>(go-test)

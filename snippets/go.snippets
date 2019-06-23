@@ -236,7 +236,9 @@ snippet gof
 	}(${2})
 # test function
 snippet test
-	func Test${1:Function}(t *testing.T) {
+	func Test${1:Function}(tt *testing.T) {
+		t := check.T(tt)
+		t.Parallel()
 		${0}
 	}
 # test server
@@ -274,14 +276,24 @@ snippet eq
 		t.FailNow()
 	}
 # declare cases in tests
-snippet cases
-	cases := []struct {
+snippet tc
+	testCases := []struct {
 		${1}
 	}{
 		{},
 	}
-	for _, v := range cases {
+	for i, tc := range testCases {
+		t.Run(strconv.Itoa(i), func(tt *testing.T) {
+			t := check.T(tt)
+			
+		})
 	}
+# declare cases in tests
+snippet trun
+	t.Run(${1}, func(tt *testing.T) {
+		t := check.T(tt)
+		
+	})
 # test res vs want
 snippet want
 	if ${1:res} != ${2:v.want} {
