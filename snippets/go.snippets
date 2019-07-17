@@ -282,8 +282,9 @@ snippet tc
 	}{
 		{},
 	}
-	for i, tc := range testCases {
-		t.Run(strconv.Itoa(i), func(tt *testing.T) {
+	for _, tc := range testCases {
+		tc := tc
+		t.Run("", func(tt *testing.T) {
 			t := check.T(tt)
 			
 		})
@@ -304,3 +305,9 @@ snippet wanterr
 	if fmt.Sprintf("%#v", ${1:err}) != fmt.Sprintf("%#v", ${2:v.wanterr}) {
 		t.Errorf("${3}, err = %#v, want %#v", $1, $2)
 	}
+# TODO
+snippet todo
+	panic("TODO")
+# TODO
+snippet ...
+	panic("TODO")
