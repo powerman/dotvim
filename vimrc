@@ -424,6 +424,8 @@ let g:syntastic_go_go_test_args = '-tags integration'
 let g:syntastic_zsh_zsh_quiet_messages = {
 	\ "regex":      ['no such user or named directory'],
         \ }
+" - check shell .|source'd files
+let g:syntastic_sh_shellcheck_args = "-x"
 " - переход к следующей/предыдущей ошибке: <F12>/<F11>
 imap <silent> <F11>	<C-O>:execute "try<Bar>lprev<Bar>catch<Bar>lclose<Bar>endtry"<CR>
 imap <silent> <F12>	<C-O>:execute "try<Bar>lnext<Bar>catch<Bar>lclose<Bar>endtry"<CR>
@@ -677,6 +679,7 @@ autocmd BufNewFile,BufRead */go/src/*.tmpl      set ft=gotexttmpl
 autocmd BufNewFile,BufRead */go/src/*.html.tmpl set ft=gohtmltmpl
 autocmd BufNewFile,BufRead *nginx*/*.tmpl       set ft=gonginxtmpl
 autocmd BufNewFile,BufRead *zsh*functions/*     set ft=zsh
+autocmd BufNewFile,BufRead *.cql                set ft=sql
 
 """ Особая проверка синтаксиса для некоторых файлов             
 " Использование вспомогательных скриптов при проверке синтаксиса некоторых
