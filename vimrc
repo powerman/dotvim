@@ -549,6 +549,7 @@ let g:go_highlight_variable_declarations = 0
 let g:go_highlight_variable_assignments = 0
 let g:go_build_tags = "integration"
 let g:go_metalinter_command = "golangci-lint"
+let g:go_gorename_command = "gopls"
 autocmd FileType go nmap <buffer> <nowait> <Leader>r     <Plug>(go-run)
 autocmd FileType go nmap <buffer> <nowait> <Leader>b     <Plug>(go-build)
 autocmd FileType go nmap <buffer> <nowait> <Leader>t     <Plug>(go-test)
