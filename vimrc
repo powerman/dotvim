@@ -249,19 +249,20 @@ vnoremap <F2>	<Esc>:w<CR>gv
 " inoremap <F3>	<C-O>:tabfind<Space>
 " nnoremap <F3>	:tabfind<Space>
 " vnoremap <F3>	<Esc>:tabfind<Space>
-" Plugin: Command-T
-inoremap <F3>	<Esc>:CommandT<CR>
-nnoremap <F3>	:CommandT<CR>
-vnoremap <F3>	<Esc>:CommandT<CR>
-let g:CommandTAcceptSelectionMap = '<C-e>'
-let g:CommandTAcceptSelectionTabMap = '<CR>'
-let g:CommandTCancelMap = '<F3>'
-let g:CommandTMatchWindowReverse = 0
-let g:CommandTMaxFiles = 30000
-let g:CommandTMaxHeight = 20
-let g:CommandTMinHeight = 20
-let g:CommandTRefreshMap = '<C-r>'
-let g:CommandTScanDotDirectories = 1
+" Plugin: CtrlP
+let g:ctrlp_map = '<F3>'
+let g:ctrlp_match_window = 'bottom,order:ttb,min:20,max:20,results:100'
+let g:ctrlp_show_hidden = 1
+let g:ctrlp_max_files = 30000
+let g:ctrlp_open_new_file = 't'
+let g:ctrlp_open_multiple_files = 't'
+let g:ctrlp_prompt_mappings = {
+        \ 'AcceptSelection("e")': ['<2-LeftMouse>'],
+        \ 'AcceptSelection("t")': ['<cr>', '<c-t>'],
+        \ 'MarkToOpen()':         ['<c-z>'],
+        \ 'OpenMulti()':          ['<c-o>'],
+        \ 'PrtExit()':            ['<F3>', '<esc>', '<c-c>', '<c-g>'],
+        \ }
 
 """ Вкл/Выкл вставку as-is (paste mode):                        <F4> 
 " в INSERT: <F4> переключает paste/nopaste

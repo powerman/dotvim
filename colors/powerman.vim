@@ -109,6 +109,7 @@ if &t_Co > 8
     hi TabLine                   ctermfg=15   ctermbg=234  cterm=NONE      guifg=#cccccc guibg=#1c1c1c gui=NONE
     hi TabLineFill               ctermfg=15   ctermbg=234  cterm=NONE      guifg=#cccccc guibg=#1c1c1c gui=NONE
     hi TabLineSel                ctermfg=15   ctermbg=239  cterm=NONE      guifg=#cccccc guibg=#4e4e4e gui=NONE
+    hi CursorLine                ctermfg=NONE ctermbg=17   cterm=NONE      guifg=NONE    guibg=#00005f gui=NONE
     hi Pmenu                     ctermfg=245  ctermbg=19   cterm=NONE      guifg=#8a8a8a guibg=#0000af gui=NONE
     hi PmenuSel                  ctermfg=245  ctermbg=17   cterm=NONE      guifg=#8a8a8a guibg=#00005f gui=NONE
 "    hi StatusLine               ctermfg=15   ctermbg=234  cterm=NONE      guifg=#cccccc guibg=#1c1c1c gui=NONE
@@ -133,6 +134,9 @@ if &t_Co > 8
     hi link asciidocUnquotedDelimiter                   SpecialChar
     hi link asciidocUnconstrainedUnquotedDelimiter      SpecialChar
     hi link asciidocConcealUnReplacement                SpecialChar
+    """ ctrlp
+    hi CtrlPMode1                ctermfg=17   ctermbg=15   cterm=bold      guifg=#00005f guibg=#cccccc gui=bold
+    hi CtrlPMode2                ctermfg=8    ctermbg=15   cterm=NONE      guifg=#444444 guibg=#cccccc gui=NONE
 endif
 
 """ spell

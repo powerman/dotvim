@@ -4,9 +4,6 @@
 [submodule "bundle/autosess"]
 	path = bundle/autosess
 	url = https://github.com/powerman/vim-plugin-autosess
-[submodule "bundle/command-t"]
-	path = bundle/command-t
-	url = https://github.com/wincent/command-t
 [submodule "bundle/foldutil"]
 	path = bundle/foldutil
 	url = https://github.com/vim-scripts/foldutil.vim
@@ -97,3 +94,6 @@
 [submodule "bundle/splitjoin.vim"]
 	path = bundle/splitjoin.vim
 	url = https://github.com/AndrewRadev/splitjoin.vim
+[submodule "bundle/ctrlp"]
+	path = bundle/ctrlp
+	url = https://github.com/kien/ctrlp.vim.git
