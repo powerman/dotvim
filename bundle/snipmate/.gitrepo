@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/powerman/snipmate.vim
+	branch = 793bdaf5afff71ad78db85bf0a206cc5062f23eb
+	commit = 793bdaf5afff71ad78db85bf0a206cc5062f23eb
+	parent = 102b2937943ad0201d875d31fba969dcb43cc0c4
+	method = merge
+	cmdver = 0.4.1
