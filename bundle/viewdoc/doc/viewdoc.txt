@@ -1,0 +1,775 @@
+*viewdoc.txt*	Flexible viewer for any documentation (help/man/perldoc/etc.)
+
+Author: Alex Efros <powerman-asdf@ya.ru>
+
+For Vim version 7.0 or later.
+This plugin only works if 'compatible' is not set.
+
+Contents:
+    Description			|viewdoc|
+    Mappings	    		|viewdoc-mappings|
+    Commands			|viewdoc-commands|
+    Settings	    		|viewdoc-settings|
+    Functions	    		|viewdoc-functions|
+    Variables	                |viewdoc-variables|
+    Handlers	    		|viewdoc-handlers|
+	DEFAULT			|ViewDoc_DEFAULT|
+	man			|ViewDoc_man|
+	help			|ViewDoc_help|
+	help_custom		|ViewDoc_help_custom|
+	perldoc			|ViewDoc_perldoc|
+	godoc			|ViewDoc_godoc|
+	pydoc			|ViewDoc_pydoc|
+	pman			|ViewDoc_pman|
+	infman			|ViewDoc_infman|
+	ri			|ViewDoc_ri|
+	bashhelp		|ViewDoc_bashhelp|
+	info		        |ViewDoc_info|
+    Source and issue tracker	|viewdoc-source|
+    Contributors            	|viewdoc-contributors|
+    License			|viewdoc-license|
+
+==============================================================================
+DESCRIPTION					*viewdoc*
+
+Flexible viewer for any documentation source (help/man/perldoc/etc.) for any
+file type inside Vim in easy to use, consistent, smart and configurable way.
+
+ * You can configure how (keys/commands) documentation will be open.
+   By default it will replace standard mapping for key <K> and commands |:help|
+   and |:h| plus add mapping for <F1> key and new commands |:man|, |:doc|, etc.
+
+ * You can configure where (buffer/window/tab) documentation will be open.
+   Can open new docs in one dedicated (<K>) or new (<F1>) buffer/window/tab. 
+   Support all work styles (see |viewdoc-settings-examples|):
+
+   - full screen (no tabs, one window, open files/docs are in hidden buffers), 
+   - windowed (no tabs, many windows with open files/docs), 
+   - tabbed full screen (many tabs, each with one window, open files/docs are
+     in different tabs), 
+   - tabbed (many tabs with many windows inside tabs). 
+
+ * You can easily navigate to next/previous topic while viewing documentation
+   using <C-]> and <C-T> (or alternative keys <CR> and <BS>), just
+   like you use tags for navigation within source code and Vim's help.
+
+ * Even closing documentation buffer/window/tab is easier, smarter and more
+   configurable than ever before. :)
+
+ * Smart detection of documentation source and topic when opening
+   documentation for <cword> (word under cursor) - can use current syntax
+   highlight (to find topic's context) and surrounding text (when topic
+   doesn't include important special symbols because of 'iskeyword' value).
+
+ * Smart completion for available documentation topics when opening
+   documentation using command (just like Vim's |:help| command works).
+   (Some documentation sources may not support this.)
+
+ * Supported documentation sources:
+
+   - man pages
+   - Vim's help
+   - custom documentation in vim help format
+   - perldoc
+   - godoc
+   - pydoc (python)
+   - pman (php)
+   - OS Inferno man pages
+   - ri (ruby)
+   - bash's help
+   - GNU info (smart support for: awk, make, m4, automake)
+
+ * Support for new documentation sources and file types can be easily added by
+   external plugins or within ~/.vimrc file.
+
+ * You can have several documentation sources for same file type, and choose
+   which one should be used on-the-fly.
+
+ * Can be used as console man page viewer instead of /usr/bin/man.
+
+Tested only in Linux, but should work in any *NIX.
+
+==============================================================================
+MAPPINGS					*viewdoc-mappings*
+
+Global:~
+
+<F1>	Open doc for <cword> (word under cursor) in new "[DocN]" buffer.
+	To disable use |g:no_viewdoc_maps|.
+
+K	Open doc for <cword> in existing "[Doc]" buffer, replacing it current
+	contents (will create "[Doc]" buffer if it doesn't exists yet).
+	To disable use |g:no_viewdoc_maps|.
+
+Local to buffer with documentation:~
+
+q	Close this buffer/window/tab, |:quit| from Vim if it was the last one.
+
+<C-]> or <CR>
+	Open documentation for <cword> in same buffer.
+
+<C-T> or <BS>
+	Return to previous documentation in same buffer (after using <C-]>).
+
+==============================================================================
+COMMANDS					*viewdoc-commands*
+
+General:~
+
+:doc[!] {topic} [{filetype}]			*:doc*
+:doc[!] <cword> [{filetype}]
+	Abbrev for |:ViewDoc|.
+	To disable use |g:no_viewdoc_abbrev|.
+
+:ViewDoc[!] {topic} [{filetype}]		*:ViewDoc*
+:ViewDoc[!] <cword> [{filetype}]
+	Show documentation for word {topic} or for word under cursor (type
+	<cword> literally as is, not as "<cword>" or as expand("<cword>")).
+
+	Without {filetype} will use 'ft' of current buffer to detect which
+	one of |viewdoc-handlers| (man/help/perldoc/etc.) should be used to
+	show documentation for {topic}/<cword>.
+
+	When used with <cword> handler may use smart detection of context
+	when needed - check syntax highlight used for word under cursor or
+	surrounding text (which wasn't included in expand("<cword>") because
+	of 'iskeyword' value).
+
+	By default will open documentation in new "[DocN]" buffer, but when
+	[!] is added will open doc in existing "[Doc]" buffer (will create it if
+	not exists yet). Will this buffer open in current window, new window
+	or new tab depends on |viewdoc-settings|.
+
+	Examples: >
+	    :doc substr perl
+	    :doc! <cword>	" same as pressing <K>
+
+Added by man handler:~
+
+:man[!] {sect} {topic}				*:man*
+:man[!] {topic}({sect})
+:man[!] {topic}
+:man[!] {sect} <cword>
+:man[!] <cword>
+	Abbrev for |:ViewDocMan|.
+	To disable use |g:no_viewdoc_abbrev|.
+
+:ViewDocMan[!] {sect} {topic}			*:ViewDocMan*
+:ViewDocMan[!] {topic}({sect})
+:ViewDocMan[!] {topic}
+:ViewDocMan[!] {sect} <cword>
+:ViewDocMan[!] <cword>
+	Show man page for given {topic} and (optional) {sect}.
+
+	Works in same way as |:ViewDoc| with {filetype}=man, plus:
+	* support {sect} as separate first param
+	* provide auto-complete for {topic} and ({sect}): >
+	    :man tim<Tab>	" auto-complete {topic}
+	    :man 2 tim<Tab>	" auto-complete {topic} for section 2 only
+	    :man time(<Tab>	" auto-complete {sect}
+
+Added by help handler:~
+
+:help[!] {topic}
+:help[!] <cword>
+:h[!] {topic}
+:h[!] <cword>
+	Abbrev for |:ViewDocHelp|.
+	To disable use |g:no_viewdoc_abbrev|.
+
+:ViewDocHelp[!] {topic}				*:ViewDocHelp*
+:ViewDocHelp[!] <cword>
+	Show Vim help for given {topic}.
+
+	Works in same way as |:ViewDoc| with {filetype}=help, plus:
+	* provide same auto-complete and other behaviour as standard |:help|,
+	  so it can be used as drop-in replacement
+
+Added by perldoc handler:~
+
+:perldoc[!] {topic}				*:perldoc*
+:perldoc[!] <cword>
+	Abbrev for |:ViewDocPerl|.
+	To disable use |g:no_viewdoc_abbrev|.
+
+:ViewDocPerl[!] {topic}				*:ViewDocPerl*
+:ViewDocPerl[!] <cword>
+	Show perl documentation for given {topic}.
+
+	Works in same way as |:ViewDoc| with {filetype}=perl, plus:
+	* provide auto-complete for variables/function/modules/POD/etc.
+
+Added by godoc handler:~
+
+:godoc[!] {package}				*:godoc*
+:godoc[!] {package} {identifier}
+:godoc[!] <cword>
+	Abbrev for |:ViewDocGo|.
+	To disable use |g:no_viewdoc_abbrev|.
+
+:ViewDocGo[!] {package}				*:ViewDocGo*
+:ViewDocGo[!] {package} {identifier}
+:ViewDocGo[!] <cword>
+	Show golang documentation for given {package}.
+
+	Works in same way as |:ViewDoc| with {filetype}=go, plus:
+	* provide auto-complete for packages and exported identifiers.
+
+Added by pydoc handler:~
+
+:pydoc[!] {topic}				*:pydoc*
+:pydoc[!] <cword>
+	Abbrev for |:ViewDocPydoc|.
+	To disable use |g:no_viewdoc_abbrev|.
+
+:ViewDocPydoc[!] {topic}			*:ViewDocPydoc*
+:ViewDocPydoc[!] <cword>
+	Show python documentation for given {topic}.
+
+	Works in same way as |:ViewDoc| with {filetype}=python, plus:
+	* provide auto-complete for topics, keywords and modules.
+
+Added by pman handler:~
+
+:pman[!] {sect} {topic}				*:pman*
+:pman[!] {topic}({sect})
+:pman[!] {topic}
+:pman[!] {sect} <cword>
+:pman[!] <cword>
+	Abbrev for |:ViewDocPman|.
+	To disable use |g:no_viewdoc_abbrev|.
+
+:ViewDocPman[!] {sect} {topic}			*:ViewDocPman*
+:ViewDocPman[!] {topic}({sect})
+:ViewDocPman[!] {topic}
+:ViewDocPman[!] {sect} <cword>
+:ViewDocPman[!] <cword>
+	Show php man page for given {topic} and (optional) {sect}.
+
+	Works in same way as |:ViewDoc| with {filetype}=php, plus:
+	* support {sect} as separate first param
+	* provide auto-complete for {topic} and ({sect}): >
+	    :pman tim<Tab>	" auto-complete {topic}
+	    :pman 3 tim<Tab>	" auto-complete {topic} for section 3 only
+	    :pman time(<Tab>	" auto-complete {sect}
+
+Added by infman handler:~
+
+:infman[!] {sect} {topic}			*:infman*
+:infman[!] {topic}({sect})
+:infman[!] {topic}
+:infman[!] {sect} <cword>
+:infman[!] <cword>
+	Abbrev for |:ViewDocInfman|.
+	To disable use |g:no_viewdoc_abbrev|.
+
+:ViewDocInfman[!] {sect} {topic}		*:ViewDocInfman*
+:ViewDocInfman[!] {topic}({sect})
+:ViewDocInfman[!] {topic}
+:ViewDocInfman[!] {sect} <cword>
+:ViewDocInfman[!] <cword>
+	Show OS Inferno man page for given {topic} and (optional) {sect}.
+
+	Works in same way as |:ViewDoc| with {filetype}=limbo, plus:
+	* support {sect} as separate first param
+	* provide auto-complete for {topic} and ({sect}): >
+	    :infman tim<Tab>	" auto-complete {topic}
+	    :infman 2 tim<Tab>	" auto-complete {topic} for section 2 only
+	    :infman time(<Tab>	" auto-complete {sect}
+
+Added by ri handler:~
+
+:rdoc[!] {topic}				*:rdoc*
+	Abbrev for |:ViewDocRi|.
+	To disable use |g:no_viewdoc_abbrev|.
+
+:ViewDocRi[!] {topic}				*:ViewDocRi*
+	Show Ruby documentation for given {topic}.
+
+	Works in same way as |:ViewDoc| with {filetype}=ruby.
+
+Added by bashhelp handler:~
+
+:bashhelp[!] {topic}				*:bashhelp*
+	Abbrev for |:ViewDocBashHelp|.
+	To disable use |g:no_viewdoc_abbrev|.
+
+:ViewDocBashHelp[!] {topic}			*:ViewDocBashHelp*
+	Show bash's help for given {topic}.
+
+	Works in same way as |:ViewDoc| with {filetype}=sh except it
+	doesn't fallback to |:ViewDocMan|.
+
+Added by info handler:~
+
+:info[!] 				        *:info*
+:info[!] {topic}
+:info[!] ({file}){node}
+:info[!] {menu-item} ...
+	Abbrev for |:ViewDocInfo|.
+	To disable use |g:no_viewdoc_abbrev|.
+
+:ViewDocInfo[!] 				*:ViewDocInfo*
+:ViewDocInfo[!] {topic}
+:ViewDocInfo[!] ({file}){node}
+:ViewDocInfo[!] {menu-item} ...
+	Show GNU info documentation.
+	* with no parameters it will load info directory (dir)Top
+	* with one or more parameters, it behaves identically to GNU Info.
+
+	Example invocations are: >
+	    :ViewDocInfo
+	    :ViewDocInfo ls
+	    :ViewDocInfo (coreutils)
+	    :ViewDocInfo (coreutils)ls\ invocation
+	    :ViewDocInfo Bash Bash\ Features Aliases
+<
+	Features auto-complete for {topic} and ({file}){node} separately: >
+	    :ViewDocInfo <Tab>		" auto-complete {topic}
+	    :ViewDocInfo Fil<Tab>	" auto-complete {topic}
+	    :ViewDocInfo (co<Tab>	" auto-complete ({file}){node}
+	    :ViewDocInfo Bash Bash\ Fe<Tab>	"auto-complete subtopic
+<
+
+==============================================================================
+SETTINGS					*viewdoc-settings*
+
+General:~
+
+g:no_viewdoc_abbrev				*g:no_viewdoc_abbrev* 
+g:no_plugin_abbrev
+	Set any of these variables to disable abbrev:
+	|:doc|, |:man|, |:help|, |:h|, |:perldoc|, |:godoc|, |:pydoc|, |:pman|,
+        |:infman|, |:rdoc|.
+
+g:no_viewdoc_maps				*g:no_viewdoc_maps* 
+g:no_plugin_maps
+	Set any of these variables to disable mapping <K>, <F1>.
+
+g:viewdoc_open		="tabnew" (default)	*g:viewdoc_open*
+			="topleft new"
+			="belowright vnew"
+	Control where documentation will be open by choosing Vim command used
+	to open new window/tab. You can use any similar commands supported by
+	Vim. New documentation buffer will be opened using: >
+	    execute g:viewdoc_open	    " to create new [DocN] buffer
+	    execute g:viewdoc_open [Doc]    " to create new [Doc] buffer
+
+g:viewdoc_only		=0 (default)		*g:viewdoc_only*
+			=1
+	If you open documentation in window (|g:viewdoc_open|!="tabnew"), you
+	can force this window to be the "only" window in current tab by
+	changing this variable to True value.
+
+g:viewdoc_prevtabonclose=1 (default)		*g:viewdoc_prevtabonclose*
+			=0
+	If you open documentation in new tab (|g:viewdoc_open|=="tabnew"),
+	then when you close that tab Vim by default will move to next tab.
+	This plugin by default change this behaviour to move to previous tab.
+	If you like original behaviour set this variable to False.
+
+g:viewdoc_openempty	=1 (default)		*g:viewdoc_openempty*
+			=0
+	If documentation can't be found, empty window with error message will
+	be opened. This is default behaviour to make consistent UI experience
+	(<q> after <F1> will always return to where you was before <F1>).
+	Set this variable to False to avoid opening empty window when
+	documentation can't be found (error message will be shown anyway).
+
+g:viewdoc_dontswitch	=0 (default)		*g:viewdoc_dontswitch*
+			=1
+	By default after opening documentation you'll be switched to
+	buffer/window/tab with that documentation (except situation when
+	documentation wasn't found and you've set |g:viewdoc_openempty|=0).
+	If you prefer to don't change your current buffer/window/tab
+	then set this variable to True. This may make sense in
+	|viewdoc-windowed| or |viewdoc-tabbed| configurations and probably
+	very bad idea in all other cases.
+
+g:viewdoc_copy_to_search_reg	=0 (default)		*g:viewdoc_copy_to_search_reg*
+				=1
+	If set to 1, the word which is looked up is also copied into the Vims
+	search register which allows to easily search in the documentation for
+	occurrences of this word.
+
+g:viewdoc_winwidth_max		=0 (default)		*g:viewdoc_winwidth_max*
+        If set, limits the text width passed to doc formatters, so paragraphs
+        width can be limited to |g:viewdoc_winwidth_max| characters rather than
+        stretch across very wide windows.  Some documentation is pre-formatted,
+        and this will have no effect.
+
+Added by man handler:~
+
+g:viewdoc_man_cmd   ="man" (default)            *g:viewdoc_man_cmd*
+	Should contain command to run `man`. You may wanna change it, for ex.
+	to force English manuals: >
+	    let g:viewdoc_man_cmd='LANG=en_US.UTF-8 man'
+<
+Added by perldoc handler:~
+
+g:viewdoc_perldoc_format ="text" (default)          *g:viewdoc_perldoc_format*
+	Should contain value for `-o` option for `perldoc`. >
+	    let g:viewdoc_perldoc_format='ansi'
+<
+Added by godoc handler:~
+
+g:viewdoc_godoc_cmd ="godoc" (default)          *g:viewdoc_godoc_cmd*
+	Should contain command to run `godoc`. >
+	    let g:viewdoc_godoc_cmd='/path/to/godoc'
+<
+Added by pydoc handler:~
+
+g:viewdoc_pydoc_cmd ="pydoc" (default)          *g:viewdoc_pydoc_cmd*
+	Should contain command to run `pydoc`. You may wanna change it, for ex.
+	to force different python version's doc: >
+	    let g:viewdoc_pydoc_cmd='pydoc3.2'
+<
+Added by pman handler:~
+
+g:viewdoc_pman_cmd  ="pman" (default)           *g:viewdoc_pman_cmd*
+	Should contain command to run `pman`.
+
+Added by infman handler:~
+
+g:viewdoc_infman_cmd="emu-g"			*g:viewdoc_infman_cmd*
+	Should contain command able to run any OS Inferno commands (`emu-g`).
+
+Added by ri handler:~
+
+g:viewdoc_ri_cmd ="ri" (default)                *g:viewdoc_ri_cmd*
+	Should contain command to run `ri`. You may wanna change it, for ex.
+	to force different version of ri: >
+	    let g:viewdoc_ri_cmd='ri20'
+
+g:viewdoc_ri_format ="markdown" (default)       *g:viewdoc_ri_format*
+	Should contain value for `--format` option for `ri`. >
+	    let g:viewdoc_ri_format='rdoc'
+
+Added by info handler:~
+
+g:viewdoc_info_cmd ="info" (default)            *g:viewdoc_info_cmd*
+	Should contain command to run `info`.
+
+g:viewdoc_info_path ="/usr/share/info" (default) *g:viewdoc_info_path*
+	Should contain directories to search for info files.
+
+g:ViewDoc_info_search                           *g:ViewDoc_info_search*
+g:ViewDocInfoIndex_{filetype} ="{index node}"   *g:ViewDocInfoIndex_{filetype}()*
+	For keyword search one needs to set two variables per filetype: >
+	    let g:ViewDoc_{ft} = function('ViewDoc_info_search')
+	    let g:ViewDocInfoIndex_{ft} = '{index node}'
+<
+	where {index node} can be either a string (name of index node of
+	manual, eg. "(gawk)Index") or a list (if there are multiple indices
+	that should be used).
+	Settings for awk, make, m4 and automake already included.
+	Example: >
+	    let g:ViewDoc_make = g:ViewDoc_info_search
+	    let g:ViewDocInfoIndex_make = '(make)Name Index'
+<
+
+						*viewdoc-settings-examples*
+						*viewdoc-fullscreen*
+
+Example configuration: full screen~
+ * no tabs
+ * one window
+ * other open files/docs are in hidden buffers
+ * navigation between files/docs: |:bn| and |:bp|, close: |:bd| >
+    let g:viewdoc_open='new'
+    let g:viewdoc_only=1
+<						*viewdoc-windowed*
+Example configuration: windowed~
+ * no tabs
+ * many windows with open files/docs
+ * navigation/close: CTRL-W something >
+    let g:viewdoc_open='topleft new'
+<						*viewdoc-tabbed-fullscreen*
+Example configuration: tabbed full screen~
+ * many tabs
+ * each with one window
+ * open files/docs are in different tabs >
+    " this is default configuration
+<						*viewdoc-tabbed*
+Example configuration: tabbed~
+ * many tabs with many windows inside tabs >
+    " same as in windowed example above
+
+==============================================================================
+FUNCTIONS					*viewdoc-functions*
+
+This plugin provide global function ViewDoc() and many ViewDoc_{filetype}()
+functions, but only |ViewDoc()| function may be called by user (other
+functions are documentation handlers called internally by |ViewDoc()|).
+
+ViewDoc({target}, {topic}, {filetype})		*ViewDoc()*
+ViewDoc({target}, {topic})
+ViewDoc({target}, '<cword>', {filetype})
+ViewDoc({target}, '<cword>')
+	This function handle all |viewdoc-commands|.
+
+	{target} can be "new" or "doc".
+	If it "new", then documentation will be open in new "[DocN]" buffer.
+	If it "doc", then documentation will be open in existing "[Doc]" buffer
+	(new "[Doc]" buffer will be created if it doesn't exists yet).
+	Using {target}=="doc" is same as using |viewdoc-commands| with [!].
+
+	Other parameters documented in |:ViewDoc|.
+
+==============================================================================
+VARIABLES	                                *viewdoc-variables*
+
+May be useful for interaction with other plugins or user setup:~
+
+b:topic	                                        *b:topic* 
+	Contain current documentation's topic.
+
+==============================================================================
+HANDLERS					*viewdoc-handlers*
+
+						*ViewDoc_{filetype}()*
+To add documentation handler for new {filetype} it's enough to create one
+global function (or global variable with same name assigned to Funcref or
+List of Funcrefs) in ~/.vimrc (or some plugin): >
+
+    ViewDoc_{filetype}(topic, filetype, synid, have_context)
+<
+This function will receive 4 parameters:
+
+topic		Requested documentation topic ({topic} or <cword> param for
+		|:ViewDoc|, if it was <cword> then it will be replaced with
+		expand("<cword>") before calling this function).
+
+filetype	Requested documentation type ({filetype} param for
+		|:ViewDoc| or 'ft' if {filetype} param wasn't used).
+		Usually will be same as in this function's name, unless you've
+		used same function for several file type, like: >
+		    function s:ViewDoc_sh(topic, ...) | ... | endfunction
+		    let g:ViewDoc_sh   = function('s:ViewDoc_sh')
+		    let g:ViewDoc_tcsh = function('s:ViewDoc_sh')
+
+synid		Syntax id for requested topic as returned by |synID()|.
+		Can be non-zero only if |:ViewDoc| was called with <cword>.
+
+have_context	True if we've context (|:ViewDoc| was called with <cword>).
+		If true, then this function may try to analyse topic context,
+		like surrounding symbols which wasn't included in topic param.
+
+Examples of calling documentation handler functions:
+    1) User press <F1> on word "test" in file "script.sh": >
+	    call ViewDoc_man('test', 'sh', 353, 1)
+<   2) User run command ":help local-additions" >
+	    call ViewDoc_help('local-additions', 'help', 0, 0)
+
+This function must return Dictionary with these keys (all optional): >
+
+    'topic':	String  modified topic, needed if your altered original topic
+    'cmd':	String  shell command which should output doc for topic
+    'ft':	String  file type for command output
+    'line':	Number  position to move cursor after opening doc
+    'col':	Number  position to move cursor after opening doc
+    'search':	String  regexp to search (to move cursor) after opening doc
+    'tags':	String  path to file with tags for this doc
+    'docft':	String  file type for navigating with <C-]> inside this doc
+
+For example, here is implementation of |ViewDoc_pydoc| handler: >
+
+    function s:ViewDoc_pydoc(topic, ...)
+	    return  { 'cmd':	printf('pydoc %s', shellescape(a:topic,1)),
+		    \ 'ft':	'pydoc',
+		    \ }
+    endfunction
+    let g:ViewDoc_pydoc  = function('s:ViewDoc_pydoc')
+    let g:ViewDoc_python = function('s:ViewDoc_pydoc')
+
+The `cmd` value may contain substring `{{winwidth}}` - it will be replaced
+with Doc's window width.
+
+Support for multiple documentation providers per filetype~
+
+You can set ViewDoc_{filetype} variable to List of Funcrefs (or names of
+global variables containing Funcref) - in this case each Funcref will be tried
+in order until one of them will return non-empty documentation.
+
+For example, here is value of |ViewDoc_sh| variable: >
+
+    let g:ViewDoc_sh = [ g:ViewDoc_bashhelp, 'ViewDoc_man' ]
+
+------------------------------------------------------------------------------
+Handler: DEFAULT				*ViewDoc_DEFAULT*
+
+If there is no handler for current filetype then |ViewDoc_man| will be used.
+To change default handler to, for ex., |ViewDoc_help|, add to ~/.vimrc: >
+
+    let g:ViewDoc_DEFAULT = 'ViewDoc_help'
+
+Or you can use function reference instead of function name, but this may
+require delaying until this function will be loaded (if it isn't defined
+in ~/.vimrc): >
+
+    autocmd VimEnter *   let g:ViewDoc_DEFAULT = g:ViewDoc_help
+
+------------------------------------------------------------------------------
+Handler: man					*ViewDoc_man*
+
+Show doc using |g:viewdoc_man_cmd| command when {filetype} is "man".
+Also used as default handler, see |ViewDoc_DEFAULT|.
+
+Added commands: |:man| |:ViewDocMan|.
+Added settings: |g:viewdoc_man_cmd|.
+
+To view man pages in Vim from console add this script to ~/bin/man: >
+
+    #!/bin/bash
+    if [ ${1:0:1} == "-" ]; then
+	    exec /usr/bin/man $*
+    else
+	    exec vim -c "ViewDocMan $*" -c tabonly
+    fi
+
+NOTE For compatibility with autosess plugin (vimscript 3883) change last
+exec line in above script to: >
+
+	    exec vim --cmd 'let g:loaded_autosess=1' -c "ViewDocMan $*" -c tabonly
+
+------------------------------------------------------------------------------
+Handler: help					*ViewDoc_help*
+
+Show standard Vim help when {filetype} is "vim" or "help".
+
+Viewing Vim help using this plugin have some advantages:
+
+ * much better control how and where help window will be opened
+ * smart detection (<F1> on "&opt" will show help for 'opt', etc.)
+ * and, of course, using <q> to close help
+
+Added commands: |:help| |:h| |:ViewDocHelp|.
+
+------------------------------------------------------------------------------
+Handler: help_custom				*ViewDoc_help_custom*
+
+Show doc for any {filetype} using separate .txt files written in Vim help
+format and stored in directory 'runtimepath'/ftdoc/{filetype}/ (no such help
+files provided with this plugin, you should download or write them yourself).
+
+Examples of external docs which can be used with this handler:
+
+ * CSS 2.1, from http://www.vim.org/scripts/script.php?script_id=918
+    Create directory ~/.vim/ftdoc/css: >
+	:!mkdir -p ~/.vim/ftdoc/css/
+<   Copy .txt file from archive into ~/.vim/ftdoc/css/css21.txt, and run: >
+	:helptags ~/.vim/ftdoc/css/
+<   Add to ~/.vimrc: >
+	let g:ViewDoc_css = 'ViewDoc_help_custom'
+<
+ * CMake, from http://www.vim.org/scripts/script.php?script_id=3045
+    Create directory ~/.vim/ftdoc/cmake: >
+	:!mkdir -p ~/.vim/ftdoc/cmake/
+<   Copy *.txt files from archive into ~/.vim/ftdoc/cmake/*.txt, and run: >
+	:helptags ~/.vim/ftdoc/cmake/
+<   Add to ~/.vimrc: >
+	let g:ViewDoc_cmake = 'ViewDoc_help_custom'
+<
+ * LaTeX, from http://vim-latex.sourceforge.net/download/latexhelp.txt
+    Create directory ~/.vim/ftdoc/tex: >
+	:!mkdir -p ~/.vim/ftdoc/tex/
+<   Copy latexhelp.txt file into ~/.vim/ftdoc/tex/latexhelp.txt, and run: >
+	:helptags ~/.vim/ftdoc/tex/
+<   Add to ~/.vimrc: >
+	let g:ViewDoc_tex = 'ViewDoc_help_custom'
+
+------------------------------------------------------------------------------
+Handler: perldoc				*ViewDoc_perldoc*
+
+Show doc using `perldoc` command when {filetype} is "perl" or "perldoc".
+
+Added commands: |:perldoc| |:ViewDocPerl|.
+
+------------------------------------------------------------------------------
+Handler: godoc					*ViewDoc_godoc*
+
+Show doc using |g:viewdoc_godoc_cmd| command when {filetype} is "go".
+Show package source using |g:viewdoc_godoc_cmd| command when {filetype} is "godoc".
+
+Added commands: |:godoc| |:ViewDocGo|.
+Added settings: |g:viewdoc_godoc_cmd|.
+
+------------------------------------------------------------------------------
+Handler: pydoc					*ViewDoc_pydoc*
+
+Show doc using |g:viewdoc_pydoc_cmd| command when {filetype} is "python" or "pydoc".
+
+Added commands: |:pydoc| |:ViewDocPydoc|.
+Added settings: |g:viewdoc_pydoc_cmd|.
+
+------------------------------------------------------------------------------
+Handler: pman					*ViewDoc_pman*
+
+Show doc using |g:viewdoc_pman_cmd| command when {filetype} is "php" or "pman".
+
+Added commands: |:pman| |:ViewDocPman|.
+Added settings: |g:viewdoc_pman_cmd|.
+
+------------------------------------------------------------------------------
+Handler: infman					*ViewDoc_infman*
+
+Show doc using |g:viewdoc_infman_cmd| command when {filetype} is "limbo" or
+"infman".
+
+Added commands: |:infman| |:ViewDocInfman|.
+Added settings: |g:viewdoc_infman_cmd|.
+
+------------------------------------------------------------------------------
+Handler: ri					*ViewDoc_ri*
+
+Show doc using |g:viewdoc_ri_cmd| command when {filetype} is "ruby" or "rdoc".
+
+Added commands: |:rdoc| |:ViewDocRi|.
+Added settings: |g:viewdoc_ri_cmd|.
+
+------------------------------------------------------------------------------
+Handler: bashhelp				*ViewDoc_bashhelp*
+
+Show doc using bash's `help` command when {filetype} is "sh",
+if not found then fallback to |:ViewDoc_man|.
+
+Added commands: |:bashhelp| |:ViewDocBashHelp|.
+
+------------------------------------------------------------------------------
+Handler: info					*ViewDoc_info*
+
+Show doc using |g:viewdoc_info_cmd| command when {filetype} is "info" or "awk"
+or "make" or "m4" or "automake".
+
+Added commands: |:info| |:ViewDocInfo|.
+Added settings: |g:viewdoc_info_cmd|, |g:viewdoc_info_path|.
+
+==============================================================================
+SOURCE AND ISSUE TRACKER			*viewdoc-source*
+
+https://github.com/powerman/vim-plugin-viewdoc
+
+==============================================================================
+CONTRIBUTORS            			*viewdoc-contributors*
+
+In alphabetical order:~
+
+Artem Nezvigin (github: artnez)
+ * Ruby (ri) support
+
+pawel.wiecek@tieto.com
+ * Make viewdoc buffers easier to identify
+ * LaTeX (help_custom) support
+ * Add b:topic
+ * Support for multiple documentation providers per filetype
+ * Bash's help support
+ * GNU info (smart support for: awk, make, m4, automake)
+
+Robin Schneider (github: ypid)
+ * Add g:viewdoc_copy_to_search_reg
+
+==============================================================================
+LICENSE						*viewdoc-license*
+
+Public Domain.
+

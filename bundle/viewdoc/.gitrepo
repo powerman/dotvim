@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/powerman/vim-plugin-viewdoc
+	branch = 1.13
+	commit = 19a19d8a12e53a4d85d18a8753aab8934dc966fe
+	parent = 6b96e6aeb7ce3e1345cef48778beede7d5d001a8
+	method = merge
+	cmdver = 0.4.1
