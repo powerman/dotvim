@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/pearofducks/ansible-vim
+	branch = e5fa3719cdf99dadaae1d30cec927e7851ed601b
+	commit = e5fa3719cdf99dadaae1d30cec927e7851ed601b
+	parent = c3fe915cff3e34e50e6b8ff31f15a968d5e75f59
+	method = merge
+	cmdver = 0.4.1
