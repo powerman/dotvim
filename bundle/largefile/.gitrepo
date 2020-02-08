@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/vim-scripts/largefile
+	branch = 5
+	commit = 3941a37b2b0288524300348a39521a46539bf9f6
+	parent = 0dcbe53ed511b047c2027ebdfab5005c0a85ba56
+	method = merge
+	cmdver = 0.4.1
