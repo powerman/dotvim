@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/fatih/vim-go
+	branch = 311ea9dbbe91186afc8262cb2a2e52b406a32dbd
+	commit = 311ea9dbbe91186afc8262cb2a2e52b406a32dbd
+	parent = c743569a12ed54443e8e8bf2baf778fe871bfd08
+	method = merge
+	cmdver = 0.4.1
