@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/toyamarinyon/vim-swift.git
+	branch = a0f827964ec5066e3f5748004626a7e31094cf3d
+	commit = a0f827964ec5066e3f5748004626a7e31094cf3d
+	parent = 3eff6bd827f3dc4f51eeb5d40ef1a020136b1184
+	method = merge
+	cmdver = 0.4.1
