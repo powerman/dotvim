@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/IN3D/vim-raml
+	branch = f680980a35254a905cd0f3068c51640dc0cdbd2f
+	commit = f680980a35254a905cd0f3068c51640dc0cdbd2f
+	parent = e1d3fb7aa77a86cf80035a6f126a8e7110abbccf
+	method = merge
+	cmdver = 0.4.1
