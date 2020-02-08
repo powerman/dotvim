@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/powerman/supertab
+	branch = 1e203b4c4c3c193f733d9a9caccd5807dd5b0176
+	commit = 1e203b4c4c3c193f733d9a9caccd5807dd5b0176
+	parent = f23390783c7b57bc9838b43050bdfe6092696b60
+	method = merge
+	cmdver = 0.4.1
