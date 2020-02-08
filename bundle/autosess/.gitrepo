@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/powerman/vim-plugin-autosess
+	branch = 1.2.3
+	commit = e0f47edb8a35bb1ba66b55a18d2687494bb27474
+	parent = 7dee378bd9fec96bdfed3ebb0cbb9315a5029fb9
+	method = merge
+	cmdver = 0.4.1
