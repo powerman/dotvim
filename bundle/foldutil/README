@@ -1,0 +1,203 @@
+This is a mirror of http://www.vim.org/scripts/script.php?script_id=158
+
+  The plugins provides useful commands for the ease of creating folds using
+  different match-criteria. They support creating folds in three different
+  modes, in the whole buffer, or only in the selected range:
+      - block mode
+        You give a starting and ending pattern for the blocks.
+      - outline mode
+        You give a pattern that determines the start of the block. A new
+        block automatically starts whenever the pattern is found.
+      - non-block mode
+        You give a pattern which determines the set of lines that should be
+        included in the folds. Useful to see only the matching/non-matching
+        lines with or without context.
+                                                                               
+  The first set of commands use pattern matching criteria (using the
+  built-in =~ operator, see help on |expr-=~|).
+  
+    FoldMatching - All arguments are optional. The first argument specifies
+                   the begin pattern and an optional second argument can be
+                   passed to specify an end pattern (for block mode) and
+                   additionally the number of context lines to be shown
+                   (which defaults to 1 if not specified). To specify an
+                   outline mode, a special value of -1 should be specified
+                   as context.
+        Syntax:
+          [range]FoldMatching[!] [pattern] [endPattern] [context]
+
+        Ex:
+          FoldMatching
+            Uses current search pattern and creates folds in non-block mode
+            with the default context of 1.
+          FoldMatching! ^\s*// 0
+            This potentially folds away all the lines that are not in
+            C++/Java single-line comments such that you can see only those
+            comments.
+          FoldMatching public -1
+            Uses "public" as the pattern and creates folds in outline mode.
+          FoldMatching /\* \*/ 0
+            Creates folds for all the C++/Java style block comments with no
+            context.
+                                                                               
+    FoldNonMatching - This is just an alias for "FoldMatching" with a bang.
+                                                                               
+  The following commands use line number as match criteria
+  
+    FoldShowLines - Pass a comma-separated list of line numbers and an
+                    optional number of context lines to show/hide. All the
+                    rest of the lines (excluding those in context) will be
+                    folded away. You can also create blocks by specifying an
+                    optional list of line numbers as a second argument. You
+                    can give a range too.
+        Syntax:
+          [range]FoldShowLines[!] {lineNumbers} [endLineNumbers] [context]
+  
+        Ex:
+          FoldShowLines 10,50,100 3
+            Creates four folds exposing the lines 10, 50 and 100 with a
+            context of 3 lines.
+          FoldShowLines! 5,15,25 10,20,30 0
+            Creates three folds with 5 to 10, 15 to 20 and 25 to 30 as blocks.
+                                                                               
+    FoldShowMarks - Shows all the lines that have a mark defined in the
+                    current buffer, by folding away all the rest of the
+                    lines. Only the marks from a-z and A-Z are considered
+                    for match criteria.
+        Syntax:
+          [range]FoldShowMarks [context]
+                                                                               
+  The following command takes a highlight group as a match criteria, and
+    uses it to show/hide lines.
+  
+    FoldShowHiGroup - Pass a highlight group name and an optional number of
+                    context lines to be shown. All the rest of the lines
+                    (excluding those in context) will be folded away. You
+                    can also create blocks by specifying an optional end
+                    highligh group as a second argument. You can give a
+                    range too.
+        Syntax:
+          [range]FoldShowHiGroup[!] {HiGroup} [endHiGroup] [context]
+  
+        Ex:
+          FoldShowHiGroup Todo
+            Folds away all the lines except those that have a TODO item
+            mentioned (in Java, this is all the comments containing the
+            words TODO or FIXME, by default) with a context of 1 line.
+          FoldShowHiGroup Special 0
+            In HTML this reveals just the lines containing special characters.
+          FoldShowHiGroup! Comment 0
+            This will fold away all the comment lines in any language.
+  
+  The following is purely for convenience to reduce the number of commands
+  to be executed (you need to create separate folds).
+                                                                               
+    FoldShowRange - All the lines are folded except for the lines in the range
+                    given. Helps to search only in a range of lines, as it is
+                    easy to identify when the cursor goes out of the range.
+                    Also consider removing "search" and "jump" from
+                    'foldopen' setting.
+        Syntax:
+          [range]FoldShowRange
+  
+        Ex:
+          50,500FoldShowRange
+  
+      The defaults for pattern and context are current search pattern
+        (extracted from / register) and 1 respectively.
+      The outline mode additionally modifies the 'foldtext' such that the
+        starting line shows up as the summary line for the fold (without the
+        usual dashes and number of lines in the prefix). This allows you to
+        view the matched lines more clearly and also follow the same
+        indentation as the original (nice when folding code). You can
+        however set g:foldutilFoldText to any value that is acceptable for
+        'foldtext' and customize this behavior (e.g., to view the number of
+        lines in addition to the matched line, set it to something like:
+            "getline(v:foldstart).' <'.(v:foldend-v:foldstart+1).' lines>'").
+                                                                               
+      Ex: 
+        - Open a vim script and try: 
+            FoldNonMatching \<function\> -1
+        - Open a java class and try: 
+            FoldNonMatching public\|private\|protected -1
+        - Open files with diff/patch output for several files and try:
+            FoldMatching diff -1
+                                                                               
+        Please send me other uses that you found for the "-1" context and I
+        will add it to the above list.
+                                                                               
+  Notes:
+  - The plugin provides several ways to specify the fold blocks, but not all
+    of them might make sense to you, especially when used with the *bang*
+    option to invert the match.
+                                                                               
+  - For :FoldMatching command, the pattern is searched using the built-in
+    search() function, so any limitations application to this function apply
+    to the patterns passed to the command as well.
+                                                                               
+  - You can change the default for context by setting g:foldutilDefContext.
+                                                                               
+  - The arguments are separated by spaces, so to include spaces in the
+    patterns, you need to protect them with a back-slash. Specifying a bang
+    makes the match inverse, so it allows you to show matching lines,
+    instead of folding them away.
+                                                                               
+  - You can change the context alone by using :FoldSetContext command or
+    completely end folding and revert the settings modified by the plugin by
+    using the :FoldEndFolding command.
+                                                                               
+  - When the commands are executed, if the current 'foldmethod' is not
+    "manual", it is switched to "manual" temporarily and restored when the
+    folding is ended using the :FoldEndFolding command. It also remembers
+    other fold related settings (such as the existing folds and
+    'foldminlines') and restores them as much as possible. For help on
+    working with folds, see help on |folding|.
+                                                                               
+  - The plugin by default, first clears the existing folds before creating the
+    new folds. But you can change this by setting g:foldutilClearFolds to 0,
+    in which case the new folds are added to the existing folds, so you can
+    create folds incrementally.
+                                                                               
+  - The plugin provides a function to return a string with Vim commands to
+    recreate the folds in the current window. Executing the string later
+    results in the folds getting recreated as they were before (so you can
+    use it to save the folds). You need to make sure that 'fdm' is either in
+    "manual" or "marker" mode to be able to execute the return value (though
+    lline is an int, you can pass in the string '$' as a shortcut to mean
+    the last line).
+                                                                               
+      String  FoldCreateFoldsStr(int fline, int lline)
+                                                                               
+  - You can create your own match criteria and extend the functionality of
+    the plugin by using the b:fuSearchFn variable. If you set the name of
+    your search function with custom match criteria to this variable, before
+    calling the :FoldMatching or :FoldNonMatching commands, the plugin uses
+    the custom function instead of one of the standard search functions that
+    comes with the plugin. The prototype of the function is:
+                                                                               
+      int Search(pattern, negate)
+                                                                               
+    The function should behave very much like the built-in search()
+    function, ie., it should search for the next line matching the give
+    pattern (using your custom match criteria), position the cursor at the
+    matched line and return the line number. When the match fails, it
+    should return 0 and shouldn't change the cursor position
+    (see :help search()).
+                                                                               
+    See one of the existing functions, s:SearchForPattern(),
+    s:PositionAtNextLine() and s:PositionAtNextHiGroup() for examples.
+                                                                               
+Summary Of Features:
+  Command Line:
+    FoldMatching (or FoldNonMatching), FoldShowLines, FoldShowMarks,
+    FoldShowHiGroup, FoldShowRange, FoldEndFolding
+                                                                               
+  Functions:
+    FoldCreateFoldsStr
+                                                                               
+  Settings:
+      g:foldutilDefContext, g:foldutilClearFolds, g:foldutilFoldText
+
+
+
+Search_Key_Words: foldutil foldutils fold util folds Hari Krishna Dara

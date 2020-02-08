@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/vim-scripts/foldutil.vim
+	branch = 3.0
+	commit = 3e41eb19d10ee7e3c2e37448a84d01e1dcef2862
+	parent = 41a86e28b2860adcdbc44dee96f12a2c0ae228f1
+	method = merge
+	cmdver = 0.4.1
