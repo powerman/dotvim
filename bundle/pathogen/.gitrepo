@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/tpope/vim-pathogen
+	branch = b9fb0dfd811004010f5f6903edef42d6004ebea2
+	commit = b9fb0dfd811004010f5f6903edef42d6004ebea2
+	parent = e27e5ecbad4ce8b4a132c116f8827c2d8be8a2b2
+	method = merge
+	cmdver = 0.4.1
