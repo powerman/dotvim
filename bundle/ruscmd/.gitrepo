@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/powerman/vim-plugin-ruscmd
+	branch = e952abbea092e420b128936a0c284fb522612c3a
+	commit = e952abbea092e420b128936a0c284fb522612c3a
+	parent = 53bdfdc689d02b596f2505ec4ac57e36c0ac17a0
+	method = merge
+	cmdver = 0.4.1
