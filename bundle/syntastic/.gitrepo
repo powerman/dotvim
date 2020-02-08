@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/scrooloose/syntastic
+	branch = 11aa21edef1627139d1cb39f5efd568942985dfc
+	commit = 11aa21edef1627139d1cb39f5efd568942985dfc
+	parent = 6d63f64ccec2e802a75afd918d388fbc8a93e357
+	method = merge
+	cmdver = 0.4.1
