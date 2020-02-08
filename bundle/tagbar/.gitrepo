@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/majutsushi/tagbar
+	branch = 7b36c46d17d57db34fdb0adac9ba6382d0bb5e66
+	commit = 7b36c46d17d57db34fdb0adac9ba6382d0bb5e66
+	parent = 63f9bc674f289da5221b8d67e601c0e5c1f5541b
+	method = merge
+	cmdver = 0.4.1
