@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/glts/vim-textobj-comment
+	branch = 58ae4571b76a5bf74850698f23d235eef991dd4b
+	commit = 58ae4571b76a5bf74850698f23d235eef991dd4b
+	parent = d8bd48de36c40f7b47d7425e6f0155faf9a44238
+	method = merge
+	cmdver = 0.4.1
