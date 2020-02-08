@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/kien/ctrlp.vim.git
+	branch = 564176f01d7f3f7f8ab452ff4e1f5314de7b0981
+	commit = 564176f01d7f3f7f8ab452ff4e1f5314de7b0981
+	parent = 6a9db4f27d1ef1caacdb5c99802d884fd0e46a13
+	method = merge
+	cmdver = 0.4.1
