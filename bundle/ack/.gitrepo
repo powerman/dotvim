@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/mileszs/ack.vim
+	branch = 923507cadc0b8b73b238db67a28a7ed00194f319
+	commit = 923507cadc0b8b73b238db67a28a7ed00194f319
+	parent = cf59f9dc4d866a5d36811a890b3dece3ffbb4c8e
+	method = merge
+	cmdver = 0.4.1
