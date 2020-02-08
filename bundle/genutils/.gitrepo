@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/vim-scripts/genutils
+	branch = 2.5
+	commit = e30cc0c3cd333bea3df352041cf51943c548d2e5
+	parent = 14bb2760412dff52b389dbe9c7ae21c883672c2f
+	method = merge
+	cmdver = 0.4.1
