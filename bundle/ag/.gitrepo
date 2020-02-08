@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/rking/ag.vim
+	branch = fdb1aff06d96fb36cbb87dde13a6b03d04718d95
+	commit = fdb1aff06d96fb36cbb87dde13a6b03d04718d95
+	parent = 53b01d59214a4f5b4d24061df0ea7b85937372cc
+	method = merge
+	cmdver = 0.4.1
