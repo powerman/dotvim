@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/cespare/vim-toml
+	branch = b531aac0d45aaa373070c4cc30d7ead91960f5a7
+	commit = b531aac0d45aaa373070c4cc30d7ead91960f5a7
+	parent = 70a3d12d9afdc8dac5c1565b906e959ab983fb17
+	method = merge
+	cmdver = 0.4.1
