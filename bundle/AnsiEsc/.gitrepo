@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/powerman/vim-plugin-AnsiEsc
+	branch = 13.3
+	commit = 4d8dd16947926873b40731af06138b8b005194de
+	parent = 2ab3f9e0842ac9c35ae0cc8a142730f21119eed4
+	method = merge
+	cmdver = 0.4.1
