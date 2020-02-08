@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/othree/html5.vim
+	branch = 40e924c9f333609e8c5b0bbf30775281e1cd9ccf
+	commit = 40e924c9f333609e8c5b0bbf30775281e1cd9ccf
+	parent = 9283632576ac90619754d232d0614e6086efcd62
+	method = merge
+	cmdver = 0.4.1
