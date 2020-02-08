@@ -8,14 +8,5 @@ features (in Russian).
 Remove `~/.vimrc` and `~/.vim/`, then:
 
 ```
-git clone --recursive https://github.com/powerman/dotvim ~/.vim
-```
-
-== Update
-
-```
-cd ~/.vim
-git pull
-git submodule sync
-git submodule update
+git clone https://github.com/powerman/dotvim ~/.vim
 ```
