@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/KohPoll/vim-less
+	branch = 9426a5168acbc12a5dd8f3b01acff59db6ba36e1
+	commit = 9426a5168acbc12a5dd8f3b01acff59db6ba36e1
+	parent = 4dce39fc9fcfa8f170d4b17fcb56c4edf13a655c
+	method = merge
+	cmdver = 0.4.1
