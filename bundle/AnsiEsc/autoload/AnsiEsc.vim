@@ -61,7 +61,9 @@ fun! AnsiEsc#AnsiEsc(rebuild)
      exe 'menu '.g:DrChipTopLvlMenu.'AnsiEsc.Start<tab>:AnsiEsc		:AnsiEsc<cr>'
     endif
    endif
-   let &l:hl= s:hlkeep_{bufnr("%")}
+   if !has('conceal')
+    let &l:hl= s:hlkeep_{bufnr("%")}
+   endif
 "   call Dret("AnsiEsc#AnsiEsc")
    return
   else
@@ -1510,9 +1512,9 @@ fun! AnsiEsc#AnsiEsc(rebuild)
    hi def link ansiIgnore	ansiStop
    hi def link ansiStop		Ignore
    hi def link ansiExtended	Ignore
+   let s:hlkeep_{bufnr("%")}= &l:hl
+   exe "setlocal hl=".substitute(&hl,'8:[^,]\{-},','8:Ignore,',"")
   endif
-  let s:hlkeep_{bufnr("%")}= &l:hl
-  exe "setlocal hl=".substitute(&hl,'8:[^,]\{-},','8:Ignore,',"")
 
   " handle 3 or more element ansi escape sequences by building syntax and highlighting rules
   " specific to the current file
@@ -1823,6 +1825,16 @@ fun! AnsiEsc#AnsiEsc(rebuild)
    hi ansiCyan              ctermfg=DarkCyan       guifg=DarkCyan                                         cterm=NONE         gui=NONE
    hi ansiWhite             ctermfg=LightGray      guifg=LightGray                                        cterm=NONE         gui=NONE
    hi ansiGray              ctermfg=DarkGray       guifg=DarkGray                                         cterm=NONE         gui=NONE
+
+   hi ansiBlackFg           ctermfg=Black      guifg=Black                                        cterm=NONE         gui=NONE
+   hi ansiRedFg             ctermfg=DarkRed        guifg=DarkRed                                          cterm=NONE         gui=NONE
+   hi ansiGreenFg           ctermfg=DarkGreen      guifg=DarkGreen                                        cterm=NONE         gui=NONE
+   hi ansiYellowFg          ctermfg=DarkYellow     guifg=DarkYellow                                       cterm=NONE         gui=NONE
+   hi ansiBlueFg            ctermfg=DarkBlue       guifg=DarkBlue                                         cterm=NONE         gui=NONE
+   hi ansiMagentaFg         ctermfg=DarkMagenta    guifg=DarkMagenta                                      cterm=NONE         gui=NONE
+   hi ansiCyanFg            ctermfg=DarkCyan       guifg=DarkCyan                                         cterm=NONE         gui=NONE
+   hi ansiWhiteFg           ctermfg=LightGray      guifg=LightGray                                        cterm=NONE         gui=NONE
+   hi ansiGrayFg            ctermfg=DarkGray       guifg=DarkGray                                         cterm=NONE         gui=NONE
 
    hi ansiDefaultBg         ctermbg=NONE       guibg=NONE                                         cterm=NONE         gui=NONE
    hi ansiBlackBg           ctermbg=Black      guibg=Black                                        cterm=NONE         gui=NONE
@@ -2245,6 +2257,16 @@ fun! s:Ansi2Gui(code)
   endif
 "  call Dret("s:Ansi2Gui ".guicolor)
   return guicolor
+endfun
+
+" ---------------------------------------------------------------------
+" AnsiEsc#BufReadPost: updates ansi-escape code visualization if it was alredy
+" on for the buffer{{{2
+fun! AnsiEsc#BufReadPost()
+  let bn= bufnr("%")
+  if exists("s:AnsiEsc_enabled_{bn}") && s:AnsiEsc_enabled_{bn}
+   call AnsiEsc#AnsiEsc(1)
+  endif
 endfun
 
 " ---------------------------------------------------------------------

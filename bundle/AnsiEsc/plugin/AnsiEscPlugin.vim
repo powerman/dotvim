@@ -15,6 +15,8 @@ set cpo&vim
 "  Public Interface: {{{1
 com! -bang -nargs=0 AnsiEsc	:call AnsiEsc#AnsiEsc(<bang>0)
 
+au BufReadPost * :call AnsiEsc#BufReadPost()
+
 " DrChip Menu Support: {{{2
 if !exists('g:no_drchip_menu') && !exists('g:no_ansiesc_menu')
  if has("gui_running") && has("menu") && &go =~ 'm'

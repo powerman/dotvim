@@ -5,8 +5,8 @@
 ;
 [subrepo]
 	remote = https://github.com/powerman/vim-plugin-AnsiEsc
-	branch = 13.3
-	commit = 4d8dd16947926873b40731af06138b8b005194de
-	parent = 2ab3f9e0842ac9c35ae0cc8a142730f21119eed4
+	branch = master
+	commit = 690f820d20b6e3a79ba20499874eb7333aa4ca5c
+	parent = 28e90e5520eec22585189c4362eb4c2a5eb49701
 	method = merge
 	cmdver = 0.4.1
