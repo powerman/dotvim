@@ -5,8 +5,8 @@
 ;
 [subrepo]
 	remote = https://github.com/KohPoll/vim-less
-	branch = 9426a5168acbc12a5dd8f3b01acff59db6ba36e1
+	branch = master
 	commit = 9426a5168acbc12a5dd8f3b01acff59db6ba36e1
-	parent = 4dce39fc9fcfa8f170d4b17fcb56c4edf13a655c
+	parent = 09cb70da90c2cd08956fe485f966841946a70bde
 	method = merge
 	cmdver = 0.4.1
