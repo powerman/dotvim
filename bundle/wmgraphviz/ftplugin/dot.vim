@@ -107,6 +107,8 @@ fu! GraphvizCompile(tool, output)
 
         call delete(s:logfile)
 	endif
+
+	redraw!
 endfu
 
 fu! GraphvizCompileToLaTeX(...)
@@ -125,6 +127,8 @@ fu! GraphvizCompileToLaTeX(...)
 	    exec 'cfile '.escape(s:logfile, ' \"!?''')
 	    call delete(s:logfile)
 	endif
+
+	redraw!
 endfu
 
 " Viewing
@@ -144,6 +148,7 @@ fu! GraphvizShow()
 	    exec '!'.g:WMGraphviz_viewer.' /b %:p:.:r.'.g:WMGraphviz_output
 	endif
 
+	redraw!
 endfu
 
 " Interactive viewing. "dot -Txlib <file.gv>" uses inotify to immediately
@@ -155,6 +160,8 @@ fu! GraphvizInteractive()
 	endif
 
 	silent exec '!'.g:WMGraphviz_dot.' -Txlib '.shellescape(expand('%:p')).' &'
+
+	redraw!
 endfu
 
 " Available functions
