@@ -5,8 +5,8 @@
 ;
 [subrepo]
 	remote = https://github.com/yko/mojo.vim
-	branch = 7f000cdb949a7bd5eb016d16ae7a8aba4f8bc480
-	commit = 7f000cdb949a7bd5eb016d16ae7a8aba4f8bc480
-	parent = 2ef412b97a123e741273594c89206511102139b4
+	branch = master
+	commit = 2a42b1dad90f56bfe5a6b36166a3f238fd24ba3d
+	parent = 39c6af4b683434a23bfee923839147919349211a
 	method = merge
 	cmdver = 0.4.1
