@@ -160,23 +160,6 @@ function! go#config#SetGuruScope(scope) abort
   endif
 endfunction
 
-function! go#config#GocodeUnimportedPackages() abort
-  return get(g:, 'go_gocode_unimported_packages', 0)
-endfunction
-
-let s:sock_type = (has('win32') || has('win64')) ? 'tcp' : 'unix'
-function! go#config#GocodeSocketType() abort
-  return get(g:, 'go_gocode_socket_type', s:sock_type)
-endfunction
-
-function! go#config#GocodeProposeBuiltins() abort
-  return get(g:, 'go_gocode_propose_builtins', 1)
-endfunction
-
-function! go#config#GocodeProposeSource() abort
-  return get(g:, 'go_gocode_propose_source', 0)
-endfunction
-
 function! go#config#EchoCommandInfo() abort
   return get(g:, 'go_echo_command_info', 1)
 endfunction
@@ -259,6 +242,10 @@ endfunction
 
 function! go#config#AddtagsTransform() abort
   return get(g:, 'go_addtags_transform', "snakecase")
+endfunction
+
+function! go#config#AddtagsSkipUnexported() abort
+  return get(g:, 'go_addtags_skip_unexported', 0)
 endfunction
 
 function! go#config#TemplateAutocreate() abort
@@ -489,6 +476,10 @@ function! go#config#HighlightDebug() abort
   return get(g:, 'go_highlight_debug', 1)
 endfunction
 
+function! go#config#DebugBreakpointSignText() abort
+  return get(g:, 'go_debug_breakpoint_sign_text', '>')
+endfunction
+
 function! go#config#FoldEnable(...) abort
   if a:0 > 0
     return index(go#config#FoldEnable(), a:1) > -1
@@ -514,23 +505,23 @@ function! go#config#ReferrersMode() abort
 endfunction
 
 function! go#config#GoplsCompleteUnimported() abort
-  return get(g:, 'go_gopls_complete_unimported', 0)
+  return get(g:, 'go_gopls_complete_unimported', v:null)
 endfunction
 
 function! go#config#GoplsDeepCompletion() abort
-  return get(g:, 'go_gopls_deep_completion', 1)
+  return get(g:, 'go_gopls_deep_completion', v:null)
 endfunction
 
 function! go#config#GoplsFuzzyMatching() abort
-  return get(g:, 'go_gopls_fuzzy_matching', 1)
+  return get(g:, 'go_gopls_fuzzy_matching', v:null)
 endfunction
 
 function! go#config#GoplsStaticCheck() abort
-  return get(g:, 'go_gopls_staticcheck', 0)
+  return get(g:, 'go_gopls_staticcheck', v:null)
 endfunction
 
 function! go#config#GoplsUsePlaceholders() abort
-  return get(g:, 'go_gopls_use_placeholders', 0)
+  return get(g:, 'go_gopls_use_placeholders', v:null)
 endfunction
 
 function! go#config#GoplsEnabled() abort
