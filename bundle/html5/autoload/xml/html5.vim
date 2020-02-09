@@ -1,7 +1,7 @@
 " Vim completion for HTML5 data file
-" Language:       HTML5
-" Maintainer:     othree <othree@gmail.com>
-" Last Change:    2011 Apr 9
+" Language:	    HTML (version 5.1 Draft 2016 Jan 13)
+" Maintainer:   Kao, Wei-Ko(othree) ( othree AT gmail DOT com )
+" Last Change:  2016 Jan 20
 
 
 " Lang Tag: {{{
@@ -60,6 +60,8 @@ let charset = [
     \ 'windows-1256', 'windows-1257', 'windows-1258', 'TIS-620', ]
 " }}}
 
+let autofill_tokens = ['on', 'off', 'name', 'honorific-prefix', 'given-name', 'additional-name', 'family-name', 'honorific-suffix', 'nickname', 'organization-title', 'username', 'new-password', 'current-password', 'organization', 'street-address', 'address-line1', 'address-line2', 'address-line3', 'address-level4', 'address-level3', 'address-level2', 'address-level1', 'country', 'country-name', 'postal-code', 'cc-name', 'cc-given-name', 'cc-additional-name', 'cc-family-name', 'cc-number', 'cc-exp', 'cc-exp-month', 'cc-exp-year', 'cc-csc', 'cc-type', 'transaction-currency', 'transaction-amount', 'language', 'bday', 'bday-day', 'bday-month', 'bday-year', 'sex', 'url', 'photo', 'tel', 'tel-country-code', 'tel-national', 'tel-area-code', 'tel-local', 'tel-local-prefix', 'tel-local-suffix', 'tel-extension', 'email', 'impp']
+
 " Attributes_and_Settings: {{{
 let core_attributes = {'accesskey': [], 'class': [], 'contenteditable': ['true', 'false', ''], 'contextmenu': [], 'dir': ['ltr', 'rtl'], 'draggable': ['true', 'false'], 'hidden': ['hidden', ''], 'id': [], 'is': [], 'lang': lang_tag, 'spellcheck': ['true', 'false', ''], 'style': [], 'tabindex': [], 'title': []}
 let xml_attributes = {'xml:lang': lang_tag, 'xml:space': ['preserve'], 'xml:base': [], 'xmlns': ['http://www.w3.org/1999/xhtml', 'http://www.w3.org/1998/Math/MathML', 'http://www.w3.org/2000/svg', 'http://www.w3.org/1999/xlink']}
@@ -76,9 +78,13 @@ let attributes_value = {
     \ 'accept-charset': ['Charset', ''],
     \ 'accesskey': ['Character', ''],
     \ 'action': ['URL', ''],
+    \ 'allowfullscreen': ['Bool', ''],
+    \ 'allowpaymentrequest': ['Bool', ''],
+    \ 'allowpresentation': ['Bool', ''],
+    \ 'allowusermedia': ['Bool', ''],
     \ 'alt': ['Text', ''],
     \ 'async': ['Bool', ''],
-    \ 'autocomplete': ['on/off', ''],
+    \ 'autocomplete': ['*Token', ''],
     \ 'autofocus': ['Bool', ''],
     \ 'autoplay': ['Bool', ''],
     \ 'border': ['1', ''],
@@ -138,6 +144,7 @@ let attributes_value = {
     \ 'optimum': ['Number', ''],
     \ 'pattern': ['Pattern', ''],
     \ 'placeholder': ['Text', ''],
+    \ 'playsinline': ['Bool', ''],
     \ 'poster': ['URL', ''],
     \ 'preload': ['Token', ''],
     \ 'pubdate': ['Bool', ''],
@@ -182,7 +189,7 @@ let attributes_value = {
 \ }
 
 if g:html5_event_handler_attributes_complete == 1
-    let event_handler_attributes = {'onabort': [], 'onblur': [], 'oncanplay': [], 'oncanplaythrough': [], 'onchange': [], 'onclick': [], 'oncontextmenu': [], 'ondblclick': [], 'ondrag': [], 'ondragend': [], 'ondragenter': [], 'ondragleave': [], 'ondragover': [], 'ondragstart': [], 'ondrop': [], 'ondurationchange': [], 'onemptied': [], 'onended': [], 'onerror': [], 'onfocus': [], 'onformchange': [], 'onforminput': [], 'oninput': [], 'oninvalid': [], 'onkeydown': [], 'onkeypress': [], 'onkeyup': [], 'onload': [], 'onloadeddata': [], 'onloadedmetadata': [], 'onloadstart': [], 'onmousedown': [], 'onmousemove': [], 'onmouseout': [], 'onmouseover': [], 'onmouseup': [], 'onmousewheel': [], 'onpause': [], 'onplay': [], 'onplaying': [], 'onprogress': [], 'onratechange': [], 'onreadystatechange': [], 'onscroll': [], 'onseeked': [], 'onseeking': [], 'onselect': [], 'onshow': [], 'onstalled': [], 'onsubmit': [], 'onsuspend': [], 'ontimeupdate': [], 'onvolumechange': [], 'onwaiting': []}
+    let event_handler_attributes = {'onabort': [], 'onblur': [], 'oncanplay': [], 'oncanplaythrough': [], 'onchange': [], 'onclick': [], 'oncontextmenu': [], 'ondblclick': [], 'ondrag': [], 'ondragend': [], 'ondragenter': [], 'ondragleave': [], 'ondragover': [], 'ondragstart': [], 'ondrop': [], 'ondurationchange': [], 'onemptied': [], 'onended': [], 'onerror': [], 'onfocus': [], 'onformchange': [], 'onforminput': [], 'oninput': [], 'oninvalid': [], 'onkeydown': [], 'onkeypress': [], 'onkeyup': [], 'onload': [], 'onloadeddata': [], 'onloadedmetadata': [], 'onloadstart': [], 'onmousedown': [], 'onmousemove': [], 'onmouseout': [], 'onmouseover': [], 'onmouseup': [], 'onmousewheel': [], 'onpause': [], 'onplay': [], 'onplaying': [], 'onprogress': [], 'onratechange': [], 'onreadystatechange': [], 'onscroll': [], 'onseeked': [], 'onseeking': [], 'onselect': [], 'onshow': [], 'onstalled': [], 'onsubmit': [], 'onsuspend': [], 'ontimeupdate': [], 'onvolumechange': [], 'onwaiting': [], 'onselectstart': [], 'onselectchange': []}
     let global_attributes = extend(global_attributes, event_handler_attributes)
     
     let body_attributes = {'onafterprint': [], 'onbeforeprint': [], 'onbeforeunload': [], 'onblur': [], 'onerror': [], 'onfocus': [], 'onhashchange': [], 'onload': [], 'onmessage': [], 'onoffline': [], 'ononline': [], 'onpopstate': [], 'onredo': [], 'onresize': [], 'onstorage': [], 'onundo': [], 'onunload': []}
@@ -205,6 +212,8 @@ if g:html5_event_handler_attributes_complete == 1
         \ 'ondragleave': ['Script', ''],
         \ 'ondragover': ['Script', ''],
         \ 'ondragstart': ['Script', ''],
+        \ 'onselectstart': ['Script', ''],
+        \ 'onselectchange': ['Script', ''],
         \ 'ondrop': ['Script', ''],
         \ 'ondurationchange': ['Script', ''],
         \ 'onemptied': ['Script', ''],
@@ -311,13 +320,15 @@ if !exists('g:html5_aria_attributes_complete')
     let g:html5_aria_attributes_complete = 1
 endif
 if g:html5_aria_attributes_complete == 1
-    " Ref: http://www.w3.org/TR/wai-aria/roles
-    " Version: Draft 15 December 2009
-    let widget_role = ['alert', 'alertdialog', 'button', 'checkbox', 'combobox', 'dialog', 'gridcell', 'link', 'log', 'marquee', 'menuitem', 'menuitemcheckbox', 'menuitemradio', 'option', 'progressbar', 'radio', 'radiogroup', 'scrollbar', 'slider', 'spinbutton', 'status', 'tab', 'tabpanel', 'textbox', 'timer', 'tooltip', 'treeitem', 'combobox', 'grid', 'listbox', 'menu', 'menubar', 'radiogroup', 'tablist', 'tree', 'treegrid']
-    let document_structure = ['article', 'columnheader', 'definition', 'directory', 'document', 'group', 'heading', 'img', 'list', 'listitem', 'math', 'note', 'presentation', 'region', 'row', 'rowheader', 'separator']
+    " Ref: https://www.w3.org/TR/wai-aria-1.1/#role_definitions
+    " Version: W3C Candidate Recommendation 27 October 2016
+    let widget_role = ['alert', 'alertdialog', 'button', 'checkbox', 'combobox', 'dialog', 'gridcell', 'link', 'log', 'marquee', 'menuitem', 'menuitemcheckbox', 'menuitemradio', 'option', 'progressbar', 'radio', 'radiogroup', 'scrollbar', 'searchbox', 'slider', 'spinbutton', 'status', 'switch', 'tab', 'tabpanel', 'textbox', 'timer', 'tooltip', 'treeitem', 'combobox', 'grid', 'listbox', 'menu', 'menubar', 'radiogroup', 'tablist', 'tree', 'treegrid']
+    let document_structure = ['article', 'cell', 'columnheader', 'definition', 'directory', 'document', 'feed', 'figure', 'group', 'heading', 'img', 'list', 'listitem', 'math', 'none', 'note', 'presentation', 'region', 'row', 'rowheader', 'separator', 'table', 'term']
     let landmark_role = ['application', 'banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'search']
+    let dpub_role = ['dpub-abstract', 'dpub-afterword', 'dpub-appendix', 'dpub-biblioentry', 'dpub-bibliography', 'dpub-biblioref', 'dpub-chapter', 'dpub-cover', 'dpub-epilogue', 'dpub-footnote', 'dpub-footnotes', 'dpub-foreword', 'dpub-glossary', 'dpub-glossdef', 'dpub-glossref', 'dpub-glossterm', 'dpub-index', 'dpub-locator', 'dpub-noteref', 'dpub-notice', 'dpub-pagebreak', 'dpub-pagelist', 'dpub-part', 'dpub-preface', 'dpub-prologue', 'dpub-pullquote', 'dpub-qna', 'dpub-subtitle', 'dpub-tip', 'dpub-title', 'dpub-toc']
     let role = extend(widget_role, document_structure)
     let role = extend(role, landmark_role)
+    let role = extend(role, dpub_role)
     let global_attributes = extend(global_attributes, {'role': role})
 endif
 " }}}
@@ -330,14 +341,40 @@ let metadata_elements = ['link', 'style', 'meta', 'script', 'noscript', 'command
 
 let flow_elements = phrasing_elements + ['p', 'hr', 'pre', 'ul', 'ol', 'dl', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'hgroup', 'address', 'blockquote', 'ins', 'del', 'element', 'object', 'main', 'map', 'noscript', 'section', 'nav', 'article', 'aside', 'header', 'footer', 'video', 'audio', 'figure', 'table', 'template', 'form', 'fieldset', 'menu', 'canvas', 'details']
 
-" http://dev.w3.org/html5/spec/Overview.html#linkTypes
-let linktypes = ['alternate', 'author', 'bookmark', 'external', 'help', 'icon', 'license', 'next', 'nofollow', 'noreferrer', 'pingback', 'prefetch', 'prev', 'search', 'stylesheet', 'sidebar', 'tag']
+" https://html.spec.whatwg.org/#linkTypes
+let linktypes = ['alternate', 'author', 'bookmark', 'dns-prefetch', 'external', 'help', 'icon', 'license', 'next', 'nofollow', 'noreferrer', 'noopener', 'pingback', 'preconnect', 'prefetch', 'preload', 'prerender', 'prev', 'search', 'stylesheet', 'tag']
+" https://w3c.github.io/manifest/
+let linkreltypes = linktypes
+let linkreltypes = linkreltypes + ['manifest']
 " http://googlewebmastercentral.blogspot.com/2009/02/specify-your-canonical.html
-let linkreltypes = linktypes + ['canonical', 'import']
+" http://www.ysearchblog.com/2009/02/12/fighting-duplication-adding-more-arrows-to-your-quiver/
+" http://blogs.bing.com/webmaster/2009/02/12/partnering-to-help-solve-duplicate-content-issues
+let linkreltypes = linkreltypes + ['canonical']
+" http://w3c.github.io/webcomponents/spec/imports/
+let linkreltypes = linkreltypes + ['import']
+" https://www.w3.org/TR/webmention/#sender-discovers-receiver-webmention-endpoint
+let linkreltypes = linkreltypes + ['webmention']
+" http://www.opensearch.org/Specifications/OpenSearch/1.1#Autodiscovery_in_HTML.2FXHTML
+let linkreltypes = linkreltypes + ['search']
+" http://microformats.org/wiki/rel-sitemap
+let linkreltypes = linkreltypes + ['sitemap']
+" https://www.ampproject.org/docs/get_started/create/prepare_for_discovery
+let linkreltypes = linkreltypes + ['amphtml']
+" https://developer.apple.com/library/content/documentation/AppleApplications/Reference/SafariWebContent/ConfiguringWebApplications/ConfiguringWebApplications.html
+let linkreltypes = linkreltypes + ['apple-touch-icon', 'apple-touch-icon-precomposed', 'apple-touch-startup-image']
+" https://developer.chrome.com/webstore/inline_installation
+let linkreltypes = linkreltypes + ['chrome-webstore-item']
+" http://pubsubhubbub.github.io/PubSubHubbub/pubsubhubbub-core-0.4.html#rfc.section.4
+let linkreltypes = linkreltypes + ['hub']
+" https://golem.ph.utexas.edu/~distler/blog/archives/000320.html
+let linkreltypes = linkreltypes + ['pgpkey']
 
 " a and button are special elements for interactive, some element can't be its descendent
 let abutton_dec = 'details\\|embed\\|iframe\\|keygen\\|label\\|menu\\|select\\|textarea'
 
+let crossorigin = ['anonymous', 'use-credentials']
+
+let referrerpolicy = ['no-referrer', 'no-referrer-when-downgrade', 'same-origin', 'origin', 'strict-origin', 'origin-when-cross-origin', 'strict-origin-when-cross-origin', 'unsafe-url']
 
 
 let g:xmldata_html5 = {
@@ -345,7 +382,7 @@ let g:xmldata_html5 = {
 \ 'vimxmlroot': ['html', 'head', 'body'] + flow_elements, 
 \ 'a': [
     \ filter(copy(flow_elements), "!(v:val =~ '". abutton_dec ."')"),
-    \ extend(copy(global_attributes), {'name': [], 'href': [], 'target': [], 'rel': linktypes, 'hreflang': lang_tag, 'media': [], 'type': []}) 
+    \ extend(copy(global_attributes), {'name': [], 'href': [], 'target': [], 'rel': linktypes, 'hreflang': lang_tag, 'media': [], 'type': [], 'referrerpolicy': ['no-referrer', 'no-referrer-when-downgrade', 'origin', 'origin-when-cross-origin', 'unsafe-url']}) 
 \ ],
 \ 'abbr': [
     \ phrasing_elements,
@@ -357,7 +394,7 @@ let g:xmldata_html5 = {
 \ ],
 \ 'area': [
     \ [],
-    \ extend(copy(global_attributes), {'alt': [], 'href': [], 'target': [], 'rel': linktypes, 'media': [], 'hreflang': lang_tag, 'type': [], 'shape': ['rect', 'circle', 'poly', 'default'], 'coords': []})
+    \ extend(copy(global_attributes), {'alt': [], 'href': [], 'target': [], 'rel': linktypes, 'media': [], 'hreflang': lang_tag, 'type': [], 'shape': ['rect', 'circle', 'poly', 'default'], 'coords': [], 'referrerpolicy': referrerpolicy})
 \ ],
 \ 'article': [
     \ flow_elements + ['style'],
@@ -455,6 +492,10 @@ let g:xmldata_html5 = {
     \ filter(copy(phrasing_elements), "!(v:val =~ 'dfn')"),
     \ global_attributes
 \ ],
+\ 'dialog': [
+    \ flow_elements,
+    \ extend(copy(global_attributes), {'open': []})
+\ ],
 \ 'div': [
     \ flow_elements + ['style'],
     \ global_attributes
@@ -493,7 +534,7 @@ let g:xmldata_html5 = {
 \ ],
 \ 'form': [
     \ flow_elements,
-    \ extend(copy(global_attributes), {'name': [], 'action': [], 'enctype': ['application/x-www-form-urlencoded', 'multipart/form-data', 'text/plain'], 'method': ['get', 'post', 'put', 'delete'], 'target': [], 'novalidate': ['novalidate', ''], 'accept-charset': charset, 'autocomplete': ['on', 'off']})
+    \ extend(copy(global_attributes), {'name': [], 'action': [], 'enctype': ['application/x-www-form-urlencoded', 'multipart/form-data', 'text/plain'], 'method': ['get', 'post', 'put', 'delete'], 'target': [], 'novalidate': ['novalidate', ''], 'accept-charset': charset, 'autocomplete': autofill_tokens})
 \ ],
 \ 'h1': [
     \ phrasing_elements,
@@ -545,15 +586,15 @@ let g:xmldata_html5 = {
 \ ],
 \ 'iframe': [
     \ [],
-    \ extend(copy(global_attributes), {'src': [], 'srcdoc': [], 'name': [], 'width': [], 'height': [], 'sandbox': ['allow-same-origin', 'allow-forms', 'allow-scripts'], 'seamless': ['seamless', '']})
+    \ extend(copy(global_attributes), {'src': [], 'srcdoc': [], 'name': [], 'width': [], 'height': [], 'sandbox': ['allow-same-origin', 'allow-forms', 'allow-scripts'], 'seamless': ['seamless', ''], 'referrerpolicy': referrerpolicy, 'allowfullscreen': [], 'allowpaymentrequest': [], 'allowpresentation': [], 'allowusermedia': []})
 \ ],
 \ 'img': [
     \ [],
-    \ extend(copy(global_attributes), {'src': [], 'alt': [], 'height': [], 'width': [], 'usemap': [], 'ismap': ['ismap', '']})
+    \ extend(copy(global_attributes), {'src': [], 'alt': [], 'height': [], 'width': [], 'decoding': ['async', 'sync', 'auto'], 'usemap': [], 'ismap': ['ismap', ''], 'referrerpolicy': referrerpolicy, 'crossorigin': ['anonymous', 'use-credentials']})
 \ ],
 \ 'input': [
     \ [],
-    \ extend(copy(global_attributes), {'type': ['text', 'password', 'checkbox', 'radio', 'button', 'submit', 'reset', 'file', 'hidden', 'image', 'datetime', 'datetime-local', 'date', 'month', 'time', 'week', 'number', 'range', 'email', 'url', 'search', 'tel', 'color'], 'name': [], 'disabled': ['disabled', ''], 'form': [], 'maxlength': [], 'readonly': ['readonly', ''], 'size': [], 'value': [], 'autocomplete': ['on', 'off'], 'autofocus': ['autofocus', ''], 'list': [], 'pattern': [], 'required': ['required', ''], 'placeholder': [], 'checked': ['checked'], 'accept': [], 'multiple': ['multiple', ''], 'alt': [], 'src': [], 'height': [], 'width': [], 'min': [], 'max': [], 'step': [], 'formenctype': ['application/x-www-form-urlencoded', 'multipart/form-data', 'text/plain'], 'formmethod': ['get', 'post', 'put', 'delete'], 'formtarget': [], 'formnovalidate': ['formnovalidate', '']})
+    \ extend(copy(global_attributes), {'type': ['text', 'password', 'checkbox', 'radio', 'button', 'submit', 'reset', 'file', 'hidden', 'image', 'datetime-local', 'date', 'month', 'time', 'week', 'number', 'range', 'email', 'url', 'search', 'tel', 'color'], 'name': [], 'disabled': ['disabled', ''], 'form': [], 'maxlength': [], 'readonly': ['readonly', ''], 'size': [], 'value': [], 'autocomplete': autofill_tokens, 'autofocus': ['autofocus', ''], 'list': [], 'pattern': [], 'required': ['required', ''], 'placeholder': [], 'checked': ['checked'], 'accept': [], 'multiple': ['multiple', ''], 'alt': [], 'src': [], 'height': [], 'width': [], 'min': [], 'max': [], 'step': [], 'formenctype': ['application/x-www-form-urlencoded', 'multipart/form-data', 'text/plain'], 'formmethod': ['get', 'post', 'put', 'delete'], 'formtarget': [], 'formnovalidate': ['formnovalidate', '']})
 \ ],
 \ 'ins': [
     \ flow_elements,
@@ -581,7 +622,7 @@ let g:xmldata_html5 = {
 \ ],
 \ 'link': [
     \ [],
-    \ extend(copy(global_attributes), {'href': [], 'rel': linkreltypes, 'hreflang': lang_tag, 'media': [], 'type': [], 'sizes': ['any']})
+    \ extend(copy(global_attributes), {'href': [], 'rel': linkreltypes, 'hreflang': lang_tag, 'media': [], 'type': [], 'sizes': ['any'], 'referrerpolicy': referrerpolicy, 'crossorigin': crossorigin, 'preload': ['preload', ''], 'prefetch': ['prefetch', ''], 'as': ['report', 'document', 'document', 'object', 'embed', 'audio', 'font', 'image', 'audioworklet', 'paintworklet', 'script', 'serviceworker', 'sharedworker', 'worker', 'style', 'track', 'video', 'image', 'manifest', 'xslt', 'fetch', '']})
 \ ],
 \ 'main': [
     \ flow_elements + ['style'],
@@ -596,8 +637,12 @@ let g:xmldata_html5 = {
     \ global_attributes
 \ ],
 \ 'menu': [
-    \ flow_elements + ['li'],
+    \ flow_elements + ['menuitem'],
     \ extend(copy(global_attributes), {'type': ['toolbar', 'context'], 'label': []})
+\ ],
+\ 'menuitem': [
+    \ flow_elements + ['li'],
+    \ extend(copy(global_attributes), {'type': ['toolbar', 'context'], 'label': [], 'icon': [], 'disabled': [], 'checked': [], 'radiogroup': [], 'default': [], 'command': []})
 \ ],
 \ 'meta': [
     \ [],
@@ -685,7 +730,7 @@ let g:xmldata_html5 = {
 \ ],
 \ 'script': [
     \ [],
-    \ extend(copy(global_attributes), {'src': [], 'defer': ['defer', ''], 'async': ['async', ''], 'type': [], 'charset': charset})
+    \ extend(copy(global_attributes), {'src': [], 'defer': ['defer', ''], 'async': ['async', ''], 'type': [], 'charset': charset, 'nonce': [], 'crossorigin': crossorigin})
 \ ],
 \ 'section': [
     \ flow_elements + ['style'],
@@ -698,6 +743,10 @@ let g:xmldata_html5 = {
 \ 'shadow': [
     \ [],
     \ global_attributes
+\ ],
+\ 'slot': [
+    \ [],
+    \ extend(copy(global_attributes), {'name': []})
 \ ],
 \ 'small': [
     \ phrasing_elements,
@@ -717,7 +766,7 @@ let g:xmldata_html5 = {
 \ ],
 \ 'style': [
     \ [],
-    \ extend(copy(global_attributes), {'type': [], 'media': [], 'scoped': ['scoped', '']})
+    \ extend(copy(global_attributes), {'type': [], 'media': [], 'scoped': ['scoped', ''], 'nonce': []})
 \ ],
 \ 'sub': [
     \ phrasing_elements,
@@ -797,7 +846,7 @@ let g:xmldata_html5 = {
 \ ],
 \ 'video': [
     \ flow_elements + ['source', 'track'],
-    \ extend(copy(global_attributes), {'autoplay': ['autoplay', ''], 'preload': ['none', 'metadata', 'auto', ''], 'controls': ['controls', ''], 'loop': ['loop', ''], 'poster': [], 'height': [], 'width': [], 'src': []})
+    \ extend(copy(global_attributes), {'autoplay': ['autoplay', ''], 'preload': ['none', 'metadata', 'auto', ''], 'controls': ['controls', ''], 'loop': ['loop', ''], 'playsinline': ['playsinline', ''], 'poster': [], 'height': [], 'width': [], 'src': [], 'crossorigin': crossorigin})
 \ ],
 \ 'wbr': [
     \ [],

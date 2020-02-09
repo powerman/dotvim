@@ -3,13 +3,16 @@
 HTML5 + inline SVG omnicomplete function, indent and syntax for Vim.
 Based on the default htmlcomplete.vim.
 
+This plugin contributes to [vim-polyglot](https://github.com/sheerun/vim-polyglot) language pack.
+
 ## Feature
 
 - Support all new elements and attribute.
-- Support all SVG elements
+- Support SVG and MathML
 - Support [microdata][microdata].
 - Support [RDFa][RDFa].
 - Support [WAI-ARIA][aria].
+- Support [Electron webview](https://electron.atom.io/docs/api/webview-tag/).
 
 ## Install
 
@@ -70,30 +73,39 @@ THE SOFTWARE.
 
 ## References
  
-1. [HTML5 Spec][1]
+1. [HTML5.2 Spec](https://www.w3.org/TR/html52/)
 2. [HTML5 Markup][2]
-3. [Custom Data Attributes][3]
+3. [Custom Data Attributes](https://www.w3.org/TR/html52/dom.html#embedding-custom-non-visible-data-with-the-data-attributes)
 4. [microdata][4]
 5. [RDFa 1.0 Rec][5]
 6. [RDFa 1.1 Core WD][6]
-7. [WAI-ARIA][7]
+7. [WAI-ARIA 1.1][7]
 8. [IANA Language Sub Tags][8]
 9. [IANA Charset][9]
-10. [SVG Spec][10]
+10. [SVG 1.0 Spec][10]
+11. [SVG 2.0 Spec][11]
+12. [MathML 3.0 Spec][12]
+13. [DPUB WAI-ARIA 1.0][13]
+14. [WAI-ARIA Graphics Module][14]
+
+
+<a href='https://ko-fi.com/H2H3782K' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://az743702.vo.msecnd.net/cdn/kofi4.png?v=0' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
 
 [html5.vim]:http://www.vim.org/scripts/script.php?script_id=3236
 
-[microdata]:http://www.w3.org/TR/microdata/
-[RDFa]:http://www.w3.org/TR/rdfa-syntax/
-[aria]:http://www.w3.org/TR/wai-aria/
+[microdata]:https://www.w3.org/TR/microdata/
+[RDFa]:https://www.w3.org/TR/rdfa-syntax/
+[aria]:https://www.w3.org/TR/wai-aria-1.1/
 
-[1]:http://dev.w3.org/html5/spec/
 [2]:http://dev.w3.org/html5/markup/
-[3]:http://dev.w3.org/html5/spec/Overview.html#custom-data-attribute
-[4]:http://dev.w3.org/html5/md/
-[5]:http://www.w3.org/TR/rdfa-syntax/#a_xhtmlrdfa_dtd
-[6]:http://www.w3.org/TR/rdfa-core/
-[7]:http://www.w3.org/TR/wai-aria/
+[4]:https://www.w3.org/TR/microdata/
+[5]:https://www.w3.org/TR/rdfa-syntax/#s_syntax
+[6]:https://www.w3.org/TR/rdfa-core/
+[7]:https://www.w3.org/TR/wai-aria-1.1/
 [8]:http://www.iana.org/assignments/language-subtag-registry
 [9]:http://www.iana.org/assignments/character-sets 
 [10]:http://www.w3.org/TR/SVG/
+[11]:https://www.w3.org/TR/SVG2/
+[12]:https://www.w3.org/TR/MathML3/
+[13]:https://www.w3.org/TR/dpub-aria-1.0/
+[14]:https://www.w3.org/TR/graphics-aria-1.0/
