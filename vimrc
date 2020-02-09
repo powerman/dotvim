@@ -748,3 +748,29 @@ endfunc
 """ Unsorted
 let g:markdown_fenced_languages = ['go']
 
+" set re=1 " speedup large asciidoc files a LOT!
+
+" https://vim.fandom.com/wiki/Sum_numbers
+" Usage:
+"       :let g:sum=0
+"       :%s/\d\+/\=Sum(submatch(0))/
+"       :%s/\$\zs\d\+/\=Sum(submatch(0))/g
+"       :echo g:sum
+let g:sum = 0  "result in global variable sum
+function! Sum(number)
+  let g:sum = g:sum + a:number
+  return a:number
+endfunction
+
+" Usage:
+"       :'<,'>call TR()
+function! TR() range
+  let g:sum = 0
+  execute a:firstline . "," . a:lastline . 's/\d\+\ze m/\=Sum(submatch(0))'
+  let l:mins = g:sum % 60
+  let l:hours = g:sum / 60
+  let g:sum = 0
+  execute a:firstline . "," . a:lastline . 's/\d\+\ze h/\=Sum(submatch(0))'
+  let l:hours = l:hours + g:sum
+  echo l:hours "h" l:mins "m"
+endfunction
