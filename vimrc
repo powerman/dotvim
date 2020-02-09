@@ -515,12 +515,9 @@ autocmd BufWinEnter * if expand('<afile>') != 'quickfix' && !&readonly && !&diff
 nnoremap ;	:
 
 """ Search in files                                             <Leader>/ 
-" Plugin: ack or ag
+" Plugin: ack
 " Require: /usr/bin/ack http://betterthangrep.com/ (emerge sys-apps/ack)
-" Require: /usr/bin/ag http://betterthanack.com/ (emerge sys-apps/the_silver_searcher)
-" nnoremap <Leader>/	:Ack!<Space>
-nnoremap <Leader>/	:Ag!<Space>
-let g:ag_mapping_message=0
+nnoremap <Leader>/	:Ack!<Space>
 
 """ HTML Zen Coding                                             <C-E>, <C-F> 
 " Plugin: Sparkup
