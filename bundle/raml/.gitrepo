@@ -5,8 +5,8 @@
 ;
 [subrepo]
 	remote = https://github.com/IN3D/vim-raml
-	branch = f680980a35254a905cd0f3068c51640dc0cdbd2f
-	commit = f680980a35254a905cd0f3068c51640dc0cdbd2f
-	parent = e1d3fb7aa77a86cf80035a6f126a8e7110abbccf
+	branch = master
+	commit = 400c7b4c30f3760550ee7b7485a8a7f36cffc10e
+	parent = b9accbd71ecf7b23cb10636ab48a1835b90ab57d
 	method = merge
 	cmdver = 0.4.1
