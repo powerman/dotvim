@@ -3,16 +3,20 @@
 I'm not going to lie to you; fugitive.vim may very well be the best
 Git wrapper of all time.  Check out these features:
 
+Bring up an enhanced version of `git status` with `:G` (also known as
+`:Gstatus`).  Press `g?` to bring up a list of maps for numerous operations
+including diffing, staging, committing, rebasing, and stashing.
+
 View any blob, tree, commit, or tag in the repository with `:Gedit` (and
 `:Gsplit`, `:Gvsplit`, `:Gtabedit`, ...).  Edit a file in the index and
-write to it to stage the changes.  Use `:Gdiff` to bring up the staged
+write to it to stage the changes.  Use `:Gdiffsplit` to bring up the staged
 version of the file side by side with the working tree version and use
 Vim's diff handling capabilities to stage a subset of the file's
 changes.
 
-Bring up the output of `git status` with `:Gstatus`.  Press `-` to
-`add`/`reset` a file's changes, or `p` to `add`/`reset` `--patch`.  And guess
-what `:Gcommit` does!
+Commit, merge, and rebase with `:Gcommit`, `:Gmerge`, and `:Grebase`, using
+the current Vim instance to edit commit messages and the rebase todo list.
+Use `:Gpush`, `:Gfetch`, and `:Gpull` to send and retrieve upstream changes.
 
 `:Gblame` brings up an interactive vertical split with `git blame`
 output.  Press enter on a line to edit the commit where the line
@@ -20,13 +24,17 @@ changed, or `o` to open it in a split.  When you're done, use `:Gedit`
 in the historic buffer to go back to the work tree version.
 
 `:Gmove` does a `git mv` on a file and simultaneously renames the
-buffer.  `:Gremove` does a `git rm` on a file and simultaneously deletes
+buffer.  `:Gdelete` does a `git rm` on a file and simultaneously deletes
 the buffer.
 
 Use `:Ggrep` to search the work tree (or any arbitrary commit) with
 `git grep`, skipping over that which is not tracked in the repository.
-`:Glog` loads all previous revisions of a file into the quickfix list so
-you can iterate over them and watch the file evolve!
+`:Gclog` and `:Gllog` load all previous commits into the quickfix or location
+list.  Give them a range (e.g., using visual mode and `:'<,'>Gclog`) to
+iterate over every change to that portion of the current file.
+
+`:Git mergetool` loads conflicts into the quickfix list.  `:Git difftool` does
+the same for any arbitrary set of changes.
 
 `:Gread` is a variant of `git checkout -- filename` that operates on the
 buffer rather than the filename.  This means you can use `u` to undo it
@@ -35,15 +43,26 @@ and you never get any warnings about the file changing outside Vim.
 making it like `git add` when called from a work tree file and like
 `git checkout` when called from the index or a blob in history.
 
-Use `:Gbrowse` to open the current file on GitHub, with optional line
-range (try it in visual mode!).  If your current repository isn't on
-GitHub, `git instaweb` will be spun up instead.
+Use `:Gbrowse` to open the current file on the web front-end of your favorite
+hosting provider, with optional line range (try it in visual mode).  Plugins
+are available for popular providers such as [GitHub][rhubarb.vim],
+[GitLab][fugitive-gitlab.vim], [Bitbucket][fubitive.vim],
+[Gitee][fugitive-gitee.vim], [Pagure][pagure], and
+[Phabricator][vim-phabricator].
 
-Add `%{fugitive#statusline()}` to `'statusline'` to get an indicator
-with the current branch in (surprise!) your statusline.
+[rhubarb.vim]: https://github.com/tpope/vim-rhubarb
+[fugitive-gitlab.vim]: https://github.com/shumphrey/fugitive-gitlab.vim
+[fubitive.vim]: https://github.com/tommcdo/vim-fubitive
+[fugitive-gitee.vim]: https://github.com/linuxsuren/fugitive-gitee.vim
+[pagure]: https://github.com/FrostyX/vim-fugitive-pagure
+[vim-phabricator]: https://github.com/jparise/vim-phabricator
 
-Last but not least, there's `:Git` for running any arbitrary command,
-and `Git!` to open the output of a command in a temp file.
+Add `%{FugitiveStatusline()}` to `'statusline'` to get an indicator
+with the current branch in your statusline.
+
+Last but not least, there's `:Git` for running any arbitrary command.
+
+For more information, see `:help fugitive`.
 
 ## Screencasts
 
@@ -55,53 +74,28 @@ and `Git!` to open the output of a command in a temp file.
 
 ## Installation
 
-If you don't have a preferred installation method, one option is to install
-[pathogen.vim](https://github.com/tpope/vim-pathogen), and then copy
-and paste:
+Install using your favorite package manager, or use Vim's built-in package support:
 
-    cd ~/.vim/bundle
-    git clone git://github.com/tpope/vim-fugitive.git
-    vim -u NONE -c "helptags vim-fugitive/doc" -c q
-
-If your Vim version is below 7.2, I recommend also installing
-[vim-git](https://github.com/tpope/vim-git) for syntax highlighting and
-other Git niceties.
+    mkdir -p ~/.vim/pack/tpope/start
+    cd ~/.vim/pack/tpope/start
+    git clone https://tpope.io/vim/fugitive.git
+    vim -u NONE -c "helptags fugitive/doc" -c q
 
 ## FAQ
 
-> I installed the plugin and started Vim.  Why don't any of the commands
-> exist?
+> Why can't I enter my password when I `:Gpush`?
 
-Fugitive cares about the current file, not the current working
-directory.  Edit a file from the repository.
+It is highly recommended to use SSH keys or [credentials caching][] to avoid
+entering your password on every upstream interaction.  If this isn't an
+option, the official solution is to use the `core.askPass` Git option to
+request the password via a GUI.  Fugitive will configure this for you
+automatically if you have `ssh-askpass` or `git-gui` installed; otherwise it's
+your responsibility to set this up.
 
-> I opened a new tab.  Why don't any of the commands exist?
+If you absolutely must type in your password by hand, sidestep Fugitive and
+use `:terminal git push`.
 
-Fugitive cares about the current file, not the current working
-directory.  Edit a file from the repository.
-
-> Why is `:Gbrowse` not using the right browser?
-
-`:Gbrowse` delegates to `git web--browse`, which is less than perfect
-when it comes to finding the right browser.  You can tell it the correct
-browser to use with `git config --global web.browser ...`.  On OS X, for
-example, you might want to set this to `open`.  See `git web--browse --help`
-for details.
-
-> Here's a patch that automatically opens the quickfix window after
-> `:Ggrep`.
-
-This is a great example of why I recommend asking before patching.
-There are valid arguments to be made both for and against automatically
-opening the quickfix window.  Whenever I have to make an arbitrary
-decision like this, I ask what Vim would do.  And Vim does not open a
-quickfix window after `:grep`.
-
-Luckily, it's easy to implement the desired behavior without changing
-fugitive.vim.  The following autocommand will cause the quickfix window
-to open after any grep invocation:
-
-    autocmd QuickFixCmdPost *grep* cwindow
+[credentials caching]: https://help.github.com/en/articles/caching-your-github-password-in-git
 
 ## Self-Promotion
 
