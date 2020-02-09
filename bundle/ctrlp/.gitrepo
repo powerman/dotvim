@@ -5,8 +5,8 @@
 ;
 [subrepo]
 	remote = https://github.com/kien/ctrlp.vim.git
-	branch = 564176f01d7f3f7f8ab452ff4e1f5314de7b0981
+	branch = master
 	commit = 564176f01d7f3f7f8ab452ff4e1f5314de7b0981
-	parent = 6a9db4f27d1ef1caacdb5c99802d884fd0e46a13
+	parent = 231f8f43af612bce09d81dd0a9ccd77e96642367
 	method = merge
 	cmdver = 0.4.1
