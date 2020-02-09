@@ -5,8 +5,8 @@
 ;
 [subrepo]
 	remote = https://github.com/vim-scripts/largefile
-	branch = 5
+	branch = master
 	commit = 3941a37b2b0288524300348a39521a46539bf9f6
-	parent = 0dcbe53ed511b047c2027ebdfab5005c0a85ba56
+	parent = c961df231e2198ee7d806a3f8454c2a0fcf233c3
 	method = merge
 	cmdver = 0.4.1
