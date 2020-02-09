@@ -219,6 +219,12 @@ let g:autosess_dir = '~/.cache/vim/autosess/'
 """ Прозрачное редактирование файлов зашифрованных GnuPG        
 " Plugin: vim-gnupg
 
+" Fix "missing" first 2 symbols on line 2 after opening new file.
+autocmd User GnuPG call timer_start(1, 'FixRedraw', {})
+func FixRedraw(timer)
+        redraw!
+endfunc
+
 """ Ускоренное открытие больших файлов                          
 " Plugin: largefile
 let g:LargeFile = 6			" in MB, default value is 20
@@ -505,8 +511,8 @@ autocmd FileType gitcommit              setlocal textwidth=72
 autocmd FileType mail	                setlocal colorcolumn=81,82,83,84,85
 
 """ Save & restore folding                                      
-autocmd BufReadPost,FileReadPost *	if expand('<afile>') != 'quickfix' && !&readonly && !&diff && &ft != 'diff' && &ft != 'mail' | loadview | endif
-autocmd BufWritePre,FileWritePre *	if expand('<afile>') != 'quickfix' && !&readonly && !&diff && &ft != 'diff' && &ft != 'mail' | mkview   | endif
+autocmd BufReadPost,FileReadPost *	if expand('<afile>') != 'quickfix' && !&readonly && !&diff && &ft != 'diff' && &ft != 'mail' | let s:buftype=&buftype | set buftype= | loadview | exe "set buftype=".s:buftype | endif
+autocmd BufWritePre,FileWritePre *	if expand('<afile>') != 'quickfix' && !&readonly && !&diff && &ft != 'diff' && &ft != 'mail' | let s:buftype=&buftype | set buftype= | mkview   | exe "set buftype=".s:buftype | endif
 
 """ Enter Insert mode                                           <CR> 
 autocmd BufWinEnter * if expand('<afile>') != 'quickfix' && !&readonly && !&diff && &ft != 'diff' && &ft != 'qf' && &ft != 'tagbar' | exe 'nnoremap <buffer> <CR> A<CR>' | elseif &ft != 'tagbar' | exe 'silent! nunmap <buffer> <CR>' | endif
