@@ -223,7 +223,7 @@ let g:autosess_dir = '~/.cache/vim/autosess/'
 " Plugin: largefile
 let g:LargeFile = 6			" in MB, default value is 20
 
-""" Поддержка Git                                               :Gstatus, :Gdiff, …
+""" Поддержка Git                                               :Gbrowse, :Gstatus, :Gdiff, …
 " Plugin: fugitive
 set statusline=%<%f\ %h%m%r%{fugitive#statusline()}%=%-14.(%l,%c%V%)\ %P
 cnoreabbrev Glog Gllog
