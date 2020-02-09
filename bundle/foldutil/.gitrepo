@@ -5,8 +5,8 @@
 ;
 [subrepo]
 	remote = https://github.com/vim-scripts/foldutil.vim
-	branch = 3.0
+	branch = master
 	commit = 3e41eb19d10ee7e3c2e37448a84d01e1dcef2862
-	parent = 41a86e28b2860adcdbc44dee96f12a2c0ae228f1
+	parent = c4a3e8187d6986ab5f1a1f5889ceeb78ba9d069d
 	method = merge
 	cmdver = 0.4.1
