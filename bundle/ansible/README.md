@@ -1,6 +1,6 @@
 ## introduction
 
-This is a vim syntax plugin for Ansible 2.0, it supports YAML playbooks, Jinja2 templates, and Ansible's `hosts` files.
+This is a vim syntax plugin for Ansible 2.x, it supports YAML playbooks, Jinja2 templates, and Ansible's `hosts` files.
 
 - YAML playbooks are detected if:
   - they are in the `group_vars` or `host_vars` folder
@@ -9,7 +9,20 @@ This is a vim syntax plugin for Ansible 2.0, it supports YAML playbooks, Jinja2 
 - Jinja2 templates are detected if they have a *.j2* suffix
 - Files named `hosts` will be treated as Ansible hosts files
 
-You can also set the filetype to `ansible`, `ansible_template`, or `ansible_hosts` if auto-detection does not work (e.g. `:set ft=ansible`). **Note**: If you want to detect a custom pattern of your own, you can easily add this in your `.vimrc` using [this method](http://vim.wikia.com/wiki/Change_filetype_based_on_directory_path) - you do not need to fork just to do this! :)
+You can also set the filetype to `yaml.ansible`, `*.jinja2`, or `ansible_hosts` if auto-detection does not work (e.g. `:set ft=yaml.ansible` or `:set ft=ruby.jinja2`). **Note**: If you want to detect a custom pattern of your own, you can easily add this in your `.vimrc` using something like this:
+
+```vim
+au BufRead,BufNewFile */playbooks/*.yml set filetype=yaml.ansible
+```
+
+If you want to override the default file type detection you can easily do this in your `.vimrc`. For example if you use YAML syntax for `hosts` include something like this:
+
+```vim
+augroup ansible_vim_fthosts
+  autocmd!
+  autocmd BufNewFile,BufRead hosts setfiletype yaml.ansible
+augroup END
+```
 
 This plugin should be quite reliable, as it sources the original formats and simply modifies the highlights as appropriate. This also enables a focus on simplicity and configurability instead of patching bad syntax detection.
 
@@ -25,20 +38,32 @@ Use your favorite plugin manager, or try [vim-plug](https://github.com/junegunn/
 
 **vim-plug:** `Plug 'pearofducks/ansible-vim'`
 
+**vim-plug with post-update hook:** `Plug 'pearofducks/ansible-vim', { 'do':
+'./UltiSnips/generate.sh' }`
+
+*Note: Because of Ansible API changes, `generate.sh` may require the latest (or near-latest) version of Ansible.*
+
+*Note2: `generate.sh` can receive some parameters, for more info see its [Readme](https://github.com/pearofducks/ansible-vim/tree/master/UltiSnips#script-parameters)*
+
 **vundle:** `Plugin 'pearofducks/ansible-vim'`
 
 **pathogen:** `git clone https://github.com/pearofducks/ansible-vim ~/.vim/bundle/ansible-vim`
 
+**Arch Linux:** Package [ansible-vim-git](https://aur.archlinux.org/packages/ansible-vim-git/) available on AUR
+
 ## options
 
-##### g:ansible_extra_syntaxes
-`let g:ansible_extra_syntaxes = "sh.vim ruby.vim"`
+##### g:ansible_unindent_after_newline
 
-The space-separated options specified must be the actual syntax files, not the filetype - typically these are in something like `/usr/share/vim/syntax`. For example Bash is not `bash.vim` but seems to live in `sh.vim`.
+`let g:ansible_unindent_after_newline = 1`
 
-This flag enables extra syntaxes to be loaded for Jinja2 templates. If you frequently work with specific filetypes in Ansible, this can help get highlighting in those files.
+When this variable is set, indentation will completely reset (unindent to column 0) after two newlines in insert-mode. The normal behavior of YAML is to always keep the previous indentation, even across multiple newlines with no content.
 
-This will *always* load these syntaxes for *all* .j2 files, and should be considered a bit of a (temporary?) hack/workaround.
+##### g:ansible_yamlKeyName
+
+`let g:ansible_yamlKeyName = 'yamlKey'`
+
+This option exists to provide additional compatibility with [stephpy/vim-yaml](https://github.com/stephpy/vim-yaml).
 
 ##### g:ansible_attribute_highlight
 `let g:ansible_attribute_highlight = "ob"`
@@ -72,6 +97,33 @@ Highlight the following additional keywords in playbooks: `register always_run c
 
 By default we only highlight: `include until retries delay when only_if become become_user block rescue always notify`
 
+##### g:ansible_normal_keywords_highlight
+`let g:ansible_normal_keywords_highlight = 'Constant'`
+
+Accepts any syntax group name from `:help E669` - e.g. _Comment_, _Constant_, and _Identifier_
+
+*Note:* Defaults to 'Statement' when not set.
+
+This option change the highlight of the following common keywords in playbooks: `include until retries delay when only_if become become_user block rescue always notify`
+
+##### g:ansible_with_keywords_highlight
+`let g:ansible_with_keywords_highlight = 'Constant'`
+
+Accepts any syntax group-name from `:help E669` - e.g. _Comment_, _Constant_, and _Identifier_
+
+*Note:* Defaults to 'Statement' when not set.
+
+This option changes the highlight of all `with_.+` keywords in playbooks.
+
+##### g:ansible_template_syntaxes
+`let g:ansible_template_syntaxes = { '*.rb.j2': 'ruby' }`
+
+Accepts a dictionary in the form of `'regex-for-file': 'filetype'`.
+- _regex-for-file_ will receive the full filepath, so directory matching can be done.
+- _filetype_ is the root filetype to be applied, `jinja2` will be automatically appended
+
+All files ending in `*.j2` that aren't matched will simply get the `jinja2` filetype.
+
 ## bugs, suggestions/requests, & contributions
 
 ##### bugs
@@ -83,9 +135,3 @@ Indenting a full document - e.g with `gg=G` - will not be supported and is not a
 ##### suggestions/requests
 
 Suggestions for improvements are welcome, pull-requests with completed features even more so. :)
-
-##### contributions
-
-Thanks to:
-
-- The developers of `salt-vim` for parts of the original YAML implementation this is based on
