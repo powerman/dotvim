@@ -10,3 +10,25 @@ Remove `~/.vimrc` and `~/.vim/`, then:
 ```
 git clone https://github.com/powerman/dotvim ~/.vim
 ```
+
+== Update from version installed before 2020-02-09
+
+Before 2020-02-09 this repo has used git submodules. You'll need to use
+this upgrade procedure to get rid of git submodules and switch to updating
+this repo using simple `git pull`.
+
+1. (optional) If you've your own changes then make sure they're committed
+   to some branch (we'll use name "local" here). If you've added own
+   submodules then you should backup them now - because they'll be REMOVED
+   RIGHT NOW - and also have an idea how to re-add them after update
+   without using submodules.
+2. `git checkout master`
+3. `git fetch`
+4. If you'll try `git pull` now it'll fail, so run `git merge
+   remove-submodules` instead to move forward as far as it is possible
+   right now.
+5. Now it's time to remove all submodules repos: `rm -rf .git/modules`
+6. And then delete all untracked files from `bundle/` dir: `git clean -f bundle`
+7. Finally, you can update to the latest version: `git pull`
+8. (optional) If you've your own changes in the "local" branch, then it's
+   time to make them accessible again: `git rebase master local`
