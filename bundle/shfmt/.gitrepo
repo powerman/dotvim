@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/z0mbix/vim-shfmt.git
+	branch = master
+	commit = ab1d5ebdc43ae2ceaddf3dc7eb580ef1eea21c05
+	parent = 52359b1b43b02fa5e7ca5c92d6cde26d5084ca98
+	method = merge
+	cmdver = 0.4.1
