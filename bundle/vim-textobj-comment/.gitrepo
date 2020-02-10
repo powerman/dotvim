@@ -5,8 +5,8 @@
 ;
 [subrepo]
 	remote = https://github.com/glts/vim-textobj-comment
-	branch = 58ae4571b76a5bf74850698f23d235eef991dd4b
+	branch = master
 	commit = 58ae4571b76a5bf74850698f23d235eef991dd4b
-	parent = d8bd48de36c40f7b47d7425e6f0155faf9a44238
+	parent = 716b5f13f18ff284ad0ae28abc358e1d0b9f6b78
 	method = merge
 	cmdver = 0.4.1
