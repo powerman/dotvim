@@ -1,5 +1,8 @@
 # Tagbar: a class outline viewer for Vim
 
+[![Vint](https://github.com/majutsushi/tagbar/workflows/Vint/badge.svg)](https://github.com/majutsushi/tagbar/actions?workflow=Vint)
+[![Check](https://github.com/majutsushi/tagbar/workflows/Check/badge.svg)](https://github.com/majutsushi/tagbar/actions?workflow=Check)
+
 ## What Tagbar is
 
 Tagbar is a Vim plugin that provides an easy way to browse the tags of the
@@ -17,8 +20,16 @@ creates the tags it needs on-the-fly in-memory without creating any files.
 
 ## Dependencies
 
-[Vim 7.0](http://www.vim.org/) (But see note below)  
-[Exuberant ctags 5.5](http://ctags.sourceforge.net/)
+* [Vim](http://www.vim.org/) >= 7.3.1058
+  or any version of [NeoVim](https://neovim.io/).
+
+* [Exuberant Ctags](http://ctags.sourceforge.net/) >= 5.5,
+  or (**highly recommended**) any version of [Universal
+  Ctags](https://ctags.io) which is a currently maintained fork of Exuberant
+  Ctags with many bugfixes, support for many more formats, and proper Unicode
+  support. Some additional formats can also be handled by other providers such
+  as [jsctags](https://github.com/sergioramos/jsctags),
+  [phpctags](https://github.com/vim-php/phpctags), or others.
 
 ## Installation
 
@@ -27,12 +38,6 @@ Extract the archive or clone the repository into a directory in your
 [pathogen](https://github.com/tpope/vim-pathogen). Don't forget to run
 `:helptags` if your plugin manager doesn't do it for you so you can access the
 documentation with `:help tagbar`.
-
-Note: Vim versions < 7.0.167 have a bug that prevents Tagbar from working. If
-you are affected by this use this alternate Tagbar download instead:
-[zip](https://github.com/majutsushi/tagbar/zipball/70fix). It is on par with
-version 2.2 but probably won't be updated after that due to the amount of
-changes required.
 
 If the ctags executable is not installed in one of the directories in your
 `$PATH` environment variable you have to set the `g:tagbar_ctags_bin`
@@ -82,8 +87,11 @@ against Tagbar](https://github.com/majutsushi/tagbar/issues?labels=ctags-bug&pag
 
 ## License
 
-Vim license, see LICENSE
+Tagbar is distributed under the terms of the *Vim license*, see the included [LICENSE][] file.
 
-## Maintainer
+## Contributors
 
-Jan Larres <[jan@majutsushi.net](mailto:jan@majutsushi.net)>
+Tagbar was originally written by [Jan Larres](https://github.com/majutsushi).
+It is actively maintained by [Caleb Maclennan](https://github.com/alerque).
+At least [45 others have contributed](https://github.com/majutsushi/tagbar/graphs/contributors) features and bug fixes over the years.
+Please document [issues](https://github.com/majutsushi/tagbar/issues) or submit [pull requests](https://github.com/majutsushi/tagbar/issues) on Github.
