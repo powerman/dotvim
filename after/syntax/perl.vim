@@ -9,4 +9,3 @@ syn match parserReVar		"\$info" contained
 syn match perlReOr		"|" contained
 hi link parserReVar Special
 hi link perlReOr Special
-

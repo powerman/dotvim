@@ -1,9 +1,10 @@
+scriptencoding utf-8
 set background=dark
 hi clear
-if exists("syntax_on")
+if exists('syntax_on')
     syntax reset
 endif
-let colors_name = "powerman"
+let colors_name = 'powerman'
 
 """ Базовые
 hi Normal                        ctermfg=7    ctermbg=4    cterm=NONE      guifg=#888888 guibg=#000088 gui=NONE
@@ -150,9 +151,12 @@ else
     hi SpellRare                 ctermfg=NONE ctermbg=NONE cterm=NONE      guifg=NONE    guibg=NONE    gui=NONE
     hi SpellBad                  ctermfg=3    ctermbg=NONE cterm=NONE      guifg=#884400 guibg=NONE    gui=NONE
     hi SpellLocal                ctermfg=3    ctermbg=NONE cterm=NONE      guifg=#884400 guibg=NONE    gui=NONE
+    augroup hi_spell_perl
+    autocmd!
     autocmd BufEnter *  if &ft == "perl" |  hi SpellBad ctermbg=0       | endif
     autocmd BufLeave *                      hi SpellBad ctermbg=NONE
     autocmd BufEnter *  if &ft == "perl" |  hi SpellLocal ctermbg=0     | endif
     autocmd BufLeave *                      hi SpellLocal ctermbg=NONE
+    augroup end
 endif
 

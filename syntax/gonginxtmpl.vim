@@ -1,8 +1,8 @@
-if exists("b:current_syntax")
+if exists('b:current_syntax')
   finish
 endif
 
-if !exists("g:main_syntax")
+if !exists('g:main_syntax')
   let g:main_syntax = 'nginx'
 endif
 
@@ -15,6 +15,6 @@ syn region ngxBlock start=+^+ end=+{+ contains=gotplAction,goTplComment,ngxComme
 syn region ngxString start=+"+ end=+"+ skip=+\\\\\|\\"+ contains=gotplAction,goTplComment,ngxVariableString oneline
 syn region ngxString start=+'+ end=+'+ skip=+\\\\\|\\'+ contains=gotplAction,goTplComment,ngxVariableString oneline
 
-let b:current_syntax = "gonginxtmpl"
+let b:current_syntax = 'gonginxtmpl'
 
 " vim: sw=2 ts=2 et

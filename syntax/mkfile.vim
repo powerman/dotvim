@@ -1,13 +1,14 @@
 " Vim syntax file
+scriptencoding utf-8
 " Language:	mkfile (used by OS Inferno mk(1))
 " Maintainer:	Alex Efros <powerman-asdf@ya.ru>
 " URL:		http://powerman.name/download/vim/syntax/mkfile.vim
 " Version:	1.10
 " Last Change:	2012-12-09
 
-if version < 600
+if v:version < 600
   syntax clear
-elseif exists("b:current_syntax")
+elseif exists('b:current_syntax')
   finish
 endif
 
@@ -65,8 +66,8 @@ syn region mkfileRecipe_os	contained excludenl keepend start="^\s.*" skip="\n\s"
 " 	\ contains=mkfileVarValue,mkfileComment,mkfileEscaped
 
 
-if version >= 508 || !exists("did_mkfile_syn_inits")
-  if version < 508
+if v:version >= 508 || !exists('did_mkfile_syn_inits')
+  if v:version < 508
     let did_mkfile_syn_inits = 1
     command -nargs=+ HiLink hi link <args>
   else
@@ -94,4 +95,4 @@ if version >= 508 || !exists("did_mkfile_syn_inits")
   delcommand HiLink
 endif
 
-let b:current_syntax = "mkfile"
+let b:current_syntax = 'mkfile'

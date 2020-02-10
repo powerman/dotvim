@@ -5,9 +5,9 @@
 " Version:	1.10
 " Last Change:	2012-12-09
 
-if version < 600
+if v:version < 600
   syntax clear
-elseif exists("b:current_syntax")
+elseif exists('b:current_syntax')
   finish
 endif
 
@@ -85,8 +85,8 @@ syn keyword infshException	raise rescue
 syn keyword infshPctlType	newfd forkfd newns forkns newpgrp nodevs
 
 
-if version >= 508 || !exists("did_infsh_syn_inits")
-  if version < 508
+if v:version >= 508 || !exists('did_infsh_syn_inits')
+  if v:version < 508
     let did_infsh_syn_inits = 1
     command -nargs=+ HiLink hi link <args>
   else
@@ -130,4 +130,4 @@ if version >= 508 || !exists("did_infsh_syn_inits")
   delcommand HiLink
 endif
 
-let b:current_syntax = "infsh"
+let b:current_syntax = 'infsh'

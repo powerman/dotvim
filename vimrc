@@ -3,6 +3,9 @@
 " To view summary of this file run this (require foldutil plugin):
 "	:FoldMatching ^""" -1
 
+scriptencoding utf-8
+"vint: -ProhibitAutocmdWithNoGroup
+
 """ TODO                                                        
 "
 " Настроить единообразную поддержку программирования:
@@ -51,14 +54,14 @@
 " - вспомогательные функции
 function! s:Mkdir(dir)
 	if !isdirectory(expand(a:dir))
-		call mkdir(expand(a:dir), "p", 0700)
+		call mkdir(expand(a:dir), 'p', 0700)
 	endif
 endfunction
 " - система
-if &term == "xterm"
+if &term ==# 'xterm'
     set term=xterm-256color
 endif
-if &term == "screen"
+if &term ==# 'screen'
     set term=screen-256color
     map  [1;5A <C-Up>
     map  [1;5B <C-Down>
@@ -386,9 +389,11 @@ let g:SuperTabContextDiscoverDiscovery = ['&completefunc:<c-x><c-u>']
 let g:SuperTabContextDefaultCompletionType = '<c-p>'
 function! ContextPlainText()
         let synname = synIDattr(synID(line('.'), col('.') - 1, 1), 'name')
-        if synname =~ '\(String\|Comment\)'
+        if synname =~# '\(String\|Comment\)'
                 exec 'let complType = "' . escape(g:SuperTabContextDefaultCompletionType, '<') . '"'
+                "vint: -ProhibitUsingUndeclaredVariable
                 return complType
+                "vint: +ProhibitUsingUndeclaredVariable
         endif
 endfunction
 " Set &completefunc to try &omnifunc or default one if omni fails.
@@ -403,7 +408,7 @@ autocmd FileType *
 
 """ Сниппеты:                                                   <Tab> 
 " Plugin: snipMate
-let g:snips_author = "Alex Efros"
+let g:snips_author = 'Alex Efros'
 
 """ Отступы/выравнивание:                                       <Tab> 
 " Plugin: Smart Tabs
@@ -430,10 +435,12 @@ let g:syntastic_go_go_build_args = '-o /dev/null'
 let g:syntastic_go_go_test_args = '-tags integration'
 " - filtering useless messages
 let g:syntastic_zsh_zsh_quiet_messages = {
-	\ "regex":      ['no such user or named directory'],
+	\ 'regex':      ['no such user or named directory'],
         \ }
 " - check shell .|source'd files
-let g:syntastic_sh_shellcheck_args = "-x"
+let g:syntastic_sh_shellcheck_args = '-x'
+" - check vim
+let g:syntastic_vim_checkers = ['vint']
 " - переход к следующей/предыдущей ошибке: <F12>/<F11>
 imap <silent> <F11>	<C-O>:execute "try<Bar>lprev<Bar>catch<Bar>lclose<Bar>endtry"<CR>
 imap <silent> <F12>	<C-O>:execute "try<Bar>lnext<Bar>catch<Bar>lclose<Bar>endtry"<CR>
@@ -536,11 +543,11 @@ let g:sparkupNextMapping = '<C-F>'
 
 """ Поддержка Go                                                <Leader>…, :Go…
 " Plugin: vim-go
-let g:go_fmt_command = "goimports"
+let g:go_fmt_command = 'goimports'
 let g:go_fmt_fail_silently = 1
 let g:go_doc_keywordprg_enabled = 0
 let g:go_template_use_pkg = 1
-let g:go_list_type = "quickfix"
+let g:go_list_type = 'quickfix'
 let g:go_highlight_array_whitespace_error = 1
 let g:go_highlight_chan_whitespace_error = 1
 let g:go_highlight_extra_types = 1
@@ -556,9 +563,9 @@ let g:go_highlight_string_spellcheck = 1
 let g:go_highlight_format_strings = 1
 let g:go_highlight_variable_declarations = 0
 let g:go_highlight_variable_assignments = 0
-let g:go_build_tags = "integration"
-let g:go_metalinter_command = "golangci-lint"
-let g:go_rename_command = "gopls"
+let g:go_build_tags = 'integration'
+let g:go_metalinter_command = 'golangci-lint'
+let g:go_rename_command = 'gopls'
 let g:go_gopls_fuzzy_matching = 0
 autocmd FileType go nmap <buffer> <nowait> <Leader>r     <Plug>(go-run)
 autocmd FileType go nmap <buffer> <nowait> <Leader>b     <Plug>(go-build)
@@ -573,7 +580,7 @@ autocmd FileType go nmap <buffer> <nowait> <Leader>e     <Plug>(go-rename)
 
 """ Поддержка Graphviz                                          <Leader>…, :Graphviz…
 " Plugin: WM Graphviz
-let g:WMGraphviz_output="png"
+let g:WMGraphviz_output='png'
 
 """ Улучшенная строка статуса                                   
 " Plugin: vim-airline
@@ -603,62 +610,62 @@ let g:WMGraphviz_output="png"
 " - defaults (if unable to detect project type)
 set path=.,,
 set tags=./tags,tags
-let s:proj = ""
+let s:proj = ''
 " - Narada project
-let root  = filereadable("config/version")		? "."
-	\ : filereadable("../config/version")		? ".."
-	\ : filereadable("../../config/version")	? "../.."
-	\ : filereadable("../../../config/version")	? "../../.."
-	\ : filereadable("VERSION")	                ? "."
-	\ : filereadable("../VERSION")		        ? ".."
-	\ : filereadable("../../VERSION")	        ? "../.."
-	\ : filereadable("../../../VERSION")	        ? "../../.."
-	\ :						  ""
+let root  = filereadable('config/version')		? '.'
+	\ : filereadable('../config/version')		? '..'
+	\ : filereadable('../../config/version')	? '../..'
+	\ : filereadable('../../../config/version')	? '../../..'
+	\ : filereadable('VERSION')	                ? '.'
+	\ : filereadable('../VERSION')		        ? '..'
+	\ : filereadable('../../VERSION')	        ? '../..'
+	\ : filereadable('../../../VERSION')	        ? '../../..'
+	\ :						  ''
 if !empty(root)
-	execute "set path=.,".root.",".root."/template,".root."/public/css,".root."/public/js,".root."/t,".root."/perl,".root."/opt/*/*/module,".root."/opt/*/*/appl/cmd,".root."/opt/*/*/appl/lib,".","
-	execute "set tags=".root."/tmp/tags"
+	execute 'set path=.,'.root.','.root.'/template,'.root.'/public/css,'.root.'/public/js,'.root.'/t,'.root.'/perl,'.root.'/opt/*/*/module,'.root.'/opt/*/*/appl/cmd,'.root.'/opt/*/*/appl/lib,'.','
+	execute 'set tags='.root.'/tmp/tags'
 	let s:cwd = getcwd()
-	execute "lcd ".root
-	execute "autocmd BufNewFile,BufRead * lcd! ".getcwd()
-	execute "lcd ".s:cwd
-	let s:proj = "Narada"
+	execute 'lcd '.root
+	execute 'autocmd BufNewFile,BufRead * lcd! '.getcwd()
+	execute 'lcd '.s:cwd
+	let s:proj = 'Narada'
 endif
 " - ASDF project
-let root  = filereadable(".lib/.version")		? "."
-	\ : filereadable("../.lib/.version")		? ".."
-	\ : filereadable("../../.lib/.version")		? "../.."
-	\ : filereadable("../../../.lib/.version")	? "../../.."
-	\ :						  ""
+let root  = filereadable('.lib/.version')		? '.'
+	\ : filereadable('../.lib/.version')		? '..'
+	\ : filereadable('../../.lib/.version')		? '../..'
+	\ : filereadable('../../../.lib/.version')	? '../../..'
+	\ :						  ''
 if !empty(root)
-	execute "set path=.,".root.",".root."/.lib,".root."/.lib/t,".","
-	execute "set tags=".root."/.lib/tmp/tags"
-	let s:proj = "ASDF"
+	execute 'set path=.,'.root.','.root.'/.lib,'.root.'/.lib/t,'.','
+	execute 'set tags='.root.'/.lib/tmp/tags'
+	let s:proj = 'ASDF'
 endif
 " - Inferno project
-let root  = filereadable("mkconfig")			? "."
-	\ : filereadable("../mkconfig")			? ".."
-	\ : filereadable("../../mkconfig")		? "../.."
-	\ : filereadable("../../../mkconfig")		? "../../.."
-	\ :						  ""
+let root  = filereadable('mkconfig')			? '.'
+	\ : filereadable('../mkconfig')			? '..'
+	\ : filereadable('../../mkconfig')		? '../..'
+	\ : filereadable('../../../mkconfig')		? '../../..'
+	\ :						  ''
 if !empty(root)
-	execute "set path=.,".root.",".root."/module,".root."/appl/cmd,".root."/appl/lib,".","
-	let s:proj = "Inferno"
+	execute 'set path=.,'.root.','.root.'/module,'.root.'/appl/cmd,'.root.'/appl/lib,'.','
+	let s:proj = 'Inferno'
 endif
 " - Git project
-let root  = isdirectory(".git")		        ? "."
-	\ : isdirectory("../.git")		? ".."
-	\ : isdirectory("../../.git")	        ? "../.."
-	\ : isdirectory("../../../.git")	? "../../.."
-	\ : isdirectory("../../../../.git")	? "../../../.."
-	\ : isdirectory("../../../../../.git")	? "../../../../.."
-	\ :					  ""
+let root  = isdirectory('.git')		        ? '.'
+	\ : isdirectory('../.git')		? '..'
+	\ : isdirectory('../../.git')	        ? '../..'
+	\ : isdirectory('../../../.git')	? '../../..'
+	\ : isdirectory('../../../../.git')	? '../../../..'
+	\ : isdirectory('../../../../../.git')	? '../../../../..'
+	\ :					  ''
 if !empty(root)
-	execute "set path=.,".root.",".root."/template,".root."/public/css,".root."/public/js,".root."/t,".","
-	execute "set tags=".root."/tmp/tags"
+	execute 'set path=.,'.root.','.root.'/template,'.root.'/public/css,'.root.'/public/js,'.root.'/t,'.','
+	execute 'set tags='.root.'/tmp/tags'
 	let s:cwd = getcwd()
-	execute "lcd ".root
-	execute "autocmd BufNewFile,BufRead * lcd! ".getcwd()
-	execute "lcd ".s:cwd
+	execute 'lcd '.root
+	execute 'autocmd BufNewFile,BufRead * lcd! '.getcwd()
+	execute 'lcd '.s:cwd
 endif
 let s:proj_path = &path
 " - file type specific
@@ -667,7 +674,7 @@ autocmd FileType limbo			setlocal path+=/usr/inferno/module,/usr/inferno/appl/cm
 " default ftplugin/perl.vim replace user's path, so we have to restore it
 autocmd FileType perl			execute "setlocal path=".s:proj_path.",".&l:path
 " - do not copy @INC dirs to path to avoid slowdown while searching hundreds perl modules
-let perlpath = ""
+let perlpath = ''
 " complement binfmt gorun support - check only this source file when in /bin/
 autocmd BufNewFile,BufRead */bin/*.go   let b:syntastic_go_go_build_args=g:syntastic_go_go_build_args.' '.expand('%:p')
 " packages which depends on static libgit2/git2go
@@ -733,7 +740,10 @@ function! s:Tidy()
 	let oldft=&ft
 	filetype indent on
 	set ft=html
+	" XXX Скорее всего линтер отключать не нужно, но я не понял, что он хочет.
+        "vint: -ProhibitCommandRelyOnUser
 	normal gg=G
+        "vint: +ProhibitCommandRelyOnUser
 	filetype indent off
 	let &ft=oldft
 endfunction
@@ -747,7 +757,7 @@ nmap <silent> <Leader>hi	:echo
 nmap <silent> <Leader>HI	:autocmd CursorMoved <buffer> normal \hi<CR>
 nmap <silent> <Leader>SS	:autocmd CursorMoved <buffer> :call <SID>SynStack()<CR>
 function! s:SynStack()
-  echo join(map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")'), " > ")
+  echo join(map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")'), ' > ')
 endfunc
 
 """ Unsorted
@@ -771,11 +781,11 @@ endfunction
 "       :'<,'>call TR()
 function! TR() range
   let g:sum = 0
-  execute a:firstline . "," . a:lastline . 's/\d\+\ze m/\=Sum(submatch(0))'
+  execute a:firstline . ',' . a:lastline . 's/\d\+\ze m/\=Sum(submatch(0))'
   let l:mins = g:sum % 60
   let l:hours = g:sum / 60
   let g:sum = 0
-  execute a:firstline . "," . a:lastline . 's/\d\+\ze h/\=Sum(submatch(0))'
+  execute a:firstline . ',' . a:lastline . 's/\d\+\ze h/\=Sum(submatch(0))'
   let l:hours = l:hours + g:sum
-  echo l:hours "h" l:mins "m"
+  echo l:hours 'h' l:mins 'm'
 endfunction

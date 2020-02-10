@@ -1,4 +1,5 @@
 """ Vim syntax file cheatsheet
+scriptencoding utf-8
 " Syntax ITEMS:
 " - keyword:					:help syn-keyword
 "   * match only full word defined by		:help iskeyword
@@ -121,9 +122,9 @@
 " :let <language>_option=1
 " :unlet <language>_option
 
-if version < 600
+if v:version < 600
   syntax clear
-elseif exists("b:current_syntax")
+elseif exists('b:current_syntax')
   finish
 endif
 
@@ -137,8 +138,8 @@ endif
 " endif
 
 
-if version >= 508 || !exists("did_<language>_syn_inits")
-  if version < 508
+if v:version >= 508 || !exists('did_<language>_syn_inits')
+  if v:version < 508
     let did_<language>_syn_inits = 1
     command -nargs=+ HiLink hi link <args>
   else
@@ -150,5 +151,5 @@ if version >= 508 || !exists("did_<language>_syn_inits")
   delcommand HiLink
 endif
 
-let b:current_syntax = "<language>"
+let b:current_syntax = '<language>'
 

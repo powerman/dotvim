@@ -5,9 +5,9 @@
 " Version:	1.0
 " Last Change:	2012-12-11
 
-if version < 600
+if v:version < 600
   syntax clear
-elseif exists("b:current_syntax")
+elseif exists('b:current_syntax')
   finish
 endif
 
@@ -76,8 +76,8 @@ syn sync fromstart
 syn sync linebreaks=1
 
 
-if version >= 508 || !exists("did_limbo_syn_inits")
-  if version < 508
+if v:version >= 508 || !exists('did_limbo_syn_inits')
+  if v:version < 508
     let did_limbo_syn_inits = 1
     command -nargs=+ HiLink hi link <args>
   else
@@ -127,4 +127,4 @@ if version >= 508 || !exists("did_limbo_syn_inits")
   delcommand HiLink
 endif
 
-let b:current_syntax = "limbo"
+let b:current_syntax = 'limbo'

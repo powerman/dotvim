@@ -1,7 +1,7 @@
 " Language:      Modified EP embedded with HTML
 " Author:        Alex Efros <powerman-asdf@ya.ru>
 " Last Change:   2013-04-12
-
+scriptencoding utf-8
 
 " HTML syntax should be already loaded now, let's add EPL syntax too
 runtime! syntax/epl.vim
@@ -21,4 +21,4 @@ syn region PerlInside keepend oneline start=+\[%=\{0,2}+hs=s end=+=\{0,1}%\]+he=
 syn region PerlInside keepend oneline start=+^\s*%=\{0,2}+hs=s end=+$+ contains=MojoSingleStart,@HTMLPerl
 
 " We're cool now!
-let b:current_syntax = "html.tmpl"
+let b:current_syntax = 'html.tmpl'
