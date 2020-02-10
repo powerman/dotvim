@@ -5,8 +5,8 @@
 ;
 [subrepo]
 	remote = https://github.com/toyamarinyon/vim-swift.git
-	branch = a0f827964ec5066e3f5748004626a7e31094cf3d
-	commit = a0f827964ec5066e3f5748004626a7e31094cf3d
-	parent = 3eff6bd827f3dc4f51eeb5d40ef1a020136b1184
+	branch = master
+	commit = 85025c4af417b5462831935dd7c2d57e4a5559bd
+	parent = ac360a936744b9f28bb7ba3974e56f79698531ca
 	method = merge
 	cmdver = 0.4.1
