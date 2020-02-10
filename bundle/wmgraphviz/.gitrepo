@@ -5,7 +5,7 @@
 ;
 [subrepo]
 	remote = https://github.com/wannesm/wmgraphviz.vim
-	branch = f08ff5becd1e6e81d681ff2926f2cce29f63cb18
+	branch = master
 	commit = f08ff5becd1e6e81d681ff2926f2cce29f63cb18
 	parent = 78f02a6bd98cc3c831936c32d937aa753135ab97
 	method = merge
