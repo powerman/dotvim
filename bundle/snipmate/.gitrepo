@@ -5,8 +5,8 @@
 ;
 [subrepo]
 	remote = https://github.com/powerman/snipmate.vim
-	branch = 793bdaf5afff71ad78db85bf0a206cc5062f23eb
-	commit = 793bdaf5afff71ad78db85bf0a206cc5062f23eb
-	parent = 102b2937943ad0201d875d31fba969dcb43cc0c4
+	branch = master
+	commit = 9a47ada900834ed95f0862cd70ff36b43296b259
+	parent = 5b3473739c2bbcfca7c0de3a814fcdddf9b0bcee
 	method = merge
 	cmdver = 0.4.1
