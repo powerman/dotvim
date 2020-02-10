@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/spf13/vim-autoclose.git
+	branch = master
+	commit = c098b4f45da6232e66c14898ff6b197f360a29cc
+	parent = ec7b01431861334cddee167da373c9bee2972e61
+	method = merge
+	cmdver = 0.4.1
