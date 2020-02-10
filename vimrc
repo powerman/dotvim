@@ -502,6 +502,8 @@ autocmd FileType gohtmltmpl             setlocal softtabstop=4 shiftwidth=4 expa
 autocmd FileType gonginxtmpl            setlocal softtabstop=8 shiftwidth=8 noexpandtab
 " - коммиты в git
 autocmd FileType gitcommit              setlocal textwidth=72
+" - переформатирование при сохранении sh/bash
+let g:shfmt_fmt_on_save = 1
 
 """ 80-column margin                                            
 " autocmd FileType perl			setlocal colorcolumn=81,82,83,84,85
