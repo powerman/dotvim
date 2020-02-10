@@ -440,6 +440,7 @@ let g:syntastic_zsh_zsh_quiet_messages = {
 " - check shell .|source'd files
 let g:syntastic_sh_shellcheck_args = '-x'
 " - check vim
+" Require: /usr/bin/vint https://github.com/Vimjas/vint (emerge dev-util/vint)
 let g:syntastic_vim_checkers = ['vint']
 " - переход к следующей/предыдущей ошибке: <F12>/<F11>
 imap <silent> <F11>	<C-O>:execute "try<Bar>lprev<Bar>catch<Bar>lclose<Bar>endtry"<CR>
