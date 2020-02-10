@@ -5,8 +5,8 @@
 ;
 [subrepo]
 	remote = https://github.com/kana/vim-textobj-user
-	branch = 0.7.1
-	commit = a3054162c09bcf732624f43ddacbd85dad09713b
-	parent = 87d4516e05e85329e62da381db03bc57557914cb
+	branch = master
+	commit = 9861dc6829a0ce253e40b4d947a9432b58eb499b
+	parent = 08325c299f917cd8f0b4afa9ae22ef28e2c31812
 	method = merge
 	cmdver = 0.4.1

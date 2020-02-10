@@ -1,8 +1,8 @@
 *textobj-user.txt*	Create your own text objects
 
-Version 0.7.1
+Version 0.7.6
 Script ID: 2100
-Copyright (C) 2007-2015 Kana Natsuno <http://whileimautomaton.net/>
+Copyright (C) 2007-2018 Kana Natsuno <http://whileimautomaton.net/>
 License: MIT license  {{{
     Permission is hereby granted, free of charge, to any person obtaining
     a copy of this software and associated documentation files (the
@@ -61,14 +61,14 @@ or use functions to define complex ones.  For example...
 	\ })
 <
 						*textobj-user-example-between*
-(b) Define "aP" to select a PHP code with "<?php" and "?>", and
-    define "iP" to select a PHP code without "<?php" and "?>":
+(b) Define "aA" to select text from "<<" to the matching ">>", and
+    define "iA" to select text inside "<<" and ">>":
 >
-	call textobj#user#plugin('php', {
-	\   'code': {
-	\     'pattern': ['<?php\>', '?>'],
-	\     'select-a': 'aP',
-	\     'select-i': 'iP',
+	call textobj#user#plugin('braces', {
+	\   'angle': {
+	\     'pattern': ['<<', '>>'],
+	\     'select-a': 'aA',
+	\     'select-i': 'iA',
 	\   },
 	\ })
 <
@@ -104,6 +104,29 @@ or use functions to define complex ones.  For example...
 	  \ ? ['v', head_pos, tail_pos]
 	  \ : 0
 	endfunction
+<
+						*textobj-user-example-filetype*
+(d) Define "a(" to select text from "\left(" to the matching "\right)", and
+    define "i(" to select text inside "\left(" to the matching "\right)",
+    but only for tex files:
+>
+	call textobj#user#plugin('tex', {
+	\   'paren-math': {
+	\     'pattern': ['\\left(', '\\right)'],
+	\     'select-a': [],
+	\     'select-i': [],
+	\   },
+	\ })
+
+	augroup tex_textobjs
+	  autocmd!
+	  autocmd FileType tex call textobj#user#map('tex', {
+	  \   'paren-math': {
+	  \     'select-a': '<buffer> a(',
+	  \     'select-i': '<buffer> i(',
+	  \   },
+	  \ })
+	augroup END
 <
 
 You can define your own text objects like the above examples.
@@ -409,16 +432,8 @@ textobj#user#map({plugin-name}, {specs})
 	- A key mapping defined by textobj#user#map() is actually used, and
 	- The corresponding text object does not exist at that moment.
 
-
-
-
-==============================================================================
-OBSOLETE API					*textobj-user-obsolete-api*
-
 						*textobj#user#move()*
 textobj#user#move({pattern}, {flags}, {previous-mode})
-	Note: This function is obsolete.  It will be removed in sometime.
-
 	Move the cursor to the appropriate object defined by {pattern}.
 
 	{flags} is a string, which can contain the following character flags:
@@ -441,8 +456,6 @@ textobj#user#move({pattern}, {flags}, {previous-mode})
 
 						*textobj#user#select()*
 textobj#user#select({pattern}, {flags}, {prevous-mode})
-	Note: This function is obsolete.  It will be removed in sometime.
-
 	Select an appropriate object defined by {pattern}.  The following
 	places are scaned to find an appropriate object:
 
@@ -464,15 +477,16 @@ textobj#user#select({pattern}, {flags}, {prevous-mode})
 		"v"             select an object characterwise.  (default)
 		"V"             select an object linewise.
 		"\<C-v>"        select an object blockwise.
+		"N"             find the range but don't select.
 
 	For the detail of {previous-mode}, see |textobj#user#move()|.
 
-	Return value is not defined.
+	This function returns a list of the start position and the end
+	position for an object.  Each position is [{lnum}, {col}].
+	If there is no appropriate object, 0 is returned instead.
 
 						*textobj#user#select_pair()*
 textobj#user#select_pair({pattern1}, {pattern2}, {flags}, {previous-mode})
-	Note: This function is obsolete.  It will be removed in sometime.
-
 	Select the appropriate object which starts with {pattern1} and ends
 	with {pattern2}.
 
@@ -495,6 +509,12 @@ textobj#user#select_pair({pattern1}, {pattern2}, {flags}, {previous-mode})
 	For the detail of {previous-mode}, see |textobj#user#move()|.
 
 	Return value is not defined.
+
+
+
+
+==============================================================================
+OBSOLETE API					*textobj-user-obsolete-api*
 
 						*textobj#user#define()*
 textobj#user#define({pattern}, {pattern1}, {pattern2}, {guideline})
@@ -567,6 +587,27 @@ KNOWN ISSUES					*textobj-user-known-issues*
 
 ==============================================================================
 CHANGELOG					*textobj-user-changelog*
+
+0.7.6	2018-11-19T19:06:11+09:00		*textobj-user-changelog-0.7.6*
+	- Fix "move-n-function" and others in Visual mode not to leave Visual
+	  mode.
+
+0.7.5	2017-09-28T20:38:39+09:00		*textobj-user-changelog-0.7.5*
+	- Revert changes from 0.7.3-0.7.4 for compatibility with custom
+	  operators which use |getchar()|.
+
+0.7.4	2017-09-25T20:42:58+09:00		*textobj-user-changelog-0.7.4*
+	- Fix a bug that random characters are inserted if custom text objects
+	  are used with |c|.
+
+0.7.3	2017-09-23T11:10:34+09:00		*textobj-user-changelog-0.7.3*
+	- Fix a bug that |'<| and |'>| are overridden after using any custom
+	  text object in |Operator-pending| mode.  For example, '< and '> were
+	  set to the same region as `vaX` after typing `yaX`.
+
+0.7.2	2017-08-22T21:07:30+09:00		*textobj-user-changelog-0.7.2*
+	- |textobj#user#select()|: Support a new flag 'N'.
+	- Fix the plugin itself to be easily reloaded.
 
 0.7.1	2015-05-03T01:45:37+09:00		*textobj-user-changelog-0.7.1*
 	- Fix a bug that count given to "move-n" and others for

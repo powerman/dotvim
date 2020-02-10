@@ -1,6 +1,6 @@
 " textobj-user - Create your own text objects
-" Version: 0.7.1
-" Copyright (C) 2007-2015 Kana Natsuno <http://whileimautomaton.net/>
+" Version: 0.7.6
+" Copyright (C) 2007-2018 Kana Natsuno <http://whileimautomaton.net/>
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -49,7 +49,9 @@ function! textobj#user#select(pattern, flags, previous_mode)
   let pos = s:choose_better_pos(a:flags, ORIG_POS, pfh, pft, pbh, pbt)
 
   if pos isnot 0
-    call s:range_select(pos[0], pos[1], s:choose_wise(a:flags))
+    if a:flags !~# 'N'
+      call s:range_select(pos[0], pos[1], s:choose_wise(a:flags))
+    endif
     return pos
   else
     return s:cancel_selection(a:previous_mode, ORIG_POS)
@@ -330,6 +332,20 @@ endfunction
 
 
 
+" Save the last cursort position  "{{{2
+
+noremap <expr> <SID>(save-cursor-pos) <SID>save_cursor_pos()
+
+" let s:last_cursor_gpos = getpos('.')
+
+function! s:save_cursor_pos()
+  let s:last_cursor_gpos = getpos('.')
+  return ''
+endfunction
+
+
+
+
 " for textobj#user#define()  "{{{2
 
 function! s:rhs_escape(pattern)
@@ -368,23 +384,23 @@ endfunction
 " basics  "{{{3
 let s:plugin = {}
 
-function s:plugin.new(plugin_name, obj_specs)
+function! s:plugin.new(plugin_name, obj_specs)
   let _ = extend({'name': a:plugin_name, 'obj_specs': a:obj_specs},
   \              s:plugin, 'keep')
   call _.normalize()
   return _
 endfunction
 
-function s:plugin.normalize()
+function! s:plugin.normalize()
   call s:normalize(self.obj_specs)
 endfunction
 
-function s:normalize(obj_specs)
+function! s:normalize(obj_specs)
   call s:normalize_property_names(a:obj_specs)
   call s:normalize_property_values(a:obj_specs)
 endfunction
 
-function s:normalize_property_names(obj_specs)
+function! s:normalize_property_names(obj_specs)
   for spec in values(a:obj_specs)
     for old_prop_name in keys(spec)
       if old_prop_name =~ '^\*.*\*$'
@@ -396,7 +412,7 @@ function s:normalize_property_names(obj_specs)
   endfor
 endfunction
 
-function s:normalize_property_values(obj_specs)
+function! s:normalize_property_values(obj_specs)
   for [obj_name, specs] in items(a:obj_specs)
     for [spec_name, spec_info] in items(specs)
       if s:is_ui_property_name(spec_name)
@@ -440,14 +456,9 @@ endfunction
 
 
 function! s:plugin.define_interface_key_mappings()  "{{{3
-  let RHS_PATTERN =
-  \   ':<C-u>call g:__textobj_' . self.name . '.do_by_pattern('
-  \ .   '"%s",'
-  \ .   '"%s",'
-  \ .   '"<mode>"'
-  \ . ')<Return>'
-  let RHS_FUNCTION =
-  \   ':<C-u>call g:__textobj_' . self.name . '.do_by_function('
+  let RHS_FORMAT =
+  \   '<SID>(save-cursor-pos)'
+  \ . ':<C-u>call g:__textobj_' . self.name . '.%s('
   \ .   '"%s",'
   \ .   '"%s",'
   \ .   '"<mode>"'
@@ -456,18 +467,19 @@ function! s:plugin.define_interface_key_mappings()  "{{{3
   for [obj_name, specs] in items(self.obj_specs)
     for spec_name in filter(keys(specs), 's:is_ui_property_name(v:val)')
       " lhs
-      let lhs = '<silent> ' . self.interface_mapping_name(obj_name, spec_name)
+      let lhs = self.interface_mapping_name(obj_name, spec_name)
 
       " rhs
       let _ = spec_name . '-function'
       if has_key(specs, _)
-        let rhs = printf(RHS_FUNCTION, spec_name, obj_name)
+        let do = 'do_by_function'
       elseif has_key(specs, 'pattern')
-        let rhs = printf(RHS_PATTERN, spec_name, obj_name)
+        let do = 'do_by_pattern'
       else
         " skip to allow to define user's own {rhs} of the interface mapping.
         continue
       endif
+      let rhs = printf(RHS_FORMAT, do, spec_name, obj_name)
 
       " map
       if spec_name =~# '^move'
@@ -475,7 +487,7 @@ function! s:plugin.define_interface_key_mappings()  "{{{3
       else  " spec_name =~# '^select'
         let MapFunction = function('s:objnoremap')
       endif
-      call MapFunction(1, lhs, rhs)
+      call MapFunction(1, '<silent> <script>' . lhs, rhs)
     endfor
   endfor
 endfunction
@@ -586,11 +598,27 @@ function! s:select_function_wrapper(function_name, spec_name, previous_mode)
 endfunction
 
 function! s:move_function_wrapper(function_name, spec_name, previous_mode)
-  let ORIG_POS = s:gpos_to_spos(getpos('.'))
+  " ":" in Visual mode moves the cursor to '< before executing Ex command
+  " (= the context where this function is called).  For example:
+  "
+  " -----------------------------------------
+  " | User typed | Cursor | '<     | '>     |
+  " |---------------------------------------|
+  " | 1GVV       | Line 1 | Line 1 | Line 1 |
+  " |     Vjj    | Line 3 | Line 1 | Line 1 |
+  " |        :   | Line 1 | Line 1 | Line 3 |
+  " -----------------------------------------
+  "
+  " So that user-defined motion does not work correctly in Visual mode if the
+  " last "expected" cursor position is not '<.  That's why we have to save and
+  " restore s:last_cursor_gpos explicitly.
+  call cursor(s:gpos_to_spos(s:last_cursor_gpos))
 
   let _ = function(a:function_name)()
+
+  call s:prepare_movement(a:previous_mode)
   if _ is 0
-    call cursor(ORIG_POS)
+    call cursor(s:gpos_to_spos(s:last_cursor_gpos))
   else
     " FIXME: Support motion_type.  But unlike selecting a text object, the
     " motion_type must be known before calling a user-given function.
