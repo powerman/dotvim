@@ -542,6 +542,13 @@ let g:sparkupNextMapping = '<C-F>'
 """ Сравнение двух блоков в одном файле                         :Linediff 
 " Plugin: linediff
 
+""" Undo tree                                                   U
+" Plugin: undotree
+nnoremap U :UndotreeToggle<CR>
+let g:undotree_WindowLayout=4
+let g:undotree_DiffpanelHeight=6
+let g:undotree_SetFocusWhenToggle=1
+
 """ Поддержка Go                                                <Leader>…, :Go…
 " Plugin: vim-go
 let g:go_fmt_command = 'goimports'
