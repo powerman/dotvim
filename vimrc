@@ -193,7 +193,7 @@ let htmlperl_string_as_statement = 1	" perl внутри html (без POD, но 
 
 " Avoid conflict with vim-textobj-comment (which defines 'ic' motion).
 " This should be set before loading TComment plugin.
-let g:tcommentTextObjectInlineComment = ''
+let g:tcomment_textobject_inlinecomment = ''
 
 """ Подключение плагинов из .vim/bundle/                        
 " Plugin: pathogen
@@ -340,7 +340,7 @@ endfunction
 " TODO Пусть работает, пока работает. А потом придётся написать свой плагин,
 " т.к. простых реализаций нужной мне тривиальной функциональности пока нет.
 " Либо форкнуть https://github.com/tpope/vim-commentary
-let g:tcommentOptions = {'col': 1}
+let g:tcomment#options = {'col': 1}
 set commentstring=#\ %s
 autocmd FileType fluxbox		setlocal commentstring=#\ %s
 autocmd FileType fluxkeys		setlocal commentstring=!%s
