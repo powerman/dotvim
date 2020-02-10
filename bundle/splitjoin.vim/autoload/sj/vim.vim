@@ -10,7 +10,7 @@ function! sj#vim#Split()
   else
     let new_line = "\n\\ ".sj#Trim(new_line)
     call sj#ReplaceMotion('vg_', new_line)
-    s/\s\+$//e
+    call sj#Keeppatterns('s/\s\+$//e')
 
     return 1
   endif
@@ -34,4 +34,52 @@ function! sj#vim#Join()
 
     return 1
   endif
+endfunction
+
+function! sj#vim#SplitIfClause()
+  let line = getline('.')
+  let pattern = '\v^\s*if .{-} \| .{-} \|\s*endif'
+
+  if line !~# pattern
+    return 0
+  endif
+
+  let line_no = line('.')
+  let lines = split(line, '|')
+  let lines = map(lines, 'sj#Trim(v:val)')
+  let replacement = join(lines, "\n")
+
+  call sj#ReplaceLines(line_no, line_no, replacement)
+
+  return 1
+endfunction
+
+function! sj#vim#JoinIfClause()
+  let line = getline('.')
+  let pattern = '\v^\s*if'
+
+  if line !~# pattern
+    return 0
+  endif
+
+  let if_line_no = line('.')
+  let endif_line_pattern = '^'.repeat(' ', indent(if_line_no)).'endif'
+
+  let endif_line_no = search(endif_line_pattern, 'W')
+
+  if endif_line_no <= 0
+    return 0
+  endif
+
+  if endif_line_no - if_line_no != 2
+    return 0
+  endif
+
+  let lines = sj#GetLines(if_line_no, endif_line_no)
+  let lines = map(lines, 'sj#Trim(v:val)')
+  let replacement = join(lines, ' | ')
+
+  call sj#ReplaceLines(if_line_no, endif_line_no, replacement)
+
+  return 1
 endfunction

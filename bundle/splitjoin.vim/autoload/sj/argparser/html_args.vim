@@ -10,7 +10,11 @@ endfunction
 
 function! sj#argparser#html_args#Process() dict
   while !self.Finished()
-    if self.body[0] == ' '
+    if self.body =~ '^\s*/\=>'
+      " end of the tag, push it onto the last argument
+      let self.current_arg .= self.body
+      break
+    elseif self.body[0] == ' '
       if self.current_arg != ''
         call self.PushArg()
       endif

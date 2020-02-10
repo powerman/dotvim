@@ -12,7 +12,7 @@ describe "php" do
 
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       <?php $foo = array(
         "one" => "two",
         "three" => "four"
@@ -29,7 +29,7 @@ describe "php" do
 
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       <?php $foo = [
         1,
         2,
@@ -43,7 +43,7 @@ describe "php" do
   end
 
   specify "if-clauses" do
-    set_file_contents <<-EOF
+    set_file_contents <<~EOF
       <?php
       if ($foo) { $a = "bar"; }
       ?>
@@ -52,7 +52,7 @@ describe "php" do
     vim.search('if')
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       <?php
       if ($foo) {
         $a = "bar";
@@ -62,7 +62,7 @@ describe "php" do
 
     join
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       <?php
       if ($foo) { $a = "bar"; }
       ?>
@@ -70,7 +70,7 @@ describe "php" do
   end
 
   specify "else-clauses" do
-    set_file_contents <<-EOF
+    set_file_contents <<~EOF
       <?php
       if ($foo) { $a = "bar"; }
       else { $a = "baz"; }
@@ -80,7 +80,7 @@ describe "php" do
     vim.search('else')
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       <?php
       if ($foo) { $a = "bar"; }
       else {
@@ -91,7 +91,7 @@ describe "php" do
 
     join
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       <?php
       if ($foo) { $a = "bar"; }
       else { $a = "baz"; }
@@ -105,7 +105,7 @@ describe "php" do
     vim.search('example')
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       <?php
       example();
       ?>
@@ -123,7 +123,7 @@ describe "php" do
     vim.search('example')
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       <?=
       'example';
       ?>
@@ -141,7 +141,7 @@ describe "php" do
     vim.search('example')
     split
 
-    assert_file_contents <<-EOF
+    assert_file_contents <<~EOF
       <?
       example();
       ?>
@@ -151,5 +151,116 @@ describe "php" do
     join
 
     assert_file_contents "<? example(); ?>"
+  end
+
+  specify "method chain -> on function call" do
+    set_file_contents <<~EOF
+      <?php
+      function stuff()
+      {
+        $var = $foo->one($baz->nope())->two()->three();
+      }
+    EOF
+
+    vim.search('->two')
+    split
+
+    # indentation differs between versions, let's ignore it
+    remove_indentation
+
+    assert_file_contents <<~EOF
+      <?php
+      function stuff()
+      {
+      $var = $foo->one($baz->nope())
+      ->two()->three();
+      }
+    EOF
+
+    vim.search('foo')
+    join
+
+    assert_file_contents <<~EOF
+      <?php
+      function stuff()
+      {
+      $var = $foo->one($baz->nope())->two()->three();
+      }
+    EOF
+  end
+
+  specify "method chain -> on property on beginning of line" do
+    set_file_contents <<~EOF
+      <?php
+      function stuff()
+      {
+        $one
+          ->two->three;
+      }
+    EOF
+
+    vim.search('three')
+    split
+
+    assert_file_contents <<~EOF
+      <?php
+      function stuff()
+      {
+        $one
+          ->two
+          ->three;
+      }
+    EOF
+
+    vim.search('two')
+    join
+
+    assert_file_contents <<~EOF
+      <?php
+      function stuff()
+      {
+        $one
+          ->two->three;
+      }
+    EOF
+  end
+
+  specify "method chain -> until end of chain" do
+    vim.command('let g:splitjoin_php_method_chain_full = 1')
+
+    set_file_contents <<~EOF
+      <?php
+      function stuff()
+      {
+        $var = $foo->one()->two($baz->nope())->three();
+      }
+    EOF
+
+    vim.search('->two')
+    split
+
+    # indentation differs between versions, let's ignore it
+    remove_indentation
+
+    assert_file_contents <<~EOF
+      <?php
+      function stuff()
+      {
+      $var = $foo->one()
+      ->two($baz->nope())
+      ->three();
+      }
+    EOF
+
+    vim.search('foo')
+    join
+
+    assert_file_contents <<~EOF
+      <?php
+      function stuff()
+      {
+      $var = $foo->one()->two($baz->nope())->three();
+      }
+    EOF
   end
 end

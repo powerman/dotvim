@@ -2,7 +2,7 @@ let s:skip = sj#SkipSyntax(['pythonString', 'pythonComment'])
 
 function! sj#python#SplitStatement()
   if sj#SearchSkip('^[^:]*\zs:\s*\S', s:skip, '', line('.'))
-    s/\%#:\s*/:\r/
+    call sj#Keeppatterns('s/\%#:\s*/:\r/')
     normal! ==
     return 1
   else
@@ -36,7 +36,7 @@ function! sj#python#SplitDict()
     let body_end   = body_start + len(pairs)
 
     let base_indent = indent('.')
-    for line in range(body_start, body_end + 1)
+    for line in range(body_start, body_end)
       if base_indent == indent(line)
         " then indentation didn't work quite right, let's just indent it
         " ourselves
@@ -194,6 +194,11 @@ function! sj#python#JoinAssignment()
       call add(values, sj#Trim(value))
       let end_line = next_line
       let next_line += 1
+    endif
+
+    if v:count > 0 && v:count == (end_line - start_line + 1)
+      " stop at the user-provided count
+      break
     endif
   endwhile
 

@@ -1,11 +1,70 @@
 require 'spec_helper'
 
-describe "css" do
-  let(:filename) { 'test.css' }
+describe "scss" do
+  let(:filename) { 'test.scss' }
 
   before :each do
-    vim.set 'expandtab'
-    vim.set 'shiftwidth', 2
+    vim.set(:expandtab)
+    vim.set(:shiftwidth, 2)
+  end
+
+  specify "definition joining" do
+    set_file_contents <<~EOF
+      ul li {
+        a {
+          padding: 10px;
+        }
+      }
+    EOF
+
+    vim.search 'a'
+    join
+
+    assert_file_contents <<~EOF
+    ul li {
+      a { padding: 10px; }
+    }
+    EOF
+
+    split
+
+    assert_file_contents <<~EOF
+      ul li {
+        a {
+          padding: 10px;
+        }
+      }
+    EOF
+  end
+
+  specify "nested definitions" do
+    set_file_contents <<~EOF
+      ul li {
+        a.class-name {
+          padding: 10px;
+        }
+      }
+    EOF
+
+    vim.search 'li'
+    join
+
+    assert_file_contents <<~EOF
+      ul li a.class-name {
+        padding: 10px;
+      }
+    EOF
+
+    vim.search 'a'
+    split
+
+    assert_file_contents <<~EOF
+      ul li {
+        a.class-name {
+          padding: 10px;
+        }
+      }
+    EOF
   end
 
   specify "single-line style definitions" do

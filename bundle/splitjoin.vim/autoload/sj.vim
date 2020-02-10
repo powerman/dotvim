@@ -18,7 +18,7 @@ function! sj#PushCursor()
     let b:cursor_position_stack = []
   endif
 
-  call add(b:cursor_position_stack, getpos('.'))
+  call add(b:cursor_position_stack, winsaveview())
 endfunction
 
 " function! sj#PopCursor() {{{2
@@ -26,7 +26,7 @@ endfunction
 " Restores the cursor to the latest position in the cursor stack, as added
 " from the sj#PushCursor function. Removes the position from the stack.
 function! sj#PopCursor()
-  call setpos('.', remove(b:cursor_position_stack, -1))
+  call winrestview(remove(b:cursor_position_stack, -1))
 endfunction
 
 " function! sj#DropCursor() {{{2
@@ -157,10 +157,16 @@ endfunction
 "   [bufnum, lnum, col, off]
 "
 function! sj#ReplaceByPosition(start, end, text)
-  call setpos('.', a:start)
-  call setpos("'z", a:end)
+  let saved_z_pos = getpos("'z")
 
-  return sj#ReplaceMotion('v`z', a:text)
+  try
+    call setpos('.', a:start)
+    call setpos("'z", a:end)
+
+    return sj#ReplaceMotion('v`z', a:text)
+  finally
+    call setpos("'z", saved_z_pos)
+  endtry
 endfunction
 
 " Text retrieval {{{1
@@ -180,6 +186,7 @@ function! sj#GetMotion(motion)
   let saved_register_text = getreg('z', 1)
   let saved_register_type = getregtype('z')
 
+  let @z = ''
   exec 'silent normal! '.a:motion.'"zy'
   let text = @z
 
@@ -217,10 +224,16 @@ endfunction
 "   [bufnum, lnum, col, off]
 "
 function! sj#GetByPosition(start, end)
-  call setpos('.', a:start)
-  call setpos("'z", a:end)
+  let saved_z_pos = getpos("'z")
 
-  return sj#GetMotion('v`z')
+  try
+    call setpos('.', a:start)
+    call setpos("'z", a:end)
+
+    return sj#GetMotion('v`z')
+  finally
+    call setpos("'z", saved_z_pos)
+  endtry
 endfunction
 
 " String functions {{{1
@@ -264,7 +277,7 @@ endfunction
 " same way as the built-in |search()| call. Any other flags will be ignored.
 "
 function! sj#SearchUnderCursor(pattern, ...)
-  let [match_start, match_end] = call('sj#SearchposUnderCursor', [a:pattern] + a:000)
+  let [match_start, match_end] = call('sj#SearchColsUnderCursor', [a:pattern] + a:000)
   if match_start > 0
     return match_start
   else
@@ -272,7 +285,7 @@ function! sj#SearchUnderCursor(pattern, ...)
   endif
 endfunction
 
-" function! sj#SearchposUnderCursor(pattern, flags, skip) {{{2
+" function! sj#SearchColsUnderCursor(pattern, flags, skip) {{{2
 "
 " Searches for a match for the given pattern under the cursor. Returns the
 " start and (end + 1) column positions of the match. If nothing was found,
@@ -284,7 +297,7 @@ endfunction
 "
 " See sj#SearchUnderCursor for the behaviour of a:flags
 "
-function! sj#SearchposUnderCursor(pattern, ...)
+function! sj#SearchColsUnderCursor(pattern, ...)
   if a:0 >= 1
     let given_flags = a:1
   else
@@ -309,47 +322,57 @@ function! sj#SearchposUnderCursor(pattern, ...)
     endif
   endfor
 
-  try
-    call sj#PushCursor()
+  call sj#PushCursor()
 
-    " find the start of the pattern
-    call search(pattern, 'bcW', lnum)
-    let search_result = sj#SearchSkip(pattern, skip, 'cW'.extra_flags, lnum)
-    if search_result <= 0
-      return [0, 0]
-    endif
-    let match_start = col('.')
+  " find the start of the pattern
+  call search(pattern, 'bcW', lnum)
+  let search_result = sj#SearchSkip(pattern, skip, 'cW'.extra_flags, lnum)
+  if search_result <= 0
+    call sj#PopCursor()
+    return [0, 0]
+  endif
 
-    " find the end of the pattern
-    call sj#PushCursor()
-    call sj#SearchSkip(pattern, skip, 'cWe', lnum)
+  call sj#PushCursor()
+
+  " find the end of the pattern
+  if stridx(extra_flags, 'e') >= 0
     let match_end = col('.')
 
-    " set the end of the pattern to the next character, or EOL. Extra logic
-    " is for multibyte characters.
-    normal! l
-    if col('.') == match_end
-      " no movement, we must be at the end
-      let match_end = col('$')
-    else
-      let match_end = col('.')
-    endif
+    call sj#PushCursor()
+    call sj#SearchSkip(pattern, skip, 'cWb', lnum)
+    let match_start = col('.')
     call sj#PopCursor()
+  else
+    let match_start = col('.')
+    call sj#SearchSkip(pattern, skip, 'cWe', lnum)
+    let match_end = col('.')
+  end
 
-    if !sj#ColBetween(col, match_start, match_end)
-      " then the cursor is not in the pattern
-      return [0, 0]
-    else
-      " a match has been found
-      return [match_start, match_end]
-    endif
-  finally
+  " set the end of the pattern to the next character, or EOL. Extra logic
+  " is for multibyte characters.
+  normal! l
+  if col('.') == match_end
+    " no movement, we must be at the end
+    let match_end = col('$')
+  else
+    let match_end = col('.')
+  endif
+  call sj#PopCursor()
+
+  if !sj#ColBetween(col, match_start, match_end)
+    " then the cursor is not in the pattern
+    call sj#PopCursor()
+    return [0, 0]
+  else
+    " a match has been found
     if stridx(given_flags, 'n') >= 0
       call sj#PopCursor()
     else
       call sj#DropCursor()
     endif
-  endtry
+
+    return [match_start, match_end]
+  endif
 endfunction
 
 " function! sj#SearchSkip(pattern, skip, ...) {{{2
@@ -608,13 +631,7 @@ endfunction
 "
 function! sj#CompressWhitespaceOnLine()
   call sj#PushCursor()
-
-  s/\S\zs \+/ /g
-
-  " Don't leave a history entry
-  call histdel('search', -1)
-  let @/ = histget('search', -1)
-
+  call sj#Keeppatterns('s/\S\zs \+/ /g')
   call sj#PopCursor()
 endfunction
 

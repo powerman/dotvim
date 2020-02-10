@@ -2,24 +2,27 @@ if exists("g:loaded_splitjoin") || &cp
   finish
 endif
 
-let g:loaded_splitjoin = '0.8.0' " version number
+let g:loaded_splitjoin = '1.0.0' " version number
 let s:keepcpo          = &cpo
 set cpo&vim
 
 " Defaults:
 " =========
 
+call sj#settings#SetDefault('quiet',                                   0)
 call sj#settings#SetDefault('normalize_whitespace',                    1)
 call sj#settings#SetDefault('trailing_comma',                          0)
 call sj#settings#SetDefault('align',                                   0)
 call sj#settings#SetDefault('curly_brace_padding',                     1)
 call sj#settings#SetDefault('ruby_curly_braces',                       1)
-call sj#settings#SetDefault('ruby_heredoc_type',                       '<<-')
+call sj#settings#SetDefault('ruby_heredoc_type',                       '<<~')
 call sj#settings#SetDefault('ruby_trailing_comma',                     0)
 call sj#settings#SetDefault('ruby_hanging_args',                       1)
 call sj#settings#SetDefault('ruby_do_block_split',                     1)
+call sj#settings#SetDefault('ruby_options_as_arguments',               0)
 call sj#settings#SetDefault('coffee_suffix_if_clause',                 1)
 call sj#settings#SetDefault('perl_brace_on_same_line',                 1)
+call sj#settings#SetDefault('php_method_chain_full',                   0)
 call sj#settings#SetDefault('python_brackets_on_separate_lines',       0)
 call sj#settings#SetDefault('handlebars_closing_bracket_on_same_line', 0)
 call sj#settings#SetDefault('handlebars_hanging_arguments',            0)
@@ -65,6 +68,7 @@ function! s:Split()
   let saved_whichwrap = &whichwrap
   set whichwrap-=l
 
+  if !sj#settings#Read('quiet') | echo "Splitjoin: Working..." | endif
   for callback in b:splitjoin_split_callbacks
     try
       call sj#PushCursor()
@@ -72,6 +76,10 @@ function! s:Split()
       if call(callback, [])
         silent! call repeat#set("\<plug>SplitjoinSplit")
         let &whichwrap = saved_whichwrap
+        if !sj#settings#Read('quiet')
+          " clear progress message
+          redraw | echo ""
+        endif
         return 1
       endif
 
@@ -82,6 +90,10 @@ function! s:Split()
 
   call winrestview(saved_view)
   let &whichwrap = saved_whichwrap
+  if !sj#settings#Read('quiet')
+    " clear progress message
+    redraw | echo ""
+  endif
   return 0
 endfunction
 
@@ -97,6 +109,7 @@ function! s:Join()
   let saved_whichwrap = &whichwrap
   set whichwrap-=l
 
+  if !sj#settings#Read('quiet') | echo "Splitjoin: Working..." | endif
   for callback in b:splitjoin_join_callbacks
     try
       call sj#PushCursor()
@@ -104,6 +117,10 @@ function! s:Join()
       if call(callback, [])
         silent! call repeat#set("\<plug>SplitjoinJoin")
         let &whichwrap = saved_whichwrap
+        if !sj#settings#Read('quiet')
+          " clear progress message
+          redraw | echo ""
+        endif
         return 1
       endif
 
@@ -114,6 +131,10 @@ function! s:Join()
 
   call winrestview(saved_view)
   let &whichwrap = saved_whichwrap
+  if !sj#settings#Read('quiet')
+    " clear progress message
+    redraw | echo ""
+  endif
   return 0
 endfunction
 

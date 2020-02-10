@@ -1,6 +1,6 @@
 function! sj#go#SplitImports()
   if getline('.') =~ '^import ".*"$'
-    s/^import \(".*"\)$/import (\r\1\r)/
+    call sj#Keeppatterns('s/^import \(".*"\)$/import (\r\1\r)/')
     normal! k==
     return 1
   else
@@ -12,7 +12,7 @@ function! sj#go#JoinImports()
   if getline('.') =~ '^import ($' &&
         \ getline(line('.') + 1) =~ '^\s*".*"$' &&
         \ getline(line('.') + 2) =~ '^)$'
-    s/^import (\_s\+\(".*"\)\_s\+)$/import \1/
+    call sj#Keeppatterns('s/^import (\_s\+\(".*"\)\_s\+)$/import \1/')
     return 1
   else
     return 0
@@ -21,7 +21,7 @@ endfunction
 
 function! sj#go#SplitVars()
   if getline('.') =~ '^\(var\|type\|const\) \k\+ .*$'
-    s/^\(var\|type\|const\) \(\k\+ .*\)$/\1 (\r\2\r)/
+    call sj#Keeppatterns('s/^\(var\|type\|const\) \(\k\+ .*\)$/\1 (\r\2\r)/')
     normal! k==
     return 1
   else
@@ -33,7 +33,7 @@ function! sj#go#JoinVars()
   if getline('.') =~ '^\(var\|type\|const\) ($' &&
         \ getline(line('.') + 1) =~ '^\s*\k\+ .*$' &&
         \ getline(line('.') + 2) =~ '^)$'
-    s/^\(var\|type\|const\) (\_s\+\(\k\+ .*\)\_s\+)$/\1 \2/
+    call sj#Keeppatterns('s/^\(var\|type\|const\) (\_s\+\(\k\+ .*\)\_s\+)$/\1 \2/')
     return 1
   else
     return 0
@@ -41,56 +41,152 @@ function! sj#go#JoinVars()
 endfunction
 
 function! sj#go#SplitStruct()
-  return s:splitStructOrFuncCall('{', '}')
+  let [start, end] = sj#LocateBracesAroundCursor('{', '}', ['goString', 'goComment'])
+  if start < 0 && end < 0
+    return 0
+  endif
+
+  let args = sj#ParseJsonObjectBody(start + 1, end - 1)
+
+  for arg in args
+    if arg !~ '^\k\+\s*:'
+      " this is not really a struct instantiation
+      return 0
+    end
+  endfor
+
+  call sj#ReplaceCols(start + 1, end - 1, "\n".join(args, ",\n").",\n")
+  return 1
 endfunction
 
 function! sj#go#JoinStruct()
-  return s:joinStructOrFunc('{', '}')
+  let start_lineno = line('.')
+
+  if search('{$', 'Wc', line('.')) <= 0
+    return 0
+  endif
+
+  normal! %
+  let end_lineno = line('.')
+
+  if start_lineno == end_lineno
+    " we haven't moved, brackets not found
+    return 0
+  endif
+
+  let arguments = []
+  for line in getbufline('%', start_lineno + 1, end_lineno - 1)
+    let argument = substitute(line, ',$', '', '')
+    let argument = sj#Trim(argument)
+
+    if argument !~ '^\k\+\s*:'
+      " this is not really a struct instantiation
+      return 0
+    end
+
+    if sj#settings#Read('normalize_whitespace')
+      let argument = substitute(argument, '^\k\+\zs:\s\+', ': ', 'g')
+    endif
+
+    call add(arguments, argument)
+  endfor
+
+  if sj#settings#Read('curly_brace_padding')
+    let padding = ' '
+  else
+    let padding = ''
+  endif
+
+  let replacement = '{' . padding . join(arguments, ', ') . padding . '}'
+  call sj#ReplaceMotion('va{', replacement)
+  return 1
+endfunction
+
+function! sj#go#SplitSingleLineCurlyBracketBlock()
+  let [start, end] = sj#LocateBracesAroundCursor('{', '}', ['goString', 'goComment'])
+  if start < 0 && end < 0
+    return 0
+  endif
+
+  let body = sj#GetMotion('vi{')
+  call sj#ReplaceMotion('va{', "{\n".sj#Trim(body)."\n}")
+  return 1
+endfunction
+
+function! sj#go#JoinSingleLineFunctionBody()
+  let start_lineno = line('.')
+
+  if search('{$', 'Wc', line('.')) <= 0
+    return 0
+  endif
+
+  normal! %
+  let end_lineno = line('.')
+
+  if start_lineno == end_lineno
+    " we haven't moved, brackets not found
+    return 0
+  endif
+
+  if end_lineno - start_lineno > 2
+    " more than one line between them, can't join
+    return 0
+  endif
+
+  normal! va{J
+  return 1
 endfunction
 
 function! sj#go#SplitFunc()
   let pattern = '^func\%(\s*(.\{-})\s*\)\=\s\+\k\+\zs('
-  if search(pattern, 'Wc', line('.')) <= 0 &&
-        \ search(pattern, 'Wbc', line('.')) <= 0
+  if search(pattern, 'Wcn', line('.')) <= 0 &&
+        \ search(pattern, 'Wbcn', line('.')) <= 0
     return 0
   endif
 
-  let start = col('.')
-  if searchpair('(', '', ')', 'W', sj#SkipSyntax(['goString', 'goComment']), line('.')) <= 0
-    return 0
-  endif
-  let end = col('.')
+  let split_type = ''
 
-  let parsed = sj#ParseJsonObjectBody(start + 1, end - 1)
+  let [start, end] = sj#LocateBracesAroundCursor('(', ')', ['goString', 'goComment'])
+  if start > 0
+    let split_type = 'definition_list'
+  else
+    let [start, end] = sj#LocateBracesAroundCursor('{', '}', ['goString', 'goComment'])
 
-  " Keep `a, b int` variable groups on the same line
-  let arg_groups = []
-  let typed_arg_group = ''
-  for elem in parsed
-    if match(elem, '\s\+') != -1
-      let typed_arg_group .= elem
-      call add(arg_groups, typed_arg_group)
-      let typed_arg_group = ''
-    else
-      " not typed here, group it with later vars
-      let typed_arg_group .= elem . ', '
+    if start > 0
+      let split_type = 'function_body'
     endif
-  endfor
+  endif
 
-  call sj#ReplaceCols(start + 1, end - 1, "\n".join(arg_groups, ",\n").",\n")
-  return 1
-endfunction
+  if split_type == 'function_body'
+    let contents = sj#Trim(sj#GetCols(start + 1, end - 1))
+    call sj#ReplaceCols(start + 1, end - 1, "\n".contents."\n")
+    return 1
+  elseif split_type == 'definition_list'
+    let parsed = sj#ParseJsonObjectBody(start + 1, end - 1)
 
-function! sj#go#JoinFuncCallOrDefinition()
-  return s:joinStructOrFunc('(', ')')
+    " Keep `a, b int` variable groups on the same line
+    let arg_groups = []
+    let typed_arg_group = ''
+    for elem in parsed
+      if match(elem, '\s\+') != -1
+        let typed_arg_group .= elem
+        call add(arg_groups, typed_arg_group)
+        let typed_arg_group = ''
+      else
+        " not typed here, group it with later vars
+        let typed_arg_group .= elem . ', '
+      endif
+    endfor
+
+    call sj#ReplaceCols(start + 1, end - 1, "\n".join(arg_groups, ",\n").",\n")
+    return 1
+  else
+    return 0
+  endif
 endfunction
 
 function! sj#go#SplitFuncCall()
-  return s:splitStructOrFuncCall('(', ')')
-endfunction
-
-function! s:splitStructOrFuncCall(openBrace, closeBrace)
-  let [start, end] = sj#LocateBracesAroundCursor(a:openBrace, a:closeBrace, ['goString', 'goComment'])
+  let [start, end] = sj#LocateBracesAroundCursor('(', ')', ['goString', 'goComment'])
   if start < 0 && end < 0
     return 0
   endif
@@ -100,10 +196,10 @@ function! s:splitStructOrFuncCall(openBrace, closeBrace)
   return 1
 endfunction
 
-function! s:joinStructOrFunc(openBrace, closeBrace)
+function! sj#go#JoinFuncCallOrDefinition()
   let start_lineno = line('.')
 
-  if search(a:openBrace.'$', 'Wc', line('.')) <= 0
+  if search('($', 'Wc', line('.')) <= 0
     return 0
   endif
 
@@ -122,6 +218,7 @@ function! s:joinStructOrFunc(openBrace, closeBrace)
     call add(arguments, argument)
   endfor
 
-  call sj#ReplaceMotion('va'.a:openBrace, a:openBrace . join(arguments, ', ') . a:closeBrace)
+  let replacement = '(' . join(arguments, ', ') . ')'
+  call sj#ReplaceMotion('va(', replacement)
   return 1
 endfunction
