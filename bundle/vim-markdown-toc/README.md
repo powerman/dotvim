@@ -74,6 +74,10 @@ Move the cursor to the line you want to append table of contents, then type a co
 
     This command is suitable for GitLab repository and wiki.
 
+4. `:GenTocMarked`
+
+    Generate table of contents for [iamcco/markdown-preview.vim][10] which use [Marked][11] markdown parser.
+
 You can view [here][1] to know differences between *GFM* and *Redcarpet* style toc links.
 
 ### Update existing table of contents
@@ -114,7 +118,31 @@ The `:UpdateToc` command, which is designed to update toc manually, can only wor
 
    But then you will lose the convenience of auto update tables of contents on save and `:UpdateToc` command. When you want to update toc, you need to remove existing toc manually and rerun `:GenTocXXX` commands.
 
-3. `g:vmt_cycle_list_item_markers`
+3. `g:vmt_fence_text`
+
+   default: `vim-markdown-toc`
+
+   Inner text of the fence marker for the table of contents, see `g:vmt_dont_insert_fence`.
+
+4. `g:vmt_fence_closing_text`
+
+   default: `g:vmt_fence_text`
+
+   Inner text of the closing fence marker. E.g., you could `let g:vmt_fence_text = 'TOC'` and `let g:vmt_fence_closing_text = '/TOC'` to get
+
+   ```
+   <!-- TOC -->
+   [TOC]
+   <!-- /TOC -->
+   ```
+
+5. `g:vmt_fence_hidden_markdown_style`
+
+   default: `''`
+
+   By default, _vim-markdown-toc_ will add the markdown style into the fence of the text for the table of contents. You can avoid this and set a default markdown style with `g:vmt_fence_hidden_markdown_style` that is applied if a fence is found containing the `g:vmt_fence_text` without any markdown style. Obviously, `g:vmt_fence_hidden_markdown_style` has to be supported, i.e. currently one of `['GFM', 'Redcarpet', 'GitLab', 'Marked']`.
+
+6. `g:vmt_cycle_list_item_markers`
 
    default: 0
 
@@ -146,6 +174,18 @@ The `:UpdateToc` command, which is designed to update toc manually, can only wor
 
    This renders the same according to Markdown rules, but might appeal to those who care about readability of the source.
 
+7. `g:vmt_list_item_char`
+
+    default: `*`
+
+    The list item marker, it can be `*`, `-` or `+`.
+
+8. `g:vmt_include_headings_before`
+
+    default: `0`
+
+    Include headings before the position you are inserting Table of Contents.
+
 ## Screenshots
 
 * [online demo in English][5]
@@ -161,7 +201,7 @@ The `:UpdateToc` command, which is designed to update toc manually, can only wor
 * <https://github.com/ajorgensen/vim-markdown-toc>
 
 [1]: http://mazhuang.org/2015/12/05/diff-between-gfm-and-redcarpet/
-[2]: https://help.github.com/articles/github-flavored-markdown/
+[2]: https://github.github.com/gfm/
 [3]: https://github.com/vmg/redcarpet
 [4]: http://github.com/VundleVim/Vundle.Vim
 [5]: https://github.com/mzlogin/chinese-copywriting-guidelines/blob/Simplified/README.en.md
@@ -169,3 +209,5 @@ The `:UpdateToc` command, which is designed to update toc manually, can only wor
 [7]: http://mazhuang.org/2015/12/19/vim-markdown-toc/
 [8]: https://github.com/junegunn/vim-plug
 [9]: https://docs.gitlab.com/ee/user/markdown.html
+[10]:https://github.com/iamcco/markdown-preview.vim
+[11]:https://github.com/markedjs/marked
