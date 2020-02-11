@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/SirVer/ultisnips.git
+	branch = master
+	commit = 96026a4df27899b9e4029dd3b2977ad2ed819caf
+	parent = 681daa865931ae55cd2475889a6610ad630a932f
+	method = merge
+	cmdver = 0.4.1
