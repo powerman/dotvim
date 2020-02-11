@@ -559,6 +559,7 @@ let g:sparkupNextMapping = '<C-F>'
 
 """ Автоматическое закрытие парных ({["'`                       
 " Plugin: autoclose
+let g:autoclose_vim_commentmode=1
 
 """ Undo tree                                                   U
 " Plugin: undotree
