@@ -206,6 +206,7 @@ execute pathogen#infect()
 " Plugin: matchit
 " Добавляет поддержку тегов, if/else/endif, окружающих строку кавычек, etc.
 " Можно добавлять поддержку для новых типов файлов через b:match_words.
+packadd! matchit
 
 """ Поддержка командного режима в русской раскладке             
 " Plugin: ruscmd
