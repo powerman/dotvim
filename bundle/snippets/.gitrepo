@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/honza/vim-snippets.git
+	branch = master
+	commit = cca8bdc4df751c1f262030b8409845aa657f5043
+	parent = 9186b8b26ee415e8d2c20a37dc2d979b58d203ca
+	method = merge
+	cmdver = 0.4.1
