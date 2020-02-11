@@ -554,6 +554,12 @@ let g:sparkupNextMapping = '<C-F>'
 """ Сравнение двух блоков в одном файле                         :Linediff 
 " Plugin: linediff
 
+""" Вертикальное выравнивание по разделителю                    :Tabularize
+" Plugin: tabular
+
+""" Автоматическое закрытие парных ({["'`                       
+" Plugin: autoclose
+
 """ Undo tree                                                   U
 " Plugin: undotree
 nnoremap U :UndotreeToggle<CR>
