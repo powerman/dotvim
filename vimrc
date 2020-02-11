@@ -562,6 +562,9 @@ let g:sparkupNextMapping = '<C-F>'
 " Plugin: autoclose
 let g:autoclose_vim_commentmode=1
 
+""" Поиск/преобразования (вариантов) слов                       :S, :Abolish, cr…
+" Plugin: abolish
+
 """ Undo tree                                                   U
 " Plugin: undotree
 nnoremap U :UndotreeToggle<CR>
