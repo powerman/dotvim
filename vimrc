@@ -1,7 +1,7 @@
 """ SUMMARY                                                     
 " VERSION: 3.4.0
 " To view summary of this file run this (require foldutil plugin):
-"	:FoldMatching ^""" -1
+"       :FoldMatching ^""" -1
 
 scriptencoding utf-8
 "vint: -ProhibitAutocmdWithNoGroup
@@ -9,24 +9,24 @@ scriptencoding utf-8
 """ TODO                                                        
 "
 " Настроить единообразную поддержку программирования:
-"			Vim	Perl	Limbo	Bash	/dis/sh	HTML	JS	CSS	
-" - :tabfind            -	+	+       -	-       -	-	-	
-" - syntax              +	+	+       +	+       +	+	+	
-" - документация        +	+	+       +	+			2.1	
-" - omni-complete						+			
-" - snippets            +	+	+       +		+	+		
-" - ctags										
-" - syntax check		+	+       +		+	+		
-"   + lint									+	
-"			Python	Go	C	C++	Erlang	Haskell	
-" - :tabfind				+				
-" - syntax              +	+	+	+	+	+	
-" - документация        +	+					
-" - omni-complete		+					
-" - snippets		+	+	+	+	+		
-" - ctags								
-" - syntax check        +	+	+	+	+	+	
-"   + lint			+					
+"                       Vim     Bash    Go      Perl    HTML    JS      CSS     
+" - :tabfind            -       -               +       -       -       -       
+" - syntax              +       +       +       +       +       +       +       
+" - документация        +       +       +       +                       2.1     
+" - omni-complete                       +               +                       
+" - snippets            +       +       +       +       +       +               
+" - ctags                                                                       
+" - syntax check                +       +       +       +       +               
+"   + lint              +       +       +                               +       
+"                       Python  C       C++     Erlang  Haskell Limbo   /dis/sh 
+" - :tabfind                    +                               +       -       
+" - syntax              +       +       +       +       +       +       +       
+" - документация        +                                       +       +       
+" - omni-complete                                                               
+" - snippets            +       +       +       +               +               
+" - ctags                                                                       
+" - syntax check        +       +       +       +       +       +               
+"   + lint                                                                      
 "
 " Подобрать новую цветовую схему? http://habrahabr.ru/blogs/vim/134194/
 "
@@ -34,17 +34,17 @@ scriptencoding utf-8
 
 """ Шпаргалка по редко используемым классным стандартным фичам  
 " - проверка правописания:
-"   ]s		перейти к следующему слову
-"   [s		перейти к предыдущему слову
-"   zg		запомнить правильное слово
-"   zw		отменить запомненное правильное слово
+"   ]s          перейти к следующему слову
+"   [s          перейти к предыдущему слову
+"   zg          запомнить правильное слово
+"   zw          отменить запомненное правильное слово
 " - разное:
-"   :tabfind	открыть файл по части имени (используя каталоги из `set path`)
-"   [I		показать строки, в которых встречается текущее слово
-"   >i}		сдвинуть вправо текущий блок между {...}
-"   <i)		сдвинуть влево  текущий блок между (...)
-"   q/		просмотреть/выполнить предыдущий поиск
-"   q:		просмотреть/выполнить предыдущую команду
+"   :tabfind    открыть файл по части имени (используя каталоги из `set path`)
+"   [I          показать строки, в которых встречается текущее слово
+"   >i}         сдвинуть вправо текущий блок между {...}
+"   <i)         сдвинуть влево  текущий блок между (...)
+"   q/          просмотреть/выполнить предыдущий поиск
+"   q:          просмотреть/выполнить предыдущую команду
 
 """ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 " Относительно универсальные настройки
@@ -53,9 +53,9 @@ scriptencoding utf-8
 """ Разные настройки                                            
 " - вспомогательные функции
 function! s:Mkdir(dir)
-	if !isdirectory(expand(a:dir))
-		call mkdir(expand(a:dir), 'p', 0700)
-	endif
+    if !isdirectory(expand(a:dir))
+        call mkdir(expand(a:dir), 'p', 0700)
+    endif
 endfunction
 " - система
 if &term ==# 'xterm'
@@ -116,49 +116,49 @@ if &term ==# 'screen'
 endif
 set fileencodings=ucs-bom,utf-8,koi8-r,default
 " - предыдущая версия/состояние текста
-set viewdir=~/.cache/vim/view 		" убираем все временные файлы из ~/.vim/
-set undofile				" использовать persistent undo
-set undodir=~/.cache/vim/undo		" 
-set nobackup				" зачем бэкап когда есть persistent undo!
+set viewdir=~/.cache/vim/view           " убираем все временные файлы из ~/.vim/
+set undofile                            " использовать persistent undo
+set undodir=~/.cache/vim/undo           " 
+set nobackup                            " зачем бэкап когда есть persistent undo!
 call s:Mkdir(&viewdir)
 call s:Mkdir(&undodir)
 " - табы и отступы
-set tabstop=8				" стандартный размер таба
-set noexpandtab				" табы пробелами автоматически НЕ заменять
-set shiftwidth=4			" величина отступа (indent)
-set shiftround				" выравнивать отступы по shiftwidth
-set softtabstop=4			" сдвиг при нажатии таба (вставляет и табы и пробелы)
-set autoindent				" сохранять текущий отступ для новых строк
-set smartindent				" автоматическая коррекция отступа для блоков кода
-set copyindent				" использовать те же символы для отступа при:
-set preserveindent			"   1) autoindent; 2) изменении глубины отступа
+set tabstop=8                           " стандартный размер таба
+set noexpandtab                         " табы пробелами автоматически НЕ заменять
+set shiftwidth=4                        " величина отступа (indent)
+set shiftround                          " выравнивать отступы по shiftwidth
+set softtabstop=4                       " сдвиг при нажатии таба (вставляет и табы и пробелы)
+set autoindent                          " сохранять текущий отступ для новых строк
+set smartindent                         " автоматическая коррекция отступа для блоков кода
+set copyindent                          " использовать те же символы для отступа при:
+set preserveindent                      "   1) autoindent; 2) изменении глубины отступа
 "   ... коррекция smartindent: сохранять отступ для комментариев
-inoremap #	X#
-set formatoptions+=roj			" продолжать комментарий на следующей строке
-set formatoptions+=n			" авто-перенос длинных строк внутри списков
+inoremap #      X#
+set formatoptions+=roj                  " продолжать комментарий на следующей строке
+set formatoptions+=n                    " авто-перенос длинных строк внутри списков
 " - вывод текста
-set textwidth=74			" граница для переформатирования и авто-переноса
-set formatoptions+=l			" отключить авто-перенос строк которые УЖЕ длиннее textwidth
-set nowrap				" не выводить длинные строки на нескольких строках
-set listchars=eol:¬,nbsp:•,tab:▸·	" при `set list` показывать eol, nbsp и tab
-set listchars+=extends:→,precedes:←	" при `set nowrap` выводить индикатор длинных строк
-set showbreak=↪ 			" при `set wrap` выводить индикатор длинных строк
-set sidescrolloff=1			" коррекция из-за индикатора длинных строк
-set sidescroll=1			" плавный горизонтальный скроллинг
+set textwidth=74                        " граница для переформатирования и авто-переноса
+set formatoptions+=l                    " отключить авто-перенос строк которые УЖЕ длиннее textwidth
+set nowrap                              " не выводить длинные строки на нескольких строках
+set listchars=eol:¬,nbsp:•,tab:▸·       " при `set list` показывать eol, nbsp и tab
+set listchars+=extends:→,precedes:←     " при `set nowrap` выводить индикатор длинных строк
+set showbreak=↪                         " при `set wrap` выводить индикатор длинных строк
+set sidescrolloff=1                     " коррекция из-за индикатора длинных строк
+set sidescroll=1                        " плавный горизонтальный скроллинг
 " - поиск
-set incsearch				" искать по мере набора
-set nohlsearch				" не подсвечивать результаты поиска
+set incsearch                           " искать по мере набора
+set nohlsearch                          " не подсвечивать результаты поиска
 set history=1000
 " - сравнение
 set diffopt+=vertical                   " по умолчанию открывать diff вертикально
 " - общие фичи
-set backspace=indent,eol,start		" разрешить <BS>-ом удалять всё что угодно
-set ruler				" всё время показывать позицию курсора внизу
-set completeopt=			" автодополнение в режиме вставки не выводит меню
+set backspace=indent,eol,start          " разрешить <BS>-ом удалять всё что угодно
+set ruler                               " всё время показывать позицию курсора внизу
+set completeopt=                        " автодополнение в режиме вставки не выводит меню
 set pumheight=5                         " высота меню автодополнения
-set wildmenu				" <Tab> в командной строке выводит меню
-set wildcharm=<Tab>			" вызов меню командной строки из скрипта
-set wildignore=*.sw?,*.bak,*.orig	" не выводить эти файлы при автодополнении
+set wildmenu                            " <Tab> в командной строке выводит меню
+set wildcharm=<Tab>                     " вызов меню командной строки из скрипта
+set wildignore=*.sw?,*.bak,*.orig       " не выводить эти файлы при автодополнении
 set wildignore+=.hg,.git,.svn
 set wildignore+=*.dis,*.sbl
 set wildignore+=*.o,*.obj,*.manifest
@@ -169,27 +169,27 @@ set wildignore+=*/vendor/*
 set wildignore+=_Inline
 set wildignore+=_live
 set wildignore+=node_modules,bower_components
-set showcmd				" показывать нажимаемые кнопки в командном режиме
-set notimeout ttimeout ttimeoutlen=100 	" таймаут для одиночных кнопок, но не комбинаций
-set mouse=a				" поддержка мыши во всех режимах
-set nomodeline				" эта фича - дыра в безопасности, отключаем
-set shortmess+=I			" не выводить заставку при старте vi
-filetype plugin on			" подгружать плагины для конкретных типов файлов
-filetype indent off			" отключить автоматическое переформатирование отступов
-set spell spelllang=en,ru		" включить проверку правописания
+set showcmd                             " показывать нажимаемые кнопки в командном режиме
+set notimeout ttimeout ttimeoutlen=100  " таймаут для одиночных кнопок, но не комбинаций
+set mouse=a                             " поддержка мыши во всех режимах
+set nomodeline                          " эта фича - дыра в безопасности, отключаем
+set shortmess+=I                        " не выводить заставку при старте vi
+filetype plugin on                      " подгружать плагины для конкретных типов файлов
+filetype indent off                     " отключить автоматическое переформатирование отступов
+set spell spelllang=en,ru               " включить проверку правописания
 "   ... останавливаться только на некорректных словах, а не редких/etc.
-nnoremap ]s	]S
-nnoremap [s	[S
+nnoremap ]s     ]S
+nnoremap [s     [S
 " - copy&paste в стиле винды
-set keymodel=startsel			" Shift со стрелками начинает выделение текста
-"   ...	выделенный текст копируется автоматически, Ctrl+Insert просто снимает выделение
-vnoremap <C-Insert>	<Esc>
+set keymodel=startsel                   " Shift со стрелками начинает выделение текста
+"   ... выделенный текст копируется автоматически, Ctrl+Insert просто снимает выделение
+vnoremap <C-Insert>     <Esc>
 " - подсветка синтаксиса
-set synmaxcol=1000 			" не подсвечивать слишком длинные строчки
+set synmaxcol=1000                      " не подсвечивать слишком длинные строчки
 colorscheme powerman
-let perl_include_pod = 1		" подсвечивать POD внутри скриптов
-let perl_string_as_statement = 1	" кавычки подсвечивать не как строку, а как if, while, ...
-let htmlperl_string_as_statement = 1	" perl внутри html (без POD, но с кавычками)
+let perl_include_pod = 1                " подсвечивать POD внутри скриптов
+let perl_string_as_statement = 1        " кавычки подсвечивать не как строку, а как if, while, ...
+let htmlperl_string_as_statement = 1    " perl внутри html (без POD, но с кавычками)
 
 " Avoid conflict with vim-textobj-comment (which defines 'ic' motion).
 " This should be set before loading TComment plugin.
@@ -225,12 +225,12 @@ let g:autosess_dir = '~/.cache/vim/autosess/'
 " Fix "missing" first 2 symbols on line 2 after opening new file.
 autocmd User GnuPG call timer_start(1, 'FixRedraw', {})
 func FixRedraw(timer)
-        redraw!
+    redraw!
 endfunc
 
 """ Ускоренное открытие больших файлов                          
 " Plugin: largefile
-let g:LargeFile = 6			" in MB, default value is 20
+let g:LargeFile = 6                     " in MB, default value is 20
 
 """ Поддержка Git                                               :Gbrowse, :Gstatus, :Gdiff, …
 " Plugin: fugitive
@@ -250,14 +250,14 @@ let g:viewdoc_copy_to_search_reg = 1
 let g:viewdoc_perldoc_format = 'ansi'
 
 """ Сохранение:                                                 <F2> 
-inoremap <F2>	<C-O>:w<CR>
-nnoremap <F2>	:w<CR>
-vnoremap <F2>	<Esc>:w<CR>gv
+inoremap <F2>   <C-O>:w<CR>
+nnoremap <F2>   :w<CR>
+vnoremap <F2>   <Esc>:w<CR>gv
 
 """ Открытие:                                                   <F3> 
-" inoremap <F3>	<C-O>:tabfind<Space>
-" nnoremap <F3>	:tabfind<Space>
-" vnoremap <F3>	<Esc>:tabfind<Space>
+" inoremap <F3>   <C-O>:tabfind<Space>
+" nnoremap <F3>   :tabfind<Space>
+" vnoremap <F3>   <Esc>:tabfind<Space>
 " Plugin: CtrlP
 let g:ctrlp_map = '<F3>'
 let g:ctrlp_match_window = 'bottom,order:ttb,min:20,max:20,results:100'
@@ -266,73 +266,73 @@ let g:ctrlp_max_files = 30000
 let g:ctrlp_open_new_file = 't'
 let g:ctrlp_open_multiple_files = 't'
 let g:ctrlp_prompt_mappings = {
-        \ 'AcceptSelection("e")': ['<2-LeftMouse>'],
-        \ 'AcceptSelection("t")': ['<cr>', '<c-t>'],
-        \ 'MarkToOpen()':         ['<c-z>'],
-        \ 'OpenMulti()':          ['<c-o>'],
-        \ 'PrtExit()':            ['<F3>', '<esc>', '<c-c>', '<c-g>'],
-        \ }
+    \ 'AcceptSelection("e")': ['<2-LeftMouse>'],
+    \ 'AcceptSelection("t")': ['<cr>', '<c-t>'],
+    \ 'MarkToOpen()':         ['<c-z>'],
+    \ 'OpenMulti()':          ['<c-o>'],
+    \ 'PrtExit()':            ['<F3>', '<esc>', '<c-c>', '<c-g>'],
+    \ }
 
 """ Вкл/Выкл вставку as-is (paste mode):                        <F4> 
 " в INSERT: <F4> переключает paste/nopaste
 " в NORMAL: i и <Insert> всегда входят в INSERT с nopaste
 " в NORMAL: <F4> входит в INSERT с paste
 set pastetoggle=<xF4>
-nnoremap i		:set nopaste<CR><Insert>
-nnoremap <Insert>	:set nopaste<CR><Insert>
-nnoremap <F4>		:set paste<CR><Insert>
+nnoremap i              :set nopaste<CR><Insert>
+nnoremap <Insert>       :set nopaste<CR><Insert>
+nnoremap <F4>           :set paste<CR><Insert>
 
 """ Вкл/Выкл перенос строк:                                     <F5> 
-inoremap <F5>	<C-O>:set wrap!<CR>
-nnoremap <F5>	:set wrap!<CR>
+inoremap <F5>   <C-O>:set wrap!<CR>
+nnoremap <F5>   :set wrap!<CR>
 
 """ Навигация по ctags                                          <F6>
 " Plugin: tagbar
 nnoremap <silent> <F6> :TagbarToggle<CR>
 
 """ Выход (если все файлы записаны):                            <F10> 
-inoremap <F10>	<Esc>:qa<CR>
-nnoremap <F10>	:qa<CR>
-vnoremap <F10>	<Esc>:qa<CR>
+inoremap <F10>  <Esc>:qa<CR>
+nnoremap <F10>  :qa<CR>
+vnoremap <F10>  <Esc>:qa<CR>
 
 """ Скроллирование текста без смещения курсора:                 <Ctrl>+Arrows 
-inoremap <C-Up>		<C-O><C-Y>
-inoremap <C-Down>	<C-O><C-E>
-inoremap <C-Right>	<C-O>z<Right>
-inoremap <C-Left>	<C-O>z<Left>
-nnoremap <C-Up>		<C-Y>
-nnoremap <C-Down>	<C-E>
-nnoremap <C-Right>	z<Right>
-nnoremap <C-Left>	z<Left>
-vnoremap <C-Up>		<C-Y>
-vnoremap <C-Down>	<C-E>
-vnoremap <C-Right>	z<Right>
-vnoremap <C-Left>	z<Left>
+inoremap <C-Up>         <C-O><C-Y>
+inoremap <C-Down>       <C-O><C-E>
+inoremap <C-Right>      <C-O>z<Right>
+inoremap <C-Left>       <C-O>z<Left>
+nnoremap <C-Up>         <C-Y>
+nnoremap <C-Down>       <C-E>
+nnoremap <C-Right>      z<Right>
+nnoremap <C-Left>       z<Left>
+vnoremap <C-Up>         <C-Y>
+vnoremap <C-Down>       <C-E>
+vnoremap <C-Right>      z<Right>
+vnoremap <C-Left>       z<Left>
 
 """ Поиск потенциальных tag-ов и попытка перехода по ним:       <Alt>+Arrows 
-" TODO	Сделать из этого отдельный плагин либо встроить в viewdoc.
-"	Повесить s:SearchTag() на локально подменённые стандартные команды
-"	работы с тэгами (tab, tnext, etc.).
-"	Проверить совместимость с настоящими тэгами.
-"	Поискать аналоги среди существующих плагинов.
-autocmd FileType man			let b:searchtag = '\k\+(\([0-9]p\?\|[nlp]\|tcl\))'
-autocmd FileType help			let b:searchtag = '|\S\+|\|''\S\+'''
-autocmd FileType perl			let b:searchtag = '\<\w\+\(::\|(\)'
-autocmd FileType perldoc		let b:searchtag = '\<\w\+\(::\|(\)'
-inoremap <silent> <A-Up>	<C-O>:call <SID>SearchTag(0)<CR>
-inoremap <silent> <A-Down>	<C-O>:call <SID>SearchTag(1)<CR>
-nnoremap <silent> <A-Up>	:call <SID>SearchTag(0)<CR>
-nnoremap <silent> <A-Down>	:call <SID>SearchTag(1)<CR>
-imap <A-Right>			<C-]>
-imap <A-Left>			<C-T>
-nmap <A-Right>			<C-]>
-nmap <A-Left>			<C-T>
+" TODO  Сделать из этого отдельный плагин либо встроить в viewdoc.
+"       Повесить s:SearchTag() на локально подменённые стандартные команды
+"       работы с тэгами (tab, tnext, etc.).
+"       Проверить совместимость с настоящими тэгами.
+"       Поискать аналоги среди существующих плагинов.
+autocmd FileType man                    let b:searchtag = '\k\+(\([0-9]p\?\|[nlp]\|tcl\))'
+autocmd FileType help                   let b:searchtag = '|\S\+|\|''\S\+'''
+autocmd FileType perl                   let b:searchtag = '\<\w\+\(::\|(\)'
+autocmd FileType perldoc                let b:searchtag = '\<\w\+\(::\|(\)'
+inoremap <silent> <A-Up>        <C-O>:call <SID>SearchTag(0)<CR>
+inoremap <silent> <A-Down>      <C-O>:call <SID>SearchTag(1)<CR>
+nnoremap <silent> <A-Up>        :call <SID>SearchTag(0)<CR>
+nnoremap <silent> <A-Down>      :call <SID>SearchTag(1)<CR>
+imap <A-Right>                  <C-]>
+imap <A-Left>                   <C-T>
+nmap <A-Right>                  <C-]>
+nmap <A-Left>                   <C-T>
 function! s:SearchTag(forward)
-	if !exists('b:searchtag')
-		echohl WarningMsg | echo 'b:searchtag not configured for this file' | echohl None
-	else
-		call search(b:searchtag, a:forward ? 'W' : 'bW')
-	endif
+    if !exists('b:searchtag')
+        echohl WarningMsg | echo 'b:searchtag not configured for this file' | echohl None
+    else
+        call search(b:searchtag, a:forward ? 'W' : 'bW')
+    endif
 endfunction
 
 """ За|Рас-комментирование:                                     #, <Ctrl>+C 
@@ -342,19 +342,19 @@ endfunction
 " Либо форкнуть https://github.com/tpope/vim-commentary
 let g:tcomment#options = {'col': 1}
 set commentstring=#\ %s
-autocmd FileType fluxbox		setlocal commentstring=#\ %s
-autocmd FileType fluxkeys		setlocal commentstring=!%s
-autocmd FileType less			setlocal commentstring=//\ %s
-autocmd FileType dot			setlocal commentstring=//\ %s
+autocmd FileType fluxbox                setlocal commentstring=#\ %s
+autocmd FileType fluxkeys               setlocal commentstring=!%s
+autocmd FileType less                   setlocal commentstring=//\ %s
+autocmd FileType dot                    setlocal commentstring=//\ %s
 " - закомментировать/раскомментировать: #
-nnoremap #	:TComment<CR><Down>
-vnoremap #	:TComment<CR>`><Down>
+nnoremap #      :TComment<CR><Down>
+vnoremap #      :TComment<CR>`><Down>
 " - сделать копию текущей строки/блока, закомментировать верхнюю копию,
 "   и перейти к нижней (изменение кода с сохранением старой версии): <Ctrl>+C
 " Хак с visual в nmap (V, V"_Y) нужен для работы счётчика, например: 3<C-c>
-inoremap <C-c>	<C-O>Y<C-O>:TComment!<CR><C-O>p
-nnoremap <C-c>	VYgv:TComment!<CR>`>V"_Yp<Insert>
-vnoremap <C-c>	Ygv:TComment!<CR>`>p<Insert>
+inoremap <C-c>  <C-O>Y<C-O>:TComment!<CR><C-O>p
+nnoremap <C-c>  VYgv:TComment!<CR>`>V"_Yp<Insert>
+vnoremap <C-c>  Ygv:TComment!<CR>`>p<Insert>
 
 """ Работа с комментариями:                                     ic, ac, aC 
 " Plugin: vim-textobj-comment
@@ -388,13 +388,13 @@ let g:SuperTabCompletionContexts = ['s:ContextText', 'ContextPlainText', 's:Cont
 let g:SuperTabContextDiscoverDiscovery = ['&completefunc:<c-x><c-u>']
 let g:SuperTabContextDefaultCompletionType = '<c-p>'
 function! ContextPlainText()
-        let synname = synIDattr(synID(line('.'), col('.') - 1, 1), 'name')
-        if synname =~# '\(String\|Comment\)'
-                exec 'let complType = "' . escape(g:SuperTabContextDefaultCompletionType, '<') . '"'
-                "vint: -ProhibitUsingUndeclaredVariable
-                return complType
-                "vint: +ProhibitUsingUndeclaredVariable
-        endif
+    let synname = synIDattr(synID(line('.'), col('.') - 1, 1), 'name')
+    if synname =~# '\(String\|Comment\)'
+        exec 'let complType = "' . escape(g:SuperTabContextDefaultCompletionType, '<') . '"'
+        "vint: -ProhibitUsingUndeclaredVariable
+        return complType
+        "vint: +ProhibitUsingUndeclaredVariable
+    endif
 endfunction
 " Set &completefunc to try &omnifunc or default one if omni fails.
 autocmd FileType *
@@ -435,48 +435,48 @@ let g:syntastic_go_go_build_args = '-o /dev/null'
 let g:syntastic_go_go_test_args = '-tags integration'
 " - filtering useless messages
 let g:syntastic_zsh_zsh_quiet_messages = {
-	\ 'regex':      ['no such user or named directory'],
-        \ }
+    \ 'regex':      ['no such user or named directory'],
+    \ }
 " - check shell .|source'd files
 let g:syntastic_sh_shellcheck_args = '-x'
 " - check vim
 " Require: /usr/bin/vint https://github.com/Vimjas/vint (emerge dev-util/vint)
 let g:syntastic_vim_checkers = ['vint']
 " - переход к следующей/предыдущей ошибке: <F12>/<F11>
-imap <silent> <F11>	<C-O>:execute "try<Bar>lprev<Bar>catch<Bar>lclose<Bar>endtry"<CR>
-imap <silent> <F12>	<C-O>:execute "try<Bar>lnext<Bar>catch<Bar>lclose<Bar>endtry"<CR>
-nmap <silent> <F11>	:execute "try<Bar>lprev<Bar>catch<Bar>lclose<Bar>endtry"<CR>
-nmap <silent> <F12>	:execute "try<Bar>lnext<Bar>catch<Bar>lclose<Bar>endtry"<CR>
+imap <silent> <F11>     <C-O>:execute "try<Bar>lprev<Bar>catch<Bar>lclose<Bar>endtry"<CR>
+imap <silent> <F12>     <C-O>:execute "try<Bar>lnext<Bar>catch<Bar>lclose<Bar>endtry"<CR>
+nmap <silent> <F11>     :execute "try<Bar>lprev<Bar>catch<Bar>lclose<Bar>endtry"<CR>
+nmap <silent> <F12>     :execute "try<Bar>lnext<Bar>catch<Bar>lclose<Bar>endtry"<CR>
 
 """ Открытие группы файлов в отдельных табах (эмуляция vi -p)   
-autocmd VimEnter * nested		if argc() > 1 && !&diff | tab sball | tabfirst | endif
+autocmd VimEnter * nested               if argc() > 1 && !&diff | tab sball | tabfirst | endif
 
 """ После закрытия таба переходить к предыдущему                
 let s:leave_tab = 0
-autocmd TabLeave *	let s:leave_tab = tabpagenr()
-autocmd TabEnter *	if tabpagenr() != 1 && tabpagenr() == s:leave_tab | tabprevious | endif
+autocmd TabLeave *      let s:leave_tab = tabpagenr()
+autocmd TabEnter *      if tabpagenr() != 1 && tabpagenr() == s:leave_tab | tabprevious | endif
 
 """ Автоматически сворачивать отдельные файлы в патчах          
-autocmd FileType diff			silent! FoldMatching ^diff -1
+autocmd FileType diff                   silent! FoldMatching ^diff -1
 
 let g:vim_markdown_folding_disabled=0
 
 """ Форсировать качественную подсветку синтаксиса (но медленную)
-autocmd BufWinEnter *			syntax sync fromstart
+autocmd BufWinEnter *                   syntax sync fromstart
 
 """ Стиль форматирования разных типов файлов                    
 " - отключить форматирование кода (оставить форматирование комментариев)
-autocmd FileType perl			setlocal formatoptions-=t
-autocmd FileType vim,sh,zsh,javascript	setlocal formatoptions-=t
-autocmd FileType limbo,c,cpp		setlocal formatoptions-=t
-autocmd FileType html			setlocal formatoptions-=t
+autocmd FileType perl                   setlocal formatoptions-=t
+autocmd FileType vim,sh,zsh,javascript  setlocal formatoptions-=t
+autocmd FileType limbo,c,cpp            setlocal formatoptions-=t
+autocmd FileType html                   setlocal formatoptions-=t
 " - большой отступ стимулирует уменьшать сложность/вложенность кода
-autocmd FileType vim,sh,zsh,javascript	setlocal softtabstop=0 shiftwidth=8
-autocmd FileType limbo,c,cpp		setlocal softtabstop=0 shiftwidth=8
+autocmd FileType vim,sh,zsh,javascript  setlocal softtabstop=0 shiftwidth=8
+autocmd FileType limbo,c,cpp            setlocal softtabstop=0 shiftwidth=8
 autocmd FileType go                     setlocal softtabstop=0 shiftwidth=0
 autocmd FileType go                     runtime indent/go.vim
 " - пока выравниваем всё пробелами
-autocmd FileType perl			setlocal expandtab
+autocmd FileType perl                   setlocal expandtab
 autocmd FileType migrate                setlocal expandtab
 " - объявить блочные элементы разметки комментариями и запретить их форматировать по gq
 "   * двухстрочные заголовки 1-4 уровней не поддерживаются
@@ -495,12 +495,12 @@ autocmd FileType migrate                setlocal expandtab
 "       **** первый элемент списка глубиной 4
 "       **** второй элемент списка глубиной 4
 " TODO Альтернативное решение: https://github.com/dahu/vim-asciidoc
-autocmd FileType asciidoc		setlocal comments=://,:==,:****,:____,fb:-,fb:*,fb:**,fb:***,fb:****,fb:*****,fb:.,fb:..,fb:...,fb:....,fb:.....,:[,:--,:+,:.A,:.B,:.C,:.D,:.E,:.F,:.G,:.H,:.I,:.J,:.K,:.L,:.M,:.N,:.O,:.P,:.Q,:.R,:.S,:.T,:.U,:.V,:.W,:.X,:.Y,:.Z,:.А,:.Б,:.В,:.Г,:.Д,:.Е,:.Ё,:.Ж,:.З,:.И,:.Й,:.К,:.Л,:.М,:.Н,:.О,:.П,:.Р,:.С,:.Т,:.У,:.Ф,:.Х,:.Ц,:.Ч,:.Ш,:.Щ,:.Ъ,:.Ы,:.Ь,:.Э,:.Ю,:.Я
-autocmd FileType asciidoc		setlocal formatoptions-=c
-autocmd FileType asciidoc		setlocal formatoptions-=r
-autocmd FileType asciidoc		setlocal formatoptions-=o
+autocmd FileType asciidoc               setlocal comments=://,:==,:****,:____,fb:-,fb:*,fb:**,fb:***,fb:****,fb:*****,fb:.,fb:..,fb:...,fb:....,fb:.....,:[,:--,:+,:.A,:.B,:.C,:.D,:.E,:.F,:.G,:.H,:.I,:.J,:.K,:.L,:.M,:.N,:.O,:.P,:.Q,:.R,:.S,:.T,:.U,:.V,:.W,:.X,:.Y,:.Z,:.А,:.Б,:.В,:.Г,:.Д,:.Е,:.Ё,:.Ж,:.З,:.И,:.Й,:.К,:.Л,:.М,:.Н,:.О,:.П,:.Р,:.С,:.Т,:.У,:.Ф,:.Х,:.Ц,:.Ч,:.Ш,:.Щ,:.Ъ,:.Ы,:.Ь,:.Э,:.Ю,:.Я
+autocmd FileType asciidoc               setlocal formatoptions-=c
+autocmd FileType asciidoc               setlocal formatoptions-=r
+autocmd FileType asciidoc               setlocal formatoptions-=o
 " - авто-перенос длинных строк в списках
-autocmd FileType asciidoc		setlocal formatlistpat=^\\s*\\(-\\\\|\\*\\+\\\\|\\.\\+\\\\|[A-Za-z]\\.\\\\|[0-9]\\+\\.\\)\\s\\+
+autocmd FileType asciidoc               setlocal formatlistpat=^\\s*\\(-\\\\|\\*\\+\\\\|\\.\\+\\\\|[A-Za-z]\\.\\\\|[0-9]\\+\\.\\)\\s\\+
 " - только пробелы в markdown
 autocmd FileType markdown               setlocal expandtab
 " - маленький отступ в html
@@ -514,26 +514,38 @@ autocmd FileType gitcommit              setlocal textwidth=72
 let g:shfmt_fmt_on_save = 1
 
 """ 80-column margin                                            
-" autocmd FileType perl			setlocal colorcolumn=81,82,83,84,85
-" autocmd FileType sh,zsh,javascript	setlocal colorcolumn=81,82,83,84,85
-" autocmd FileType limbo,c,cpp,go		setlocal colorcolumn=81,82,83,84,85
-" autocmd FileType asciidoc,markdown		setlocal colorcolumn=81,82,83,84,85
-autocmd FileType mail	                setlocal colorcolumn=81,82,83,84,85
+" autocmd FileType perl                   setlocal colorcolumn=81,82,83,84,85
+" autocmd FileType sh,zsh,javascript      setlocal colorcolumn=81,82,83,84,85
+" autocmd FileType limbo,c,cpp,go         setlocal colorcolumn=81,82,83,84,85
+" autocmd FileType asciidoc,markdown      setlocal colorcolumn=81,82,83,84,85
+autocmd FileType mail                   setlocal colorcolumn=81,82,83,84,85
 
 """ Save & restore folding                                      
-autocmd BufReadPost,FileReadPost *	if expand('<afile>') != 'quickfix' && !&readonly && !&diff && &ft != 'diff' && &ft != 'mail' | let s:buftype=&buftype | set buftype= | loadview | exe "set buftype=".s:buftype | endif
-autocmd BufWritePre,FileWritePre *	if expand('<afile>') != 'quickfix' && !&readonly && !&diff && &ft != 'diff' && &ft != 'mail' | let s:buftype=&buftype | set buftype= | mkview   | exe "set buftype=".s:buftype | endif
+autocmd BufReadPost,FileReadPost *      call <SID>PersistFolding(0)
+autocmd BufWritePre,FileWritePre *      call <SID>PersistFolding(1)
+function! s:PersistFolding(save)
+    if expand('<afile>') !=# 'quickfix' && !&readonly && !&diff && &ft !=# 'diff' && &ft !=# 'mail'
+        let l:save_buftype = &buftype
+        set buftype=
+        if a:save
+            mkview
+        else
+            loadview
+        endif
+        let &buftype = l:save_buftype
+    endif
+endfunction
 
 """ Enter Insert mode                                           <CR> 
 autocmd BufWinEnter * if expand('<afile>') != 'quickfix' && !&readonly && !&diff && &ft != 'diff' && &ft != 'qf' && &ft != 'tagbar' | exe 'nnoremap <buffer> <CR> A<CR>' | elseif &ft != 'tagbar' | exe 'silent! nunmap <buffer> <CR>' | endif
 
 """ Enter commands without <Shift>                              ; 
-nnoremap ;	:
+nnoremap ;      :
 
 """ Search in files                                             <Leader>/ 
 " Plugin: ack
 " Require: /usr/bin/ack http://betterthangrep.com/ (emerge sys-apps/ack)
-nnoremap <Leader>/	:Ack!<Space>
+nnoremap <Leader>/      :Ack!<Space>
 
 """ HTML Zen Coding                                             <C-E>, <C-F> 
 " Plugin: Sparkup
@@ -620,67 +632,67 @@ set path=.,,
 set tags=./tags,tags
 let s:proj = ''
 " - Narada project
-let root  = filereadable('config/version')		? '.'
-	\ : filereadable('../config/version')		? '..'
-	\ : filereadable('../../config/version')	? '../..'
-	\ : filereadable('../../../config/version')	? '../../..'
-	\ : filereadable('VERSION')	                ? '.'
-	\ : filereadable('../VERSION')		        ? '..'
-	\ : filereadable('../../VERSION')	        ? '../..'
-	\ : filereadable('../../../VERSION')	        ? '../../..'
-	\ :						  ''
+let root  = filereadable('config/version')      ? '.'
+    \ : filereadable('../config/version')       ? '..'
+    \ : filereadable('../../config/version')    ? '../..'
+    \ : filereadable('../../../config/version') ? '../../..'
+    \ : filereadable('VERSION')                 ? '.'
+    \ : filereadable('../VERSION')              ? '..'
+    \ : filereadable('../../VERSION')           ? '../..'
+    \ : filereadable('../../../VERSION')        ? '../../..'
+    \ :                                           ''
 if !empty(root)
-	execute 'set path=.,'.root.','.root.'/template,'.root.'/public/css,'.root.'/public/js,'.root.'/t,'.root.'/perl,'.root.'/opt/*/*/module,'.root.'/opt/*/*/appl/cmd,'.root.'/opt/*/*/appl/lib,'.','
-	execute 'set tags='.root.'/tmp/tags'
-	let s:cwd = getcwd()
-	execute 'lcd '.root
-	execute 'autocmd BufNewFile,BufRead * lcd! '.getcwd()
-	execute 'lcd '.s:cwd
-	let s:proj = 'Narada'
+    execute 'set path=.,'.root.','.root.'/template,'.root.'/public/css,'.root.'/public/js,'.root.'/t,'.root.'/perl,'.root.'/opt/*/*/module,'.root.'/opt/*/*/appl/cmd,'.root.'/opt/*/*/appl/lib,'.','
+    execute 'set tags='.root.'/tmp/tags'
+    let s:cwd = getcwd()
+    execute 'lcd '.root
+    execute 'autocmd BufNewFile,BufRead * lcd! '.getcwd()
+    execute 'lcd '.s:cwd
+    let s:proj = 'Narada'
 endif
 " - ASDF project
-let root  = filereadable('.lib/.version')		? '.'
-	\ : filereadable('../.lib/.version')		? '..'
-	\ : filereadable('../../.lib/.version')		? '../..'
-	\ : filereadable('../../../.lib/.version')	? '../../..'
-	\ :						  ''
+let root  = filereadable('.lib/.version')       ? '.'
+    \ : filereadable('../.lib/.version')        ? '..'
+    \ : filereadable('../../.lib/.version')     ? '../..'
+    \ : filereadable('../../../.lib/.version')  ? '../../..'
+    \ :                                           ''
 if !empty(root)
-	execute 'set path=.,'.root.','.root.'/.lib,'.root.'/.lib/t,'.','
-	execute 'set tags='.root.'/.lib/tmp/tags'
-	let s:proj = 'ASDF'
+    execute 'set path=.,'.root.','.root.'/.lib,'.root.'/.lib/t,'.','
+    execute 'set tags='.root.'/.lib/tmp/tags'
+    let s:proj = 'ASDF'
 endif
 " - Inferno project
-let root  = filereadable('mkconfig')			? '.'
-	\ : filereadable('../mkconfig')			? '..'
-	\ : filereadable('../../mkconfig')		? '../..'
-	\ : filereadable('../../../mkconfig')		? '../../..'
-	\ :						  ''
+let root  = filereadable('mkconfig')            ? '.'
+    \ : filereadable('../mkconfig')             ? '..'
+    \ : filereadable('../../mkconfig')          ? '../..'
+    \ : filereadable('../../../mkconfig')       ? '../../..'
+    \ :                                           ''
 if !empty(root)
-	execute 'set path=.,'.root.','.root.'/module,'.root.'/appl/cmd,'.root.'/appl/lib,'.','
-	let s:proj = 'Inferno'
+    execute 'set path=.,'.root.','.root.'/module,'.root.'/appl/cmd,'.root.'/appl/lib,'.','
+    let s:proj = 'Inferno'
 endif
 " - Git project
-let root  = isdirectory('.git')		        ? '.'
-	\ : isdirectory('../.git')		? '..'
-	\ : isdirectory('../../.git')	        ? '../..'
-	\ : isdirectory('../../../.git')	? '../../..'
-	\ : isdirectory('../../../../.git')	? '../../../..'
-	\ : isdirectory('../../../../../.git')	? '../../../../..'
-	\ :					  ''
+let root  = isdirectory('.git')                 ? '.'
+    \ : isdirectory('../.git')                  ? '..'
+    \ : isdirectory('../../.git')               ? '../..'
+    \ : isdirectory('../../../.git')            ? '../../..'
+    \ : isdirectory('../../../../.git')         ? '../../../..'
+    \ : isdirectory('../../../../../.git')      ? '../../../../..'
+    \ :                                           ''
 if !empty(root)
-	execute 'set path=.,'.root.','.root.'/template,'.root.'/public/css,'.root.'/public/js,'.root.'/t,'.','
-	execute 'set tags='.root.'/tmp/tags'
-	let s:cwd = getcwd()
-	execute 'lcd '.root
-	execute 'autocmd BufNewFile,BufRead * lcd! '.getcwd()
-	execute 'lcd '.s:cwd
+    execute 'set path=.,'.root.','.root.'/template,'.root.'/public/css,'.root.'/public/js,'.root.'/t,'.','
+    execute 'set tags='.root.'/tmp/tags'
+    let s:cwd = getcwd()
+    execute 'lcd '.root
+    execute 'autocmd BufNewFile,BufRead * lcd! '.getcwd()
+    execute 'lcd '.s:cwd
 endif
 let s:proj_path = &path
 " - file type specific
-autocmd FileType c			setlocal path+=/usr/include
-autocmd FileType limbo			setlocal path+=/usr/inferno/module,/usr/inferno/appl/cmd,/usr/inferno/appl/lib
+autocmd FileType c                      setlocal path+=/usr/include
+autocmd FileType limbo                  setlocal path+=/usr/inferno/module,/usr/inferno/appl/cmd,/usr/inferno/appl/lib
 " default ftplugin/perl.vim replace user's path, so we have to restore it
-autocmd FileType perl			execute "setlocal path=".s:proj_path.",".&l:path
+autocmd FileType perl                   execute "setlocal path=".s:proj_path.",".&l:path
 " - do not copy @INC dirs to path to avoid slowdown while searching hundreds perl modules
 let perlpath = ''
 " complement binfmt gorun support - check only this source file when in /bin/
@@ -689,8 +701,8 @@ autocmd BufNewFile,BufRead */bin/*.go   let b:syntastic_go_go_build_args=g:synta
 autocmd BufNewFile,BufRead */vcprompt-fast/*.go let b:syntastic_go_go_build_args=g:syntastic_go_go_build_args.' -tags static -buildmode pie'
 
 """ Улучшение определения типа файлов                           
-autocmd BufRead */.fluxbox/keys		        set ft=fluxkeys
-autocmd BufRead */.opera/cache*		        set ft=html
+autocmd BufRead */.fluxbox/keys                 set ft=fluxkeys
+autocmd BufRead */.opera/cache*                 set ft=html
 autocmd BufNewFile,BufRead *nginx*/*            set ft=nginx
 autocmd BufNewFile,BufRead TODO*,BUG*,README*   set ft=asciidoc
 autocmd BufNewFile,BufRead *.txt,*.adoc         set ft=asciidoc
@@ -718,10 +730,10 @@ autocmd BufReadPre */bootswatch/*.less  let b:did_ftplugin = 1
 autocmd BufRead */bootswatch.less       let g:syntastic_less_lessc_args="--no-color ../global/build.less /dev/null"
 
 """ Автоматический запуск команд после изменения файла          
-autocmd BufWritePre  *			let b:was_modified = &modified
-autocmd BufWritePost *			if b:was_modified && s:proj=="Narada" && (&ft == "perl" || &ft == "html" || &ft == "html.epl" || &ft == "html.tmpl") | call system("fastcgi_restart") | endif
-autocmd BufWritePost *.dot		if b:was_modified && filereadable("index.txt") | call system("touch index.txt") | endif
-autocmd BufWritePost *.dot		if b:was_modified && !filereadable("index.txt") | silent execute "GraphvizCompile" | endif
+autocmd BufWritePre  *                  let b:was_modified = &modified
+autocmd BufWritePost *                  if b:was_modified && s:proj=="Narada" && (&ft == "perl" || &ft == "html" || &ft == "html.epl" || &ft == "html.tmpl") | call system("fastcgi_restart") | endif
+autocmd BufWritePost *.dot              if b:was_modified && filereadable("index.txt") | call system("touch index.txt") | endif
+autocmd BufWritePost *.dot              if b:was_modified && !filereadable("index.txt") | silent execute "GraphvizCompile" | endif
 
 """ Почта                                                       
 " добавить в начало письма приветствие
@@ -730,12 +742,12 @@ autocmd BufWritePost *.dot		if b:was_modified && !filereadable("index.txt") | si
 " установить курсор перед подписью
 " перейти в режим вставки
 autocmd FileType mail
-	\ if match(getline(1), "^On [A-Z]\\|^$") == 0 | execute "0r~/.greeting" | endif |
-	\ %s/^\(\(>\s\?\)\+\s*\n\)*\(\(>\s\?\)\+\)-- \?\r\?\n\(\3.*\n\)\+//e |
-	\ %s/^\(\(>\s\?\)\+\s*\n\)*\n\+-- \n/-- /e |
-	\ call search("^\\n\\n-- \\n") |
-	\ if !empty(getline(line('.')-1)) | execute "normal o" | endif |
-	\ startinsert
+    \ if match(getline(1), "^On [A-Z]\\|^$") == 0 | execute "0r~/.greeting" | endif |
+    \ %s/^\(\(>\s\?\)\+\s*\n\)*\(\(>\s\?\)\+\)-- \?\r\?\n\(\3.*\n\)\+//e |
+    \ %s/^\(\(>\s\?\)\+\s*\n\)*\n\+-- \n/-- /e |
+    \ call search("^\\n\\n-- \\n") |
+    \ if !empty(getline(line('.')-1)) | execute "normal o" | endif |
+    \ startinsert
 
 """ Фильтр для удаления из html всех тегов кроме тегов форм:    :ShowForm 
 function! s:ShowForm()
@@ -745,30 +757,30 @@ command! ShowForm :call <SID>ShowForm()
 
 """ Переформатирование html                                     :Tidy 
 function! s:Tidy()
-	let oldft=&ft
-	filetype indent on
-	set ft=html
-	" XXX Скорее всего линтер отключать не нужно, но я не понял, что он хочет.
-        "vint: -ProhibitCommandRelyOnUser
-	normal gg=G
-        "vint: +ProhibitCommandRelyOnUser
-	filetype indent off
-	let &ft=oldft
+    let oldft=&ft
+    filetype indent on
+    set ft=html
+    " XXX Скорее всего линтер отключать не нужно, но я не понял, что он хочет.
+    "vint: -ProhibitCommandRelyOnUser
+    normal gg=G
+    "vint: +ProhibitCommandRelyOnUser
+    filetype indent off
+    let &ft=oldft
 endfunction
 command! Tidy :call <SID>Tidy()
 
 """ Определение текущей группы подсветки:                       <Leader>hi, <Leader>HI, <Leader>SS 
-nmap <silent> <Leader>hi	:echo
-	\     "hi<" . synIDattr(           synID(line("."),col("."),1) ,"name") . ">" .
-	\ " trans<" . synIDattr(           synID(line("."),col("."),0) ,"name") . ">" .
-	\    " lo<" . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
-nmap <silent> <Leader>HI	:autocmd CursorMoved <buffer> normal \hi<CR>
-nmap <silent> <Leader>SS	:autocmd CursorMoved <buffer> :call <SID>SynStack()<CR>
+nmap <silent> <Leader>hi        :echo
+    \     "hi<" . synIDattr(           synID(line("."),col("."),1) ,"name") . ">" .
+    \ " trans<" . synIDattr(           synID(line("."),col("."),0) ,"name") . ">" .
+    \    " lo<" . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
+nmap <silent> <Leader>HI        :autocmd CursorMoved <buffer> normal \hi<CR>
+nmap <silent> <Leader>SS        :autocmd CursorMoved <buffer> :call <SID>SynStack()<CR>
 function! s:SynStack()
-  echo join(map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")'), ' > ')
+    echo join(map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")'), ' > ')
 endfunc
 
-""" Unsorted
+""" Unsorted                                                    
 let g:markdown_fenced_languages = ['go']
 
 " set re=1 " speedup large asciidoc files a LOT!
@@ -781,19 +793,20 @@ let g:markdown_fenced_languages = ['go']
 "       :echo g:sum
 let g:sum = 0  "result in global variable sum
 function! Sum(number)
-  let g:sum = g:sum + a:number
-  return a:number
+    let g:sum = g:sum + a:number
+    return a:number
 endfunction
 
 " Usage:
 "       :'<,'>call TR()
 function! TR() range
-  let g:sum = 0
-  execute a:firstline . ',' . a:lastline . 's/\d\+\ze m/\=Sum(submatch(0))'
-  let l:mins = g:sum % 60
-  let l:hours = g:sum / 60
-  let g:sum = 0
-  execute a:firstline . ',' . a:lastline . 's/\d\+\ze h/\=Sum(submatch(0))'
-  let l:hours = l:hours + g:sum
-  echo l:hours 'h' l:mins 'm'
+    let g:sum = 0
+    execute a:firstline . ',' . a:lastline . 's/\d\+\ze m/\=Sum(submatch(0))'
+    let l:mins = g:sum % 60
+    let l:hours = g:sum / 60
+    let g:sum = 0
+    execute a:firstline . ',' . a:lastline . 's/\d\+\ze h/\=Sum(submatch(0))'
+    let l:hours = l:hours + g:sum
+    echo l:hours 'h' l:mins 'm'
+    let g:sum = 0
 endfunction
