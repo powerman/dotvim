@@ -64,55 +64,55 @@ endif
 if &term ==# 'screen'
     set term=screen-256color
     map  [1;5A <C-Up>
+    map! [1;5A <C-Up>
     map  [1;5B <C-Down>
+    map! [1;5B <C-Down>
     map  [1;5C <C-Right>
+    map! [1;5C <C-Right>
     map  [1;5D <C-Left>
+    map! [1;5D <C-Left>
     map  [2;5~ <C-Insert>
+    map! [2;5~ <C-Insert>
     map  [3^   <C-Delete>
+    map! [3^   <C-Delete>
     map  [1;5H <C-Home>
+    map! [1;5H <C-Home>
     map  [1;5F <C-End>
+    map! [1;5F <C-End>
     map  [5;5~ <C-PageUp>
+    map! [5;5~ <C-PageUp>
     map  [6;5~ <C-PageDown>
+    map! [6;5~ <C-PageDown>
     map  [1;3A <A-Up>
+    map! [1;3A <A-Up>
     map  [1;3B <A-Down>
+    map! [1;3B <A-Down>
     map  [1;3C <A-Right>
+    map! [1;3C <A-Right>
     map  [1;3D <A-Left>
+    map! [1;3D <A-Left>
     map  [1;3H <A-Home>
+    map! [1;3H <A-Home>
     map  [1;3F <A-End>
+    map! [1;3F <A-End>
     map  [5;3~ <A-PageUp>
+    map! [5;3~ <A-PageUp>
     map  [6;3~ <A-PageDown>
+    map! [6;3~ <A-PageDown>
     map  [1;2A <S-Up>
+    map! [1;2A <S-Up>
     map  [1;2B <S-Down>
+    map! [1;2B <S-Down>
     map  [1;2C <S-Right>
+    map! [1;2C <S-Right>
     map  [1;2D <S-Left>
+    map! [1;2D <S-Left>
     map  [3;2~ <S-Delete>
+    map! [3;2~ <S-Delete>
     map  [1;2H <S-Home>
+    map! [1;2H <S-Home>
     map  [1;2F <S-End>
-    imap [1;5A <C-Up>
-    imap [1;5B <C-Down>
-    imap [1;5C <C-Right>
-    imap [1;5D <C-Left>
-    imap [2;5~ <C-Insert>
-    imap [3^   <C-Delete>
-    imap [1;5H <C-Home>
-    imap [1;5F <C-End>
-    imap [5;5~ <C-PageUp>
-    imap [6;5~ <C-PageDown>
-    imap [1;3A <A-Up>
-    imap [1;3B <A-Down>
-    imap [1;3C <A-Right>
-    imap [1;3D <A-Left>
-    imap [1;3H <A-Home>
-    imap [1;3F <A-End>
-    imap [5;3~ <A-PageUp>
-    imap [6;3~ <A-PageDown>
-    imap [1;2A <S-Up>
-    imap [1;2B <S-Down>
-    imap [1;2C <S-Right>
-    imap [1;2D <S-Left>
-    imap [3;2~ <S-Delete>
-    imap [1;2H <S-Home>
-    imap [1;2F <S-End>
+    map! [1;2F <S-End>
 endif
 set fileencodings=ucs-bom,utf-8,koi8-r,default
 " - предыдущая версия/состояние текста
@@ -233,7 +233,7 @@ endfunc
 " Plugin: largefile
 let g:LargeFile = 6                     " in MB, default value is 20
 
-""" Поддержка Git                                               :Gbrowse, :Gstatus, :Gdiff, …
+""" Поддержка Git                                               :Gbrowse, :Gstatus, :Gdiff, … 
 " Plugin: fugitive
 set statusline=%<%f\ %h%m%r%{fugitive#statusline()}%=%-14.(%l,%c%V%)\ %P
 cnoreabbrev Glog Gllog
@@ -287,7 +287,7 @@ nnoremap <F4>           :set paste<CR><Insert>
 inoremap <F5>   <C-O>:set wrap!<CR>
 nnoremap <F5>   :set wrap!<CR>
 
-""" Навигация по ctags                                          <F6>
+""" Навигация по ctags                                          <F6> 
 " Plugin: tagbar
 nnoremap <silent> <F6> :TagbarToggle<CR>
 
@@ -472,7 +472,7 @@ autocmd FileType vim,sh,zsh,javascript  setlocal formatoptions-=t
 autocmd FileType limbo,c,cpp            setlocal formatoptions-=t
 autocmd FileType html                   setlocal formatoptions-=t
 " - большой отступ стимулирует уменьшать сложность/вложенность кода
-autocmd FileType vim,sh,zsh,javascript  setlocal softtabstop=0 shiftwidth=8
+autocmd FileType sh,zsh,javascript      setlocal softtabstop=0 shiftwidth=8
 autocmd FileType limbo,c,cpp            setlocal softtabstop=0 shiftwidth=8
 autocmd FileType go                     setlocal softtabstop=0 shiftwidth=0
 autocmd FileType go                     runtime indent/go.vim
@@ -507,6 +507,8 @@ autocmd FileType markdown               setlocal expandtab
 " - маленький отступ в html
 autocmd FileType html,html.tmpl         setlocal softtabstop=4 shiftwidth=4 expandtab
 autocmd FileType gohtmltmpl             setlocal softtabstop=4 shiftwidth=4 expandtab
+" - маленький отступ в vim
+autocmd FileType vim                    setlocal softtabstop=4 shiftwidth=4 expandtab
 " - вернуть отступ в шаблонах nginx
 autocmd FileType gonginxtmpl            setlocal softtabstop=8 shiftwidth=8 noexpandtab
 " - коммиты в git
@@ -555,24 +557,20 @@ let g:sparkupNextMapping = '<C-F>'
 """ Сравнение двух блоков в одном файле                         :Linediff 
 " Plugin: linediff
 
-""" Вертикальное выравнивание по разделителю                    :Tabularize
+""" Вертикальное выравнивание по разделителю                    :Tabularize 
 " Plugin: tabular
 
-""" Автоматическое закрытие парных ({["'`                       
-" Plugin: autoclose
-let g:autoclose_vim_commentmode=1
-
-""" Поиск/преобразования (вариантов) слов                       :S, :Abolish, cr…
+""" Поиск/преобразования (вариантов) слов                       :S, :Abolish, cr… 
 " Plugin: abolish
 
-""" Undo tree                                                   U
+""" Undo tree                                                   U 
 " Plugin: undotree
 nnoremap U :UndotreeToggle<CR>
 let g:undotree_WindowLayout=4
 let g:undotree_DiffpanelHeight=6
 let g:undotree_SetFocusWhenToggle=1
 
-""" Поддержка Go                                                <Leader>…, :Go…
+""" Поддержка Go                                                <Leader>…, :Go… 
 " Plugin: vim-go
 let g:go_fmt_command = 'goimports'
 let g:go_fmt_fail_silently = 1
@@ -609,7 +607,7 @@ autocmd FileType go nmap <buffer> <nowait> <Leader>s     <Plug>(go-implements)
 autocmd FileType go nmap <buffer> <nowait> <Leader>i     <Plug>(go-info)
 autocmd FileType go nmap <buffer> <nowait> <Leader>e     <Plug>(go-rename)
 
-""" Поддержка Graphviz                                          <Leader>…, :Graphviz…
+""" Поддержка Graphviz                                          <Leader>…, :Graphviz… 
 " Plugin: WM Graphviz
 let g:WMGraphviz_output='png'
 
