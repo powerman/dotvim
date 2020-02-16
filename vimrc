@@ -169,8 +169,8 @@ set wildignore+=*/vendor/*
 set wildignore+=_Inline
 set wildignore+=_live
 set wildignore+=node_modules,bower_components
+set timeout ttimeout timeoutlen=100 ttimeoutlen=100
 set showcmd                             " показывать нажимаемые кнопки в командном режиме
-set notimeout ttimeout ttimeoutlen=100  " таймаут для одиночных кнопок, но не комбинаций
 set mouse=a                             " поддержка мыши во всех режимах
 set nomodeline                          " эта фича - дыра в безопасности, отключаем
 set shortmess+=I                        " не выводить заставку при старте vi
@@ -364,56 +364,120 @@ nmap QC Qac
 " Ручное определение конца текущего параграфа в текущем комментарии.
 autocmd FileType go nnoremap <buffer> Q} gq/\m\%#.*\(^\s*\/\/.*\)\@<=\(\n\s*\/\/.*\S.*\)*\(\n\s*\)*\ze/e+1<CR>
 
-""" Дописывание текущего слова:                                 <Tab>, <S-Tab> 
-" Plugin: supertab
+""" Дописывание текущего слова:                                 <Tab> 
+" Plugin: deoplete
+" Plugin: context_filetype
+" Plugin: go
 " Plugin: html5
-" Plugin: vim-go
 
-autocmd FileType markdown       setlocal omnifunc=
-autocmd FileType asciidoc       setlocal omnifunc=
-autocmd FileType gohtmltmpl     setlocal omnifunc=htmlcomplete#CompleteTags
-autocmd FileType gohtmltmpl     let b:html_omni_flavor="html5"
-" WARNING: Необходимо установить все omnifunc до этой точки!
+" Avoid slowdown at startup.
+let g:python3_host_prog = '/usr/bin/python3'
+let g:deoplete#enable_at_startup = 0
+call timer_start(1, 'DeopleteEnable', {})
+func DeopleteEnable(timer)
+    call deoplete#enable()
+endfunc
 
-" Use context-dependent completion type.
-" This mean it'll try each function from g:SuperTabCompletionContexts and
-" if no one return anything then use g:SuperTabContextDefaultCompletionType:
-" 1. s:ContextText will handle pathname completions anywhere.
-" 2. s:ContextText will handle module/class/object member completions
-"    outside of String/Comment (using &completefunc or &omnifunc, if any).
-" 3. ContextPlainText will handle String/Comment using default completion.
-" 4. s:ContextDiscover will handle everything using &completefunc, if any.
-" 5. Use default.
-let g:SuperTabDefaultCompletionType = 'context'
-let g:SuperTabCompletionContexts = ['s:ContextText', 'ContextPlainText', 's:ContextDiscover']
-let g:SuperTabContextDiscoverDiscovery = ['&completefunc:<c-x><c-u>']
-let g:SuperTabContextDefaultCompletionType = '<c-p>'
-function! ContextPlainText()
-    let synname = synIDattr(synID(line('.'), col('.') - 1, 1), 'name')
-    if synname =~# '\(String\|Comment\)'
-        exec 'let complType = "' . escape(g:SuperTabContextDefaultCompletionType, '<') . '"'
-        "vint: -ProhibitUsingUndeclaredVariable
-        return complType
-        "vint: +ProhibitUsingUndeclaredVariable
-    endif
+" Autocomplete style.
+call deoplete#custom#source('_',
+    \ 'matchers', ['matcher_head'])
+
+" <Tab> behaviour.
+call deoplete#custom#option('manual_menu', v:true)
+
+inoremap <silent><expr> <TAB>
+    \ pumvisible() ? "\<C-n>" :
+    \ <SID>check_back_space() ? <SID>smart_tab() :
+    \ <SID>manual_complete()
+
+function! s:check_back_space() abort
+    let col = col('.') - 1
+    return !col || getline('.')[col - 1]  =~# '\s'
 endfunction
-" Set &completefunc to try &omnifunc or default one if omni fails.
-autocmd FileType *
-    \ if &omnifunc != '' |
-    \   call SuperTabChain(&omnifunc, g:SuperTabContextDefaultCompletionType) |
-    \ else |
-    \   let b:SuperTabCompletionContexts = ['s:ContextText'] |
-    \ endif
 
-" autocmd FileType perl   let b:SuperTabNoCompleteAfter = ['^', '\k\@<!']
+function s:smart_tab()
+    let col = col('.') - 1
+    if &et || !col || getline('.')[:col] =~# '^\s*$'
+        return "\<Tab>"
+    endif
+    return ' '
+endfunction
 
-""" Сниппеты:                                                   <Tab> 
-" Plugin: snipMate
-let g:snips_author = 'Alex Efros'
+function! s:manual_complete()
+    call timer_start(100, {-> feedkeys("\<C-n>", 'in')})
+    return deoplete#manual_complete()
+endfunction
 
-""" Отступы/выравнивание:                                       <Tab> 
-" Plugin: Smart Tabs
-let g:ctab_disable_checkalign = 1 " эта непонятная фича ломает позицию курсора после <CR>
+" Configure file types.
+call deoplete#custom#var('omni', 'functions', {
+    \ 'css':         ['csscomplete#CompleteCSS'],
+    \ 'javascript':  ['javascriptcomplete#CompleteJS'],
+    \ })
+call deoplete#custom#var('omni', 'input_patterns', {
+    \ 'javascript':  ['[^. *\t]\.\w*', '^\w+', '\s\w+'],
+    \ 'css':         ['^\w+', '\s\w+'],
+    \ })
+" XXX Теоретически input_patterns должен быть более функционален, но он
+" почему-то глючит для Go, поэтому пока используем omni_patterns.
+"     \ 'go': ['[^. *\t]\.\w*', '^\w\+', '\s\w\+'],
+call deoplete#custom#option('omni_patterns', {
+    \ 'go':     ['[^. *\t]\.\w*'],
+    \ 'html':   ['<\w*', '</\w*', '<[^>]*\s[[:alnum:]-]*'],
+    \ 'xhtml':  ['<\w*', '</\w*', '<[^>]*\s[[:alnum:]-]*'],
+    \ 'xml':    ['<\w*', '</\w*', '<[^>]*\s[[:alnum:]-]*'],
+    \ })
+
+if !exists('g:context_filetype#same_filetypes')
+    let g:context_filetype#same_filetypes = {}
+endif
+let g:context_filetype#same_filetypes.gohtmltmpl = 'html'
+
+if !exists('g:context_filetype#filetypes')
+    let g:context_filetype#filetypes = {}
+endif
+let g:context_filetype#filetypes.gohtmltmpl = [
+    \ {
+    \   'start':     '<script\%( [^>]*\)\? type="text/javascript"\%( [^>]*\)\?>',
+    \   'end':       '</script>',
+    \   'filetype':  'javascript',
+    \ },
+    \ {
+    \   'start':     '<script\%( [^>]*\)\? type="text/coffeescript"\%( [^>]*\)\?>',
+    \   'end':       '</script>',
+    \   'filetype':  'coffee',
+    \ },
+    \ {
+    \   'start':     '<script\%( [^>]*\)\?>',
+    \   'end':       '</script>',
+    \   'filetype':  'javascript',
+    \ },
+    \ {
+    \   'start':     '<style\%( [^>]*\)\?>',
+    \   'end':       '</style>',
+    \   'filetype':  'css',
+    \ },
+    \ {
+    \   'start':     '<[^>]\+ style=\([''"]\)',
+    \   'end':       '\1',
+    \   'filetype':  'css',
+    \ },
+    \ ]
+
+autocmd FileType gohtmltmpl     let b:html_omni_flavor="html5"
+
+""" Сниппеты:                                                   <S-Tab> 
+" Plugin: UltiSnips
+" Plugin: go
+let g:UltiSnipsExpandTrigger='<S-Tab>'
+let g:UltiSnipsListSnippets=''
+let g:UltiSnipsJumpForwardTrigger='<Tab>'
+let g:UltiSnipsJumpBackwardTrigger='<S-Tab>'
+let g:UltiSnipsEditSplit = 'tabdo'
+
+" Used in some snippets.
+let g:snips_author = 'powerman'
+
+autocmd FileType gohtmltmpl UltiSnipsAddFiletypes html
 
 """ Проверка кода на ошибки при сохранении                      <F11>, <F12> 
 " Plugin: syntastic
@@ -596,6 +660,7 @@ let g:go_build_tags = 'integration'
 let g:go_metalinter_command = 'golangci-lint'
 let g:go_rename_command = 'gopls'
 let g:go_gopls_fuzzy_matching = 0
+let g:go_gopls_deep_completion = 0
 autocmd FileType go nmap <buffer> <nowait> <Leader>r     <Plug>(go-run)
 autocmd FileType go nmap <buffer> <nowait> <Leader>b     <Plug>(go-build)
 autocmd FileType go nmap <buffer> <nowait> <Leader>t     <Plug>(go-test)
