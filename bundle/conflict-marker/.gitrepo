@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/rhysd/conflict-marker.vim
+	branch = master
+	commit = 495f700bd73d45e5b92f7b5839604556e40b7ae8
+	parent = e634e9aaaf25f4f96122adccd973279b48afbcdb
+	method = merge
+	cmdver = 0.4.1

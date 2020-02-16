@@ -1,0 +1,5 @@
+*.lock
+.vim-flavor
+.*.sw?
+.sw?
+tags
