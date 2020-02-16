@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/roxma/nvim-yarp.git
+	branch = master
+	commit = 83c6f4e61aa73e2a53796ea6690fb7e5e64db50a
+	parent = 63a3d0149580ea4d0d7b0628802869eafbff68dc
+	method = merge
+	cmdver = 0.4.1
