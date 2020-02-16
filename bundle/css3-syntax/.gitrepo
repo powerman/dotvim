@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/hail2u/vim-css3-syntax.git
+	branch = master
+	commit = c975bde063508b5755fa4539ab767dfd25f1e75a
+	parent = 8e533444758f238215128bc0220629da7d24fdee
+	method = merge
+	cmdver = 0.4.1
