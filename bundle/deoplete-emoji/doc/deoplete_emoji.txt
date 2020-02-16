@@ -1,0 +1,63 @@
+*deoplete_emoji.txt* Deoplete source for emoji codes
+
+Author: Filip Szymański <fszymanski.pl@gmail.com>
+
+==============================================================================
+CONTENTS                                             *deoplete-emoji-contents*
+
+  1. Introduction                               |deoplete-emoji-introduction|
+  2. Configuration                              |deoplete-emoji-configuration|
+  3. License                                    |deoplete-emoji-license|
+  4. Bugs                                       |deoplete-emoji-bugs|
+  5. Contributing                               |deoplete-emoji-contributing|
+
+==============================================================================
+INTRODUCTION                                     *deoplete-emoji-introduction*
+
+This deoplete[1] source offers asynchronous completion of emoji codes. You
+can add emoji to your document by writing |:EMOJICODE:|. For a full list
+of available emoji and codes, see emoji table[2].
+
+==============================================================================
+CONFIGURATION                                   *deoplete-emoji-configuration*
+
+The |deoplete#custom#source()| function can be used to change the |filetypes|
+for this source.
+>
+  call deoplete#custom#source('emoji', 'filetypes', ['rst'])
+<
+Default: ['gitcommit', 'markdown']
+
+By default, selecting a suggestion from the pop-up will insert a text
+representation of the emoji. To insert the actual emoji, ensure that your
+terminal supports emoji fonts and that a suitable font is installed.
+Once that's done, enable the `converter_emoji` converter like this:
+>
+  call deoplete#custom#source('emoji', 'converters', ['converter_emoji'])
+<
+==============================================================================
+LICENSE                                               *deoplete-emoji-license*
+
+MIT
+
+==============================================================================
+BUGS                                                     *deoplete-emoji-bugs*
+
+If you find a bug please create an issue on GitHub.
+
+https://github.com/fszymanski/deoplete-emoji/issues
+
+==============================================================================
+CONTRIBUTING                                     *deoplete-emoji-contributing*
+
+Think you can make this plugin better? Awesome. Fork it on GitHub and create
+a pull request.
+
+https://github.com/fszymanski/deoplete-emoji
+
+==============================================================================
+
+[1] https://github.com/Shougo/deoplete.nvim
+[2] https://unicodey.com/emoji-data/table.htm
+
+ vim: tw=78 ts=8 ft=help norl
