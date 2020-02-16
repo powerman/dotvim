@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/roxma/vim-hug-neovim-rpc.git
+	branch = master
+	commit = 701ecbb0a1f904c0b44c6beaafef35e1de998a94
+	parent = 70b84634250d2e8fea3b22e2cdb1922314dd04a3
+	method = merge
+	cmdver = 0.4.1
