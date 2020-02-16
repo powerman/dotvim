@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/Shougo/context_filetype.vim.git
+	branch = master
+	commit = cbe3c0069e6a13bd9bfcd9739c0770f7fd4b4ef4
+	parent = bccf4904506f05a6fa40d58a257888f9f6383a26
+	method = merge
+	cmdver = 0.4.1
