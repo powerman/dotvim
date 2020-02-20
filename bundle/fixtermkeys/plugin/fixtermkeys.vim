@@ -1,9 +1,9 @@
 " Maintainer: Alex Efros <powerman-asdf@ya.ru>
-" Version: 1.0
-" Last Modified: Feb 16, 2020
+" Version: 1.1
+" Last Modified: Feb 21, 2020
 " License: MIT
 " URL: https://github.com/powerman/vim-plugin-fixtermkeys
-" Description: Fix terminal Ctrl Alt Shift modifiers for keys like Tab CR Esc Space BS cursor and others
+" Description: Fix terminal Ctrl Alt Shift modifiers for keys like Tab CR Space BS cursor and others
 "
 " Based on http://www.leonerd.org.uk/hacks/vim/fixtermkeys.html
 
@@ -47,7 +47,7 @@ endfunction
 
 call s:CSIu_Key('Tab',    9)
 call s:CSIu_Key('CR',    13)
-call s:CSIu_Key('Esc',   27)
+" call s:CSIu_Key('Esc',   27)
 call s:CSIu_Key('Space', 32)
 call s:CSIu_Key('BS',   127)
 

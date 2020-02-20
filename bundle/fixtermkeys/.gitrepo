@@ -6,7 +6,7 @@
 [subrepo]
 	remote = https://github.com/powerman/vim-plugin-fixtermkeys
 	branch = master
-	commit = 5e7615176cfc65aed6f38f436f32d8b79aa90618
-	parent = 37458b013fa8f826fd64c95ff00ef5e641722359
+	commit = 3f838af4afb6242d1247b21ba44cbfece47d0dbe
+	parent = e08e67bebb4d001e94b9042022e898a2284f2373
 	method = merge
 	cmdver = 0.4.1

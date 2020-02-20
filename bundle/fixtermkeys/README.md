@@ -1,6 +1,6 @@
 # fixtermkeys
 
-Fix terminal Ctrl Alt Shift modifiers for keys like Tab CR Esc Space BS cursor and others.
+Fix terminal Ctrl Alt Shift modifiers for keys like Tab CR Space BS cursor and others.
 
 Based on http://www.leonerd.org.uk/hacks/vim/fixtermkeys.html.
 
@@ -102,7 +102,8 @@ URxvt.keysym.M-C-S-Page_Down  : \033[6;8~
 
 !// See http://www.leonerd.org.uk/hacks/fixterms/
 
-! URxvt.keysym.S-Tab            : \033[Z
+!// S-Tab has own code: \033[Z
+! URxvt.keysym.S-Tab            : \033[9;2u
 URxvt.keysym.M-Tab            : \033[9;3u
 URxvt.keysym.M-S-Tab          : \033[9;4u
 URxvt.keysym.C-Tab            : \033[9;5u
@@ -126,10 +127,12 @@ URxvt.keysym.C-S-Escape       : \033[27;6u
 URxvt.keysym.M-C-Escape       : \033[27;7u
 URxvt.keysym.M-C-S-Escape     : \033[27;8u
 
-URxvt.keysym.S-space          : \033[32;2u
+!// S-space is often pressed occasionally while typing.
+! URxvt.keysym.S-space          : \033[32;2u
 URxvt.keysym.M-space          : \033[32;3u
 URxvt.keysym.M-S-space        : \033[32;4u
-URxvt.keysym.C-space          : \033[32;5u
+!// C-space has own code: ^@ (Nul)
+! URxvt.keysym.C-space          : \033[32;5u
 URxvt.keysym.C-S-space        : \033[32;6u
 URxvt.keysym.M-C-space        : \033[32;7u
 URxvt.keysym.M-C-S-space      : \033[32;8u
@@ -137,7 +140,8 @@ URxvt.keysym.M-C-S-space      : \033[32;8u
 URxvt.keysym.S-BackSpace      : \033[127;2u
 URxvt.keysym.M-BackSpace      : \033[127;3u
 URxvt.keysym.M-S-BackSpace    : \033[127;4u
-URxvt.keysym.C-BackSpace      : \033[127;5u
+!// C-BackSpace has own code: ^H
+! URxvt.keysym.C-BackSpace      : \033[127;5u
 URxvt.keysym.C-S-BackSpace    : \033[127;6u
 URxvt.keysym.M-C-BackSpace    : \033[127;7u
 URxvt.keysym.M-C-S-BackSpace  : \033[127;8u
