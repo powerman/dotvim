@@ -124,7 +124,7 @@ call s:Mkdir(&viewdir)
 call s:Mkdir(&undodir)
 " - табы и отступы
 set tabstop=8                           " стандартный размер таба
-set noexpandtab                         " табы пробелами автоматически НЕ заменять
+set expandtab                           " табы автоматически заменять пробелами
 set shiftwidth=4                        " величина отступа (indent)
 set shiftround                          " выравнивать отступы по shiftwidth
 set softtabstop=4                       " сдвиг при нажатии таба (вставляет и табы и пробелы)
@@ -136,6 +136,7 @@ set preserveindent                      "   1) autoindent; 2) изменении
 inoremap #      X#
 set formatoptions+=roj                  " продолжать комментарий на следующей строке
 set formatoptions+=n                    " авто-перенос длинных строк внутри списков
+set nojoinspaces                        " не вставлять 2 пробела после . при слиянии строк по J
 " - вывод текста
 set textwidth=74                        " граница для переформатирования и авто-переноса
 set formatoptions+=l                    " отключить авто-перенос строк которые УЖЕ длиннее textwidth
@@ -182,7 +183,9 @@ nnoremap ]s     ]S
 nnoremap [s     [S
 " - copy&paste в стиле винды
 set keymodel=startsel                   " Shift со стрелками начинает выделение текста
-"   ... выделенный текст копируется автоматически, Ctrl+Insert просто снимает выделение
+"   ... выделенный текст копируется автоматически
+vnoremap <S-Delete>     <Delete>
+"   ... выделенный текст копируется автоматически Ctrl+Insert просто снимает выделение
 vnoremap <C-Insert>     <Esc>
 " - подсветка синтаксиса
 set synmaxcol=1000                      " не подсвечивать слишком длинные строчки
@@ -207,6 +210,13 @@ execute pathogen#infect()
 " Добавляет поддержку тегов, if/else/endif, окружающих строку кавычек, etc.
 " Можно добавлять поддержку для новых типов файлов через b:match_words.
 packadd! matchit
+
+""" Поддержка Ctrl/Alt/Shift для Tab/CR/Esc/Space/BS/arrows/…   
+" Plugin: fixtermkeys
+map     <C-H>   <C-BS>
+map!    <C-H>   <C-BS>
+map     <Nul>   <C-Space>
+map!    <Nul>   <C-Space>
 
 """ Поддержка командного режима в русской раскладке             
 " Plugin: ruscmd
@@ -296,6 +306,15 @@ inoremap <F10>  <Esc>:qa<CR>
 nnoremap <F10>  :qa<CR>
 vnoremap <F10>  <Esc>:qa<CR>
 
+""" Сдвиг текста без потери выделения:                          <, > 
+vnoremap < <gv
+vnoremap > >gv
+
+""" Удалить предыдущее слово:                                   <Ctrl-BS> 
+inoremap <C-BS>         <C-O>db
+nnoremap <C-BS>         db
+vnoremap <C-BS>         <Esc>db
+
 """ Скроллирование текста без смещения курсора:                 <Ctrl>+Arrows 
 inoremap <C-Up>         <C-O><C-Y>
 inoremap <C-Down>       <C-O><C-E>
@@ -336,7 +355,7 @@ function! s:SearchTag(forward)
     endif
 endfunction
 
-""" За|Рас-комментирование:                                     #, <Ctrl>+C 
+""" За|Рас-комментирование:                                     #, <Ctrl-C> 
 " Plugin: tcomment
 " TODO Пусть работает, пока работает. А потом придётся написать свой плагин,
 " т.к. простых реализаций нужной мне тривиальной функциональности пока нет.
@@ -397,7 +416,7 @@ endfunction
 
 function s:smart_tab()
     let col = col('.') - 1
-    if &et || !col || getline('.')[:col] =~# '^\s*$'
+    if &expandtab || !col || getline('.')[:col] =~# '^\s*$'
         return "\<Tab>"
     endif
     return ' '
@@ -465,7 +484,7 @@ let g:context_filetype#filetypes.gohtmltmpl = [
 
 autocmd FileType gohtmltmpl     let b:html_omni_flavor="html5"
 
-""" Сниппеты:                                                   <S-Tab> 
+""" Сниппеты:                                                   <Shift-Tab> 
 " Plugin: UltiSnips
 " Plugin: go
 let g:UltiSnipsExpandTrigger='<S-Tab>'
@@ -531,18 +550,12 @@ autocmd BufWinEnter *                   syntax sync fromstart
 
 """ Стиль форматирования разных типов файлов                    
 " - отключить форматирование кода (оставить форматирование комментариев)
-autocmd FileType perl                   setlocal formatoptions-=t
-autocmd FileType vim,sh,zsh,javascript  setlocal formatoptions-=t
+autocmd FileType sh,zsh                 setlocal formatoptions-=t
+autocmd FileType perl,vim,javascript    setlocal formatoptions-=t
 autocmd FileType limbo,c,cpp            setlocal formatoptions-=t
 autocmd FileType html                   setlocal formatoptions-=t
-" - большой отступ стимулирует уменьшать сложность/вложенность кода
-autocmd FileType sh,zsh,javascript      setlocal softtabstop=0 shiftwidth=8
-autocmd FileType limbo,c,cpp            setlocal softtabstop=0 shiftwidth=8
-autocmd FileType go                     setlocal softtabstop=0 shiftwidth=0
+" - включить автоматическое переформатирование отступов
 autocmd FileType go                     runtime indent/go.vim
-" - пока выравниваем всё пробелами
-autocmd FileType perl                   setlocal expandtab
-autocmd FileType migrate                setlocal expandtab
 " - объявить блочные элементы разметки комментариями и запретить их форматировать по gq
 "   * двухстрочные заголовки 1-4 уровней не поддерживаются
 "   * заголовки параграфа поддерживаются только начинающиеся на большую букву
@@ -561,20 +574,11 @@ autocmd FileType migrate                setlocal expandtab
 "       **** второй элемент списка глубиной 4
 " TODO Альтернативное решение: https://github.com/dahu/vim-asciidoc
 autocmd FileType asciidoc               setlocal comments=://,:==,:****,:____,fb:-,fb:*,fb:**,fb:***,fb:****,fb:*****,fb:.,fb:..,fb:...,fb:....,fb:.....,:[,:--,:+,:.A,:.B,:.C,:.D,:.E,:.F,:.G,:.H,:.I,:.J,:.K,:.L,:.M,:.N,:.O,:.P,:.Q,:.R,:.S,:.T,:.U,:.V,:.W,:.X,:.Y,:.Z,:.А,:.Б,:.В,:.Г,:.Д,:.Е,:.Ё,:.Ж,:.З,:.И,:.Й,:.К,:.Л,:.М,:.Н,:.О,:.П,:.Р,:.С,:.Т,:.У,:.Ф,:.Х,:.Ц,:.Ч,:.Ш,:.Щ,:.Ъ,:.Ы,:.Ь,:.Э,:.Ю,:.Я
-autocmd FileType asciidoc               setlocal formatoptions-=c
-autocmd FileType asciidoc               setlocal formatoptions-=r
-autocmd FileType asciidoc               setlocal formatoptions-=o
+autocmd FileType asciidoc               setlocal formatoptions-=c formatoptions-=r formatoptions-=o
 " - авто-перенос длинных строк в списках
 autocmd FileType asciidoc               setlocal formatlistpat=^\\s*\\(-\\\\|\\*\\+\\\\|\\.\\+\\\\|[A-Za-z]\\.\\\\|[0-9]\\+\\.\\)\\s\\+
-" - только пробелы в markdown
-autocmd FileType markdown               setlocal expandtab
-" - маленький отступ в html
-autocmd FileType html,html.tmpl         setlocal softtabstop=4 shiftwidth=4 expandtab
-autocmd FileType gohtmltmpl             setlocal softtabstop=4 shiftwidth=4 expandtab
-" - маленький отступ в vim
-autocmd FileType vim                    setlocal softtabstop=4 shiftwidth=4 expandtab
-" - вернуть отступ в шаблонах nginx
-autocmd FileType gonginxtmpl            setlocal softtabstop=8 shiftwidth=8 noexpandtab
+" - отступ табами
+autocmd FileType go,nginx,gonginxtmpl   setlocal softtabstop=0 shiftwidth=0 noexpandtab
 " - коммиты в git
 autocmd FileType gitcommit              setlocal textwidth=72
 " - переформатирование при сохранении sh/bash
@@ -614,7 +618,7 @@ nnoremap ;      :
 " Require: /usr/bin/ack http://betterthangrep.com/ (emerge sys-apps/ack)
 nnoremap <Leader>/      :Ack!<Space>
 
-""" HTML Zen Coding                                             <C-E>, <C-F> 
+""" HTML Zen Coding                                             <Ctrl-E>, <Ctrl-F> 
 " Plugin: Sparkup
 let g:sparkupNextMapping = '<C-F>'
 
