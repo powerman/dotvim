@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/cometsong/ferm.vim.git
+	branch = master
+	commit = e05eb6f10a2adfd657c17119a0cd1ba9a3f773a4
+	parent = 9463aa073e53ef695a55a26ba41e23546b001e12
+	method = merge
+	cmdver = 0.4.1
