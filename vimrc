@@ -170,7 +170,7 @@ set wildignore+=*/vendor/*
 set wildignore+=_Inline
 set wildignore+=_live
 set wildignore+=node_modules,bower_components
-set timeout ttimeout timeoutlen=100 ttimeoutlen=100
+set notimeout ttimeout ttimeoutlen=100  " таймаут для одиночных кнопок, но не комбинаций
 set showcmd                             " показывать нажимаемые кнопки в командном режиме
 set mouse=a                             " поддержка мыши во всех режимах
 set nomodeline                          " эта фича - дыра в безопасности, отключаем
@@ -211,12 +211,13 @@ execute pathogen#infect()
 " Можно добавлять поддержку для новых типов файлов через b:match_words.
 packadd! matchit
 
-""" Поддержка Ctrl/Alt/Shift для Tab/CR/Esc/Space/BS/arrows/…   
+""" Поддержка Ctrl/Alt/Shift для Tab/CR/Space/BS/arrows/…       
 " Plugin: fixtermkeys
 map     <C-H>   <C-BS>
 map!    <C-H>   <C-BS>
 map     <Nul>   <C-Space>
 map!    <Nul>   <C-Space>
+set timeout timeoutlen=1000
 
 """ Поддержка командного режима в русской раскладке             
 " Plugin: ruscmd
@@ -270,6 +271,7 @@ vnoremap <F2>   <Esc>:w<CR>gv
 " nnoremap <F3>   :tabfind<Space>
 " vnoremap <F3>   <Esc>:tabfind<Space>
 " Plugin: CtrlP
+inoremap <F3>   <Esc>:CtrlP<CR>
 let g:ctrlp_map = '<F3>'
 let g:ctrlp_match_window = 'bottom,order:ttb,min:20,max:20,results:100'
 let g:ctrlp_show_hidden = 1
