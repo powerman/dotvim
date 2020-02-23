@@ -38,6 +38,12 @@ hi link zshVariableDef Identifier
 """ markdown
 hi link markdownCode Identifier
 hi link markdownCodeBlock Identifier
+""" ferm
+hi fermMatch                     ctermfg=6    ctermbg=NONE cterm=NONE
+hi fermMatchSrc                  ctermfg=36   ctermbg=NONE cterm=NONE
+hi fermMatchDst                  ctermfg=39   ctermbg=NONE cterm=NONE
+hi fermModuleName                ctermfg=10   ctermbg=NONE cterm=NONE
+hi fermString                    ctermfg=9    ctermbg=NONE cterm=NONE
 """ go
 hi goPredefinedIdentifiers       ctermfg=3    ctermbg=NONE cterm=bold      guifg=#884400 guibg=NONE    gui=bold
 hi link goReceiverType goTypeName
