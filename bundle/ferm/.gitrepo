@@ -6,7 +6,7 @@
 [subrepo]
 	remote = git@github.com:powerman/ferm.vim.git
 	branch = master
-	commit = bb87b26a9d7d7c94228339b67f0604304370d091
-	parent = 886c813031cdea364066914e461c016e5faf0a6d
+	commit = 689902d8d29fde93a346e25c8e4daa8675231739
+	parent = 7c06fc2c920064a72a6ad0e0a38e34c7bfd94615
 	method = merge
 	cmdver = 0.4.1

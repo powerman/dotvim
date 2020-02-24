@@ -64,8 +64,8 @@ endif
 "============================================================================
 
 syntax keyword fermMatch protocol proto fragment syn
-syntax keyword fermMatchSrc interface saddr sport
-syntax keyword fermMatchDst outerface daddr dport
+syntax keyword fermMatchSrc interface saddr sport sports
+syntax keyword fermMatchDst outerface daddr dport dports
 
 syntax match fermMatchModule contains=fermModuleName "mod\(ule\)\?\s\+\w\+"
 
