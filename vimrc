@@ -404,7 +404,7 @@ call deoplete#custom#source('_',
     \ 'matchers', ['matcher_head'])
 
 " <Tab> behaviour.
-call deoplete#custom#option('manual_menu', v:true)
+call deoplete#custom#option('auto_complete_popup', 'manual')
 
 inoremap <silent><expr> <TAB>
     \ pumvisible() ? "\<C-n>" :
