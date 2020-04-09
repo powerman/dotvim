@@ -234,12 +234,6 @@ let g:autosess_dir = '~/.cache/vim/autosess/'
 """ Прозрачное редактирование файлов зашифрованных GnuPG        
 " Plugin: vim-gnupg
 
-" Fix "missing" first 2 symbols on line 2 after opening new file.
-autocmd User GnuPG call timer_start(1, 'FixRedraw', {})
-func FixRedraw(timer)
-    redraw!
-endfunc
-
 """ Ускоренное открытие больших файлов                          
 " Plugin: largefile
 let g:LargeFile = 6                     " in MB, default value is 20
@@ -862,6 +856,12 @@ endfunc
 
 """ Unsorted                                                    
 let g:markdown_fenced_languages = ['go']
+
+" Fix "missing" first 2 symbols on line 2 after opening new file.
+autocmd BufReadPost,FileReadPost *      call timer_start(1, 'FixRedraw', {})
+func FixRedraw(timer)
+    redraw!
+endfunc
 
 " set re=1 " speedup large asciidoc files a LOT!
 
