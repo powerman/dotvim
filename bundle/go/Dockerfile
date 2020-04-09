@@ -1,4 +1,4 @@
-FROM golang:1.13
+FROM golang:1.14.0-buster
 
 RUN apt-get update -y && \
   apt-get install -y build-essential curl git libncurses5-dev python3-pip && \
@@ -14,6 +14,7 @@ COPY . /vim-go/
 WORKDIR /vim-go
 
 RUN scripts/install-vim vim-8.0
+RUN scripts/install-vim vim-8.2
 RUN scripts/install-vim nvim
 
 ENTRYPOINT ["make"]

@@ -162,6 +162,13 @@ function! s:system(cmd, ...) abort
       set shell=/bin/sh shellredir=>%s\ 2>&1 shellcmdflag=-c
   endif
 
+  if go#util#IsWin()
+    if executable($COMSPEC)
+      let &shell = $COMSPEC
+      set shellcmdflag=/C
+    endif
+  endif
+
   try
     return call('system', [a:cmd] + a:000)
   finally
@@ -552,7 +559,7 @@ function! go#util#SetEnv(name, value) abort
 endfunction
 
 function! go#util#ClearHighlights(group) abort
-  if exists('*prop_remove')
+  if has('textprop')
     " the property type may not exist when syntax highlighting is not enabled.
     if empty(prop_type_get(a:group))
       return
@@ -610,12 +617,11 @@ endfunction
 " pos should be a list of 3 element lists. The lists should be [line, col,
 " length] as used by matchaddpos().
 function! go#util#HighlightPositions(group, pos) abort
-  if exists('*prop_add')
+  if has('textprop')
     for l:pos in a:pos
       " use a single line prop by default
       let l:prop = {'type': a:group, 'length': l:pos[2]}
 
-      " specify end line and column if needed.
       let l:line = getline(l:pos[0])
 
       " l:max is the 1-based index within the buffer of the first character after l:pos.
@@ -625,6 +631,7 @@ function! go#util#HighlightPositions(group, pos) abort
         " https://github.com/vim/vim/issues/5334) is available.
         let l:end_lnum = byte2line(l:max)
 
+        " specify end line and column if needed.
         if l:pos[0] != l:end_lnum
           let l:end_col = l:max - line2byte(l:end_lnum)
           let l:prop = {'type': a:group, 'end_lnum': l:end_lnum, 'end_col': l:end_col}
@@ -650,7 +657,6 @@ function! go#util#HighlightPositions(group, pos) abort
     return s:matchaddpos(a:group, a:pos)
   endif
 endfunction
-
 
 " s:matchaddpos works around matchaddpos()'s limit of only 8 positions per
 " call by calling matchaddpos() with no more than 8 positions per call.
