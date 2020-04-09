@@ -356,7 +356,8 @@ endfunction
 " TODO Пусть работает, пока работает. А потом придётся написать свой плагин,
 " т.к. простых реализаций нужной мне тривиальной функциональности пока нет.
 " Либо форкнуть https://github.com/tpope/vim-commentary
-let g:tcomment#options = {'col': 1}
+autocmd FileType *                      let b:tcomment_options = {'col': 1}
+autocmd FileType go                     let b:tcomment_options = {}
 set commentstring=#\ %s
 autocmd FileType fluxbox                setlocal commentstring=#\ %s
 autocmd FileType fluxkeys               setlocal commentstring=!%s
