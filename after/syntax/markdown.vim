@@ -24,7 +24,7 @@ syn match markdownEscape "\\[][\\`*_{}()<>#+.!-]" contains=markdownEscapeDelimit
 syn match markdownEscapeDelimiter "\\\@<!\\" contained conceal
 
 " Fix bold/italic start/end position.
-syn clear markdownItalic markdownBold markdownBoldItalic
+syn clear markdownItalic
 syn region markdownItalic matchgroup=markdownItalicDelimiter start="\(^\|\W\@<=\)\*\S\@=" end="\S\@<=\*\(\W\@=\|$\)" keepend contains=markdownLineStart concealends
 syn region markdownItalic matchgroup=markdownItalicDelimiter start="\(^\|\W\@<=\)_\S\@=" end="\S\@<=_\(\W\@=\|$\)" keepend contains=markdownLineStart concealends
 syn region markdownBold matchgroup=markdownBoldDelimiter start="\(^\|\W\@<=\)\*\*\S\@=" end="\S\@<=\*\*\|\*\*\S\@=" keepend contains=markdownLineStart,markdownItalic concealends
