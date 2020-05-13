@@ -778,7 +778,8 @@ autocmd BufNewFile,BufRead */vcprompt-fast/*.go let b:syntastic_go_go_build_args
 """ Улучшение определения типа файлов                           
 autocmd BufRead */.fluxbox/keys                 set ft=fluxkeys
 autocmd BufRead */.opera/cache*                 set ft=html
-autocmd BufNewFile,BufRead *nginx*/*            set ft=nginx
+autocmd BufNewFile,BufRead *nginx*/*.conf       set ft=nginx
+autocmd BufNewFile,BufRead *nginx*/sites-*/*    set ft=nginx
 autocmd BufNewFile,BufRead TODO*,BUG*,README*   set ft=asciidoc
 autocmd BufNewFile,BufRead *.txt,*.adoc         set ft=asciidoc
 autocmd BufNewFile,BufRead *.md                 set ft=markdown
