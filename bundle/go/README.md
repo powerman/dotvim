@@ -1,4 +1,6 @@
-# vim-go [![Build Status](http://img.shields.io/travis/fatih/vim-go.svg?style=flat-square)](https://travis-ci.org/fatih/vim-go)
+# vim-go [![Build Status](http://img.shields.io/travis/fatih/vim-go.svg?style=flat-square)](https://travis-ci.org/fatih/vim-go) [![GitHub Actions Status](https://github.com/fatih/vim-go/workflows/test/badge.svg)](https://github.com/fatih/vim-go/actions)
+
+
 
 <p align="center">
   <img style="float: right;" src="assets/vim-go.png" alt="Vim-go logo"/>
@@ -35,7 +37,7 @@ This plugin adds Go language support for Vim, with the following main features:
 
 ## Install
 
-vim-go requires at least Vim 8.0.1453 or Neovim 0.3.1.
+vim-go requires at least Vim 8.0.1453 or Neovim 0.4.0.
 
 The [**latest stable release**](https://github.com/fatih/vim-go/releases/latest) is the
 recommended version to use. If you choose to use the master branch instead,

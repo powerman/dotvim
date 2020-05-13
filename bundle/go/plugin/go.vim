@@ -12,14 +12,14 @@ function! s:checkVersion() abort
   let l:unsupported = 0
   if go#config#VersionWarning() != 0
     if has('nvim')
-      let l:unsupported = !has('nvim-0.3.2')
+      let l:unsupported = !has('nvim-0.4.0')
     else
       let l:unsupported = !has('patch-8.0.1453')
     endif
 
     if l:unsupported == 1
       echohl Error
-      echom "vim-go requires at least Vim 8.0.1453 or Neovim 0.3.2, but you're using an older version."
+      echom "vim-go requires at least Vim 8.0.1453 or Neovim 0.4.0, but you're using an older version."
       echom "Please update your Vim for the best vim-go experience."
       echom "If you really want to continue you can set this to make the error go away:"
       echom "    let g:go_version_warning = 0"
@@ -45,7 +45,6 @@ let s:packages = {
       \ 'errcheck':      ['github.com/kisielk/errcheck@master'],
       \ 'fillstruct':    ['github.com/davidrjenni/reftools/cmd/fillstruct@master'],
       \ 'godef':         ['github.com/rogpeppe/godef@master'],
-      \ 'gogetdoc':      ['github.com/zmb3/gogetdoc@master'],
       \ 'goimports':     ['golang.org/x/tools/cmd/goimports@master'],
       \ 'golint':        ['golang.org/x/lint/golint@master'],
       \ 'gopls':         ['golang.org/x/tools/gopls@latest', {}, {'after': function('go#lsp#Restart', [])}],

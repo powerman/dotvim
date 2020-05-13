@@ -898,19 +898,80 @@ function! go#lsp#Hover(fname, line, col, handler) abort
 endfunction
 
 function! s:hoverHandler(next, msg) abort dict
-  try
-    let l:content = split(a:msg.contents.value, '; ')
-    if len(l:content) > 1
-      let l:curly = stridx(l:content[0], '{')
-      let l:content = extend([l:content[0][0:l:curly]], map(extend([l:content[0][l:curly+1:]], l:content[1:]), '"\t" . v:val'))
-      let l:content[len(l:content)-1] = '}'
-    endif
+  if a:msg is v:null || !has_key(a:msg, 'contents')
+    return
+  endif
 
-    let l:args = [l:content]
+  try
+    let l:value = json_decode(a:msg.contents.value)
+    let l:args = [l:value.signature]
     call call(a:next, l:args)
   catch
     " TODO(bc): log the message and/or show an error message.
   endtry
+endfunction
+
+function! go#lsp#Doc() abort
+  let l:fname = expand('%:p')
+  let [l:line, l:col] = go#lsp#lsp#Position()
+
+  call go#lsp#DidChange(l:fname)
+
+  let l:lsp = s:lspfactory.get()
+  let l:msg = go#lsp#message#Hover(l:fname, l:line, l:col)
+  let l:state = s:newHandlerState('doc')
+  let l:resultHandler = go#promise#New(function('s:docFromHoverResult', [], l:state), 10000, '')
+  let l:state.handleResult = l:resultHandler.wrapper
+  let l:state.error = l:resultHandler.wrapper
+  call l:lsp.sendMessage(l:msg, l:state)
+  return l:resultHandler.await()
+endfunction
+
+function! s:docFromHoverResult(msg) abort dict
+  if type(a:msg) is type('')
+    return [a:msg, 1]
+  endif
+
+  if a:msg is v:null || !has_key(a:msg, 'contents')
+    return ['Undocumented', 0]
+  endif
+
+  let l:value = json_decode(a:msg.contents.value)
+  let l:doc = l:value.fullDocumentation
+  if len(l:doc) is 0
+    let l:doc = 'Undocumented'
+  endif
+  let l:content = printf("%s\n\n%s", l:value.signature, l:doc)
+  return [l:content, 0]
+endfunction
+
+function! go#lsp#DocLink() abort
+  let l:fname = expand('%:p')
+  let [l:line, l:col] = go#lsp#lsp#Position()
+
+  call go#lsp#DidChange(l:fname)
+
+  let l:lsp = s:lspfactory.get()
+  let l:msg = go#lsp#message#Hover(l:fname, l:line, l:col)
+  let l:state = s:newHandlerState('doc url')
+  let l:resultHandler = go#promise#New(function('s:docLinkFromHoverResult', [], l:state), 10000, '')
+  let l:state.handleResult = l:resultHandler.wrapper
+  let l:state.error = l:resultHandler.wrapper
+  call l:lsp.sendMessage(l:msg, l:state)
+  return l:resultHandler.await()
+endfunction
+
+function! s:docLinkFromHoverResult(msg) abort dict
+  if type(a:msg) is type('')
+    return [a:msg, 1]
+  endif
+
+  if a:msg is v:null || !has_key(a:msg, 'contents')
+    return
+  endif
+
+  let l:doc = json_decode(a:msg.contents.value)
+  return [l:doc.link, '']
 endfunction
 
 function! go#lsp#Info(showstatus)
@@ -973,13 +1034,19 @@ function! s:infoDefinitionHandler(next, showstatus, msg) abort dict
     let l:state = s:newHandlerState('')
   endif
 
-  let l:state.handleResult = funcref('s:hoverHandler', [a:next], l:state)
+  let l:state.handleResult = a:next
   let l:state.error = funcref('s:noop')
   return l:lsp.sendMessage(l:msg, l:state)
 endfunction
 
-function! s:info(show, content) abort dict
-  let l:content = s:infoFromHoverContent(a:content)
+function! s:info(show, msg) abort dict
+  if a:msg is v:null || !has_key(a:msg, 'contents')
+    return
+  endif
+
+  let l:value = json_decode(a:msg.contents.value)
+  let l:content = [l:value.singleLine]
+  let l:content = s:infoFromHoverContent(l:content)
 
   if a:show
     call go#util#ShowInfo(l:content)
@@ -1326,7 +1393,7 @@ function! go#lsp#Format() abort
 
   let l:lsp = s:lspfactory.get()
 
-  let l:state = s:newHandlerState('format')
+  let l:state = s:newHandlerState('')
   let l:handleFormat = go#promise#New(function('s:handleFormat', [], l:state), 10000, '')
   let l:state.handleResult = l:handleFormat.wrapper
   let l:state.error = l:handleFormat.wrapper
@@ -1351,7 +1418,7 @@ function! go#lsp#Imports() abort
 
   let l:lsp = s:lspfactory.get()
 
-  let l:state = s:newHandlerState('imports')
+  let l:state = s:newHandlerState('')
   let l:handler = go#promise#New(function('s:handleCodeAction', [], l:state), 10000, '')
   let l:state.handleResult = l:handler.wrapper
   let l:state.error = l:handler.wrapper
@@ -1420,7 +1487,7 @@ function s:applyTextEdits(msg) abort
 
     " handle the deletion of whole lines
     if len(l:text) == 0 && l:msg.range.start.character == 0 && l:msg.range.end.character == 0 && l:startline < l:endline
-      call deletebufline('', l:startline, l:endline-1)
+      call s:deleteline(l:startline, l:endline-1)
       continue
     endif
 
@@ -1452,7 +1519,7 @@ function s:applyTextEdits(msg) abort
     " TODO(bc): deal with the undo file
     " TODO(bc): deal with folds
 
-    call execute(printf('%d,%d d_', l:startline, l:endline))
+    call s:deleteline(l:startline, l:endline)
     for l:line in split(l:text, "\n")
       call append(l:startline-1, l:line)
       let l:startline += 1
@@ -1501,6 +1568,15 @@ function! s:textEditLess(left, right) abort
   " return 0, because a:left an a:right refer to the same position.
   return 0
 endfunction
+
+function! s:deleteline(start, end) abort
+  if exists('*deletebufline')
+    call deletebufline('', a:start, a:end)
+  else
+    call execute(printf('%d,%d d_', a:start, a:end))
+  endif
+endfunction
+
 " restore Vi compatibility settings
 let &cpo = s:cpo_save
 unlet s:cpo_save
