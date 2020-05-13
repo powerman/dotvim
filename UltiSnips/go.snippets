@@ -1,0 +1,29 @@
+# test function
+snippet test "func TestXYZ(tt *testing.T) { ... }"
+func Test${1:Function}(tt *testing.T) {
+	t := check.T(tt)
+	t.Parallel()
+	${0:${VISUAL}}
+}
+endsnippet
+
+# test cases
+snippet tc "for _, tc := range tests {"
+tests := []struct {
+	${1:given   string}
+	want    ${2:string}
+	wantErr error
+}{
+	{${3:""}, ${4:""}, nil},
+}
+for _, tc := range tests {
+	tc := tc
+	t.Run("", func(tt *testing.T) {
+		t := check.T(tt)
+		res, err := ${5:tc.given, error(nil)}
+		t.Err(err, tc.wantErr)
+		t.${6:Equal}(res, tc.want)
+	})
+}
+${0:${VISUAL}}
+endsnippet
