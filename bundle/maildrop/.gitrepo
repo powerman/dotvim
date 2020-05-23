@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/sirtaj/vim-maildrop
+	branch = master
+	commit = ad4a4f556d69867b07c4f784b1457201693a218e
+	parent = 8690a2602ca6653b55165072bcf79785b8af2646
+	method = merge
+	cmdver = 0.4.1
