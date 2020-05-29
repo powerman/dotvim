@@ -1,5 +1,23 @@
 ## unplanned
 
+IMPROVEMENTS:
+* Clarify how `g:go_imports_autosave` and `g:go_fmt_autosave` interact.
+  [[GH-2893]](https://github.com/fatih/vim-go/pull/2893)
+* Document what the working directory will be for `:GoRun`.
+  [[GH-2898]](https://github.com/fatih/vim-go/pull/2898)
+* Add Ultisnip snippet for wrapping errors.
+  [[GH-2883]](https://github.com/fatih/vim-go/pull/2883)
+* Beautify the godoc pop up window border.
+  [[GH-2900]](https://github.com/fatih/vim-go/pull/2900)
+
+BUG FIXES:
+* Fix call to non-existent function in terminal mode edge case.
+  [[GH-2895]](https://github.com/fatih/vim-go/pull/2895)
+* Do not show errors when adding a text property for highlighting fails.
+  [[GH-2892]](https://github.com/fatih/vim-go/pull/2892)
+
+## v1.23 - (May 16, 2020)
+
 BACKWARDS INCOMPATIBILITIES:
 * Remove support for gocode.
   [[GH-2686]](https://github.com/fatih/vim-go/pull/2686)
@@ -77,7 +95,7 @@ IMPROVEMENTS:
   [[GH-2822]](https://github.com/fatih/vim-go/pull/2822)
   [[GH-2839]](https://github.com/fatih/vim-go/pull/2839)
 * Clarify documentation for terminal options.
-  [GH-2843]](https://github.com/fatih/vim-go/pull/2843)
+  [[GH-2843]](https://github.com/fatih/vim-go/pull/2843)
 
 BUG FIXES:
 * Use the discovered full path for gopls when renaming.
