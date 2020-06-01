@@ -11,6 +11,14 @@ Remove `~/.vimrc` and `~/.vim/`, then:
 git clone https://github.com/powerman/dotvim ~/.vim
 ```
 
+=== Plugin: deoplete
+See https://github.com/Shougo/deoplete.nvim#requirements for details, but
+usually it's enough to build vim with python3 support and run:
+
+```
+pip3 install --user pynvim
+```
+
 == Update from version installed before 2020-02-09
 
 Before 2020-02-09 this repo has used git submodules. You'll need to use
