@@ -152,6 +152,7 @@ set nohlsearch                          " не подсвечивать резу
 set history=1000
 " - сравнение
 set diffopt+=vertical                   " по умолчанию открывать diff вертикально
+set diffopt+=iwhite                     " по умолчанию игнорировать отличия в пробелах
 " - общие фичи
 set backspace=indent,eol,start          " разрешить <BS>-ом удалять всё что угодно
 set ruler                               " всё время показывать позицию курсора внизу
@@ -217,7 +218,7 @@ map     <C-H>   <C-BS>
 map!    <C-H>   <C-BS>
 map     <Nul>   <C-Space>
 map!    <Nul>   <C-Space>
-set timeout timeoutlen=1000
+" set timeout timeoutlen=1000
 
 """ Поддержка командного режима в русской раскладке             
 " Plugin: ruscmd
@@ -391,7 +392,7 @@ let g:python3_host_prog = '/usr/bin/python3'
 let g:deoplete#enable_at_startup = 0
 call timer_start(1, 'DeopleteEnable', {})
 func DeopleteEnable(timer)
-    call deoplete#enable()
+    silent call deoplete#enable()
 endfunc
 
 " Autocomplete style.
@@ -408,12 +409,12 @@ inoremap <silent><expr> <TAB>
 
 function! s:check_back_space() abort
     let col = col('.') - 1
-    return !col || getline('.')[col - 1]  =~# '\s'
+    return !col || getline('.')[col - 1] =~# '\s'
 endfunction
 
 function s:smart_tab()
     let col = col('.') - 1
-    if &expandtab || !col || getline('.')[:col] =~# '^\s*$'
+    if &expandtab || !col || getline('.')[:col-1] =~# '^\s*$'
         return "\<Tab>"
     endif
     return ' '
@@ -423,6 +424,11 @@ function! s:manual_complete()
     call timer_start(100, {-> feedkeys("\<C-n>", 'in')})
     return deoplete#manual_complete()
 endfunction
+
+" Experimental.
+inoremap <expr> <CR>    pumvisible() ? "\<C-y>" : "\<CR>"
+inoremap <expr> <Down>  pumvisible() ? "\<C-n>" : "\<Down>"
+inoremap <expr> <Up>    pumvisible() ? "\<C-p>" : "\<Up>"
 
 " Configure file types.
 call deoplete#custom#var('omni', 'functions', {
@@ -637,7 +643,11 @@ let g:undotree_SetFocusWhenToggle=1
 
 """ Поддержка Go                                                <Leader>…, :Go… 
 " Plugin: vim-go
-let g:go_fmt_command = 'goimports'
+let g:go_metalinter_command = 'golangci-lint'
+let g:go_rename_command = 'gopls'
+let g:go_implements_mode = 'gopls'
+" let g:go_fmt_command = 'goimports'
+let g:go_imports_autosave = 1
 let g:go_fmt_fail_silently = 1
 let g:go_doc_keywordprg_enabled = 0
 let g:go_template_use_pkg = 1
@@ -658,10 +668,10 @@ let g:go_highlight_format_strings = 1
 let g:go_highlight_variable_declarations = 0
 let g:go_highlight_variable_assignments = 0
 let g:go_build_tags = 'integration'
-let g:go_metalinter_command = 'golangci-lint'
-let g:go_rename_command = 'gopls'
-let g:go_gopls_fuzzy_matching = 0
+let g:go_gopls_matcher = 'caseSensitive'
 let g:go_gopls_deep_completion = 0
+let g:go_gopls_temp_modfile = 1
+let g:go_gopls_use_placeholders = 1
 autocmd FileType go nmap <buffer> <nowait> <Leader>r     <Plug>(go-run)
 autocmd FileType go nmap <buffer> <nowait> <Leader>b     <Plug>(go-build)
 autocmd FileType go nmap <buffer> <nowait> <Leader>t     <Plug>(go-test)
@@ -791,6 +801,8 @@ autocmd BufNewFile,BufRead */go/src/*.html.tmpl set ft=gohtmltmpl
 autocmd BufNewFile,BufRead *nginx*/*.tmpl       set ft=gonginxtmpl
 autocmd BufNewFile,BufRead *zsh*functions/*     set ft=zsh
 autocmd BufNewFile,BufRead *.cql                set ft=sql
+autocmd BufNewFile,BufRead .mailfilter*         set ft=maildrop
+autocmd BufNewFile,BufRead go.mod               set ft=gomod
 
 """ Особая проверка синтаксиса для некоторых файлов             
 " Использование вспомогательных скриптов при проверке синтаксиса некоторых
