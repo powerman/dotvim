@@ -644,10 +644,8 @@ let g:undotree_SetFocusWhenToggle=1
 """ Поддержка Go                                                <Leader>…, :Go… 
 " Plugin: vim-go
 let g:go_metalinter_command = 'golangci-lint'
-let g:go_rename_command = 'gopls'
 let g:go_implements_mode = 'gopls'
-" let g:go_fmt_command = 'goimports'
-let g:go_imports_autosave = 1
+let g:go_fmt_command = 'goimports'
 let g:go_fmt_fail_silently = 1
 let g:go_doc_keywordprg_enabled = 0
 let g:go_template_use_pkg = 1
