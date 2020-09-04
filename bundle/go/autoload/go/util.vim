@@ -129,7 +129,7 @@ endfunction
 function! go#util#hostosarch() abort
   let [l:hostos, l:err] = s:exec(['go', 'env', 'GOHOSTOS'])
   let [l:hostarch, l:err] = s:exec(['go', 'env', 'GOHOSTARCH'])
-  return [trim(l:hostos), trim(l:hostarch)]
+  return [substitute(l:hostos, '\n', '', 'g'), substitute(l:hostarch, '\n', '', 'g')]
 endfunction
 
 " go#util#ModuleRoot returns the root directory of the module of the current
@@ -704,7 +704,7 @@ function! go#util#Chdir(dir) abort
   if !exists('*chdir')
     let l:olddir = getcwd()
     let cd = exists('*haslocaldir') && haslocaldir() ? 'lcd ' : 'cd '
-    execute cd . a:dir
+    execute cd . fnameescape(a:dir)
     return l:olddir
   endif
   return chdir(a:dir)
