@@ -545,6 +545,8 @@ let g:syntastic_zsh_zsh_quiet_messages = {
     \ }
 " - check shell .|source'd files
 let g:syntastic_sh_shellcheck_args = '-x'
+" - check Dockerfile
+let g:syntastic_dockerfile_checkers = ['hadolint']
 " - check vim
 " Require: /usr/bin/vint https://github.com/Vimjas/vint (emerge dev-util/vint)
 let g:syntastic_vim_checkers = ['vint']
