@@ -402,6 +402,25 @@ call deoplete#custom#source('_',
 " <Tab> behaviour.
 call deoplete#custom#option('auto_complete_popup', 'manual')
 
+" XXX Often (but not always!) after these two steps:
+" 1. Press <S-Tab> to expand some UltiSnip's snipped.
+" 2. Press :w to trigger vim-go autosave which WILL reformat file.
+" will be created ~/.cache/vim/view/* file with these commands:
+"   inoremap <buffer> <nowait> <silent> <S-Tab> =UltiSnips#JumpBackwards()
+"   snoremap <buffer> <nowait> <silent> <S-Tab> :call UltiSnips#JumpBackwards()
+"   inoremap <buffer> <nowait> <silent> 	 =UltiSnips#JumpForwards()
+"   snoremap <buffer> <nowait> <silent> 	 :call UltiSnips#JumpForwards()
+" which in turn result in non-working both <Tab> and <S-Tab> after opening
+" same file next time.
+" So, let's unmap these mappings as a dirty workaround.
+autocmd BufEnter * call s:unmap_bad_view()
+function s:unmap_bad_view()
+    silent! iunmap <buffer> <Tab>
+    silent! sunmap <buffer> <Tab>
+    silent! iunmap <buffer> <S-Tab>
+    silent! sunmap <buffer> <S-Tab>
+endfunction
+
 inoremap <silent><expr> <TAB>
     \ pumvisible() ? "\<C-n>" :
     \ <SID>check_back_space() ? <SID>smart_tab() :
