@@ -1,5 +1,7 @@
 ## unplanned
 
+## v1.24 - (September 15, 2020)
+
 IMPROVEMENTS:
 * Clarify how `g:go_imports_autosave` and `g:go_fmt_autosave` interact.
   [[GH-2893]](https://github.com/fatih/vim-go/pull/2893)
@@ -62,6 +64,13 @@ IMPROVEMENTS:
   [[GH-2989]](https://github.com/fatih/vim-go/pull/2989)
 * Add `g:go_term_reuse` option to allow the reuse of a terminal window.
   [[GH-2990]](https://github.com/fatih/vim-go/pull/2990)
+* Add official support for using `gopls`' `gofumpt` workspace setting via
+  `g:go_gopls_gofumpt`.
+  [[GH-2994]](https://github.com/fatih/vim-go/pull/2994)
+  [[GH-3005]](https://github.com/fatih/vim-go/pull/3005)
+* Add support for using `gopls`' workspace settings that are otherwise not yet
+  officially supported by vim-go.
+  [[GH-2994]](https://github.com/fatih/vim-go/pull/2994)
 
 BUG FIXES:
 * Fix call to non-existent function in terminal mode edge case.
@@ -101,6 +110,17 @@ BUG FIXES:
 * Make sure debugging commands are configured when debugging a second time
   within a single Vim session.
   [[GH-2985]](https://github.com/fatih/vim-go/pull/2985)
+* Correct documentation in for `:GoModifyTags` when adding a specific tag
+  value.
+  [[GH-3001]](https://github.com/fatih/vim-go/pull/3001)
+* Fix the path given to `gopls` when `let g:go_metalinter='gopls'` and
+  `:GoMetaLinter` is called without any arguments.
+  [[GH-2992]](https://github.com/fatih/vim-go/pull/2992)
+* Do not override a user's configuration for `GoDebugBreakpoint` or
+  `GoDebugCurrent` highlight groups.
+  [[GH-2998]](https://github.com/fatih/vim-go/pull/2998)
+* Apply `gopls` text edits correctly that insert solitary newlines.
+  [[GH-3000]](https://github.com/fatih/vim-go/pull/3000)
 
 ## v1.23 - (May 16, 2020)
 
