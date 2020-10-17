@@ -670,7 +670,9 @@ let g:go_fmt_command = 'gopls'
 let g:go_imports_autosave = 1
 let g:go_imports_mode = 'gopls'
 let g:go_gopls_gofumpt = v:true
-let g:go_gopls_local = trim(system('{cd '. shellescape(expand('%:h')) .' && go list -m;}'))
+" let g:go_gopls_local = trim(system('{cd '. shellescape(expand('%:h')) .' && go list -m;}'))
+let g:go_gopls_local = {}
+autocmd FileType go call s:setlocal()
 let g:go_doc_keywordprg_enabled = 0
 let g:go_template_use_pkg = 1
 let g:go_list_type = 'quickfix'
@@ -704,6 +706,19 @@ autocmd FileType go nmap <buffer> <nowait> <Leader>gb    <Plug>(go-doc-browser)
 autocmd FileType go nmap <buffer> <nowait> <Leader>s     <Plug>(go-implements)
 autocmd FileType go nmap <buffer> <nowait> <Leader>i     <Plug>(go-info)
 autocmd FileType go nmap <buffer> <nowait> <Leader>e     <Plug>(go-rename)
+
+function! s:setlocal()
+    try
+	let l:olddir = chdir(expand('%:p:h'))
+	let l:dir = trim(system('go list -m -f {{.Dir}}'))
+	if !has_key(g:go_gopls_local, l:dir)
+	    let g:go_gopls_local[l:dir] = trim(system('go list -m'))
+	endif
+    finally
+	call chdir(l:olddir)
+    endtry
+endfunction
+
 
 """ Поддержка Graphviz                                          <Leader>…, :Graphviz… 
 " Plugin: WM Graphviz
