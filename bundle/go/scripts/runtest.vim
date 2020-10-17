@@ -19,8 +19,6 @@ let s:gopath = $GOPATH
 if !exists('g:test_verbose')
   let g:test_verbose = 0
 endif
-let g:go_echo_command_info = 0
-let g:go_gopls_options = []
 
 function! s:logmessages() abort
   " Add all messages (usually errors).
@@ -31,14 +29,22 @@ function! s:logmessages() abort
   silent messages clear
 endfunction
 
+function! s:clearOptions() abort
+  " clear all the vim-go options
+  for l:k in keys(g:)
+    if l:k =~ '^go_' && l:k !~ '^go_loaded_'
+      call execute(printf('unlet g:%s', l:k))
+    endif
+  endfor
+endfunction
+
 " Source the passed test file.
 source %
 
 " cd into the folder of the test file.
-let s:cd = exists('*haslocaldir') && haslocaldir() ? 'lcd ' : 'cd '
 let s:testfile = expand('%:t')
 let s:dir = expand('%:p:h')
-execute s:cd . s:dir
+call go#util#Chdir(s:dir)
 
 " Export root path to vim-go dir.
 let g:vim_go_root = fnamemodify(getcwd(), ':p')
@@ -59,6 +65,15 @@ for s:test in sort(s:tests)
     continue
   endif
 
+  " make sure g:go_echo_command_info is not set so that we don't get
+  " unexpected messages when commands are executed.
+  let g:go_echo_command_info = 0
+
+  " make sure gopls doesn't use multi-client mode; there seem to be some racy
+  " conditions when trying to shutdown the server after each test when
+  " multi-client mode is used.
+  let g:go_gopls_options = []
+
   let s:started = reltime()
   if g:test_verbose is 1
     call add(s:logs, printf("=== RUN  %s", s:test[:-3]))
@@ -73,6 +88,8 @@ for s:test in sort(s:tests)
     sleep 50m
   catch
     let v:errors += [v:exception]
+  finally
+    call s:clearOptions()
   endtry
 
   let s:elapsed_time = substitute(reltimestr(reltime(s:started)), '^\s*\(.\{-}\)\s*$', '\1', '')
@@ -80,7 +97,7 @@ for s:test in sort(s:tests)
   " Restore GOPATH after each test.
   let $GOPATH = s:gopath
   " Restore the working directory after each test.
-  execute s:cd . s:dir
+  call go#util#Chdir(s:dir)
 
   try
     " exit gopls after each test
@@ -103,6 +120,8 @@ for s:test in sort(s:tests)
     if g:test_verbose is 1
       call s:logmessages()
       call add(s:logs, printf("--- PASS %s (%ss)", s:test[:-3], s:elapsed_time))
+    else
+      silent messages clear
     endif
   endif
 endfor

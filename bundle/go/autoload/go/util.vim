@@ -133,12 +133,23 @@ function! go#util#hostosarch() abort
 endfunction
 
 " go#util#ModuleRoot returns the root directory of the module of the current
-" buffer.
-function! go#util#ModuleRoot() abort
-  let [l:out, l:err] = go#util#ExecInDir(['go', 'env', 'GOMOD'])
-  if l:err != 0
-    return -1
+" buffer. An optional argument is can be provided to check an arbitrary
+" directory.
+function! go#util#ModuleRoot(...) abort
+  let l:wd = ''
+  if a:0 > 0
+    let l:wd = go#util#Chdir(a:1)
   endif
+  try
+    let [l:out, l:err] = go#util#ExecInDir(['go', 'env', 'GOMOD'])
+    if l:err != 0
+      return -1
+    endif
+  finally
+    if l:wd != ''
+      call go#util#Chdir(l:wd)
+    endif
+  endtry
 
   let l:module = split(l:out, '\n', 1)[0]
 
@@ -708,6 +719,27 @@ function! go#util#Chdir(dir) abort
     return l:olddir
   endif
   return chdir(a:dir)
+endfunction
+
+" go#util#TestName returns the name of the test function that preceeds the
+" cursor.
+function go#util#TestName() abort
+  " search flags legend (used only)
+  " 'b' search backward instead of forward
+  " 'c' accept a match at the cursor position
+  " 'n' do Not move the cursor
+  " 'W' don't wrap around the end of the file
+  "
+  " for the full list
+  " :help search
+  let l:line = search('func \(Test\|Example\)', "bcnW")
+
+  if l:line == 0
+    return ''
+  endif
+
+  let l:decl = getline(l:line)
+  return split(split(l:decl, " ")[1], "(")[0]
 endfunction
 
 " restore Vi compatibility settings

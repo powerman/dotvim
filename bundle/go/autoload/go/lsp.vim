@@ -155,6 +155,17 @@ function! s:newlsp() abort
       let l:resp = go#lsp#message#ConfigurationResult(a:req.params.items)
     elseif a:req.method == 'client/registerCapability' && has_key(a:req, 'params') && has_key(a:req.params, 'registrations')
       let l:resp = v:null
+    elseif a:req.method == 'workspace/applyEdit'
+      try
+        let l:ok = v:true
+        for l:change in a:req.params.edit.documentChanges
+          call s:applyDocumentChanges(a:req.params.edit.documentChanges)
+        endfor
+      catch
+        call go#util#EchoError(printf('could not apply edit: %s', v:exception))
+        let l:ok = v:false
+      endtry
+      let l:resp = go#lsp#message#ApplyWorkspaceEditResponse(l:ok)
     else
       return
     endif
@@ -222,6 +233,8 @@ function! s:newlsp() abort
 
   " TODO(bc): process the queue asynchronously
   function! l:lsp.updateDiagnostics() dict abort
+    let l:level = go#config#DiagnosticsLevel()
+
     for l:data in self.diagnosticsQueue
       call remove(self.diagnosticsQueue, 0)
 
@@ -235,22 +248,17 @@ function! s:newlsp() abort
         " Vim says that a buffer name can't be an absolute path.
         let l:bufname = fnamemodify(l:fname, ':.')
 
-        if len(l:data.diagnostics) > 0 && (go#config#DiagnosticsEnabled() || bufnr(l:bufname) == bufnr(''))
+        if len(l:data.diagnostics) > 0
           " make sure the buffer is listed and loaded before calling getbufline() on it
           if !bufexists(l:bufname)
-            "let l:starttime = reltime()
             call bufadd(l:bufname)
           endif
 
           if !bufloaded(l:bufname)
-            "let l:starttime = reltime()
             call bufload(l:bufname)
           endif
 
           for l:diag in l:data.diagnostics
-            " TODO(bc): cache the raw diagnostics when they're not for the
-            " current buffer so that they can be processed when it is the
-            " current buffer and highlight the areas of concern.
             let [l:error, l:matchpos] = s:errorFromDiagnostic(l:diag, l:bufname, l:fname)
             let l:diagnostics = add(l:diagnostics, l:error)
 
@@ -408,7 +416,11 @@ function! s:newlsp() abort
       return
     endif
 
-    call ch_sendraw(self.job, l:data)
+    try
+      call ch_sendraw(self.job, l:data)
+    catch
+      call go#util#EchoError(printf('could not send message: %s', v:exception))
+    endtry
   endfunction
 
   function! l:lsp.exit_cb(job, exit_status) dict
@@ -627,6 +639,8 @@ function! go#lsp#DidOpen(fname) abort
   if !has_key(l:lsp.notificationQueue, l:fname)
     let l:lsp.notificationQueue[l:fname] = []
   endif
+
+  call s:ensureWorkspace(fnamemodify(l:fname, ':h'))
 
   let l:lsp.fileVersions[l:fname] = getbufvar(l:fname, 'changedtick')
 
@@ -1096,7 +1110,7 @@ function! go#lsp#AddWorkspaceDirectory(...) abort
 
   let l:lsp = s:lspfactory.get()
   let l:state = s:newHandlerState('')
-  let l:lsp.workspaceDirectories = extend(l:lsp.workspaceDirectories, l:workspaces)
+  let l:lsp.workspaceDirectories = s:dedup(extend(l:lsp.workspaceDirectories, l:workspaces))
   let l:msg = go#lsp#message#ChangeWorkspaceFolders(l:workspaces, [])
   call l:lsp.sendMessage(l:msg, l:state)
 
@@ -1124,7 +1138,7 @@ function! go#lsp#CleanWorkspaces() abort
   endif
 
   let l:state = s:newHandlerState('')
-  let l:msg = go#lsp#message#ChangeWorkspaceFolders([], l:missing)
+  let l:msg = go#lsp#message#ChangeWorkspaceFolders([], s:dedup(l:missing))
   call l:lsp.sendMessage(l:msg, l:state)
 
   return 0
@@ -1140,7 +1154,7 @@ function! go#lsp#ResetWorkspaceDirectories() abort
   let l:lsp = s:lspfactory.get()
 
   let l:state = s:newHandlerState('')
-  let l:msg = go#lsp#message#ChangeWorkspaceFolders(l:lsp.workspaceDirectories, l:lsp.workspaceDirectories)
+  let l:msg = go#lsp#message#ChangeWorkspaceFolders(s:dedup(l:lsp.workspaceDirectories), s:dedup(l:lsp.workspaceDirectories))
   call l:lsp.sendMessage(l:msg, l:state)
 
   return 0
@@ -1228,7 +1242,7 @@ function! s:debugasync(timer) abort
 endfunction
 
 function! s:debug(event, data) abort
-  let l:shouldStart = len(s:log) > 0
+  let l:shouldStart = len(s:log) == 0
   let s:log = add(s:log, [a:event, a:data])
 
   if l:shouldStart
@@ -1366,7 +1380,9 @@ function! s:highlightMatches(errorMatches, warningMatches) abort
     call go#util#ClearHighlights('goDiagnosticError')
     if go#config#HighlightDiagnosticErrors()
       let b:go_diagnostic_matches.errors = copy(a:errorMatches)
-      call go#util#HighlightPositions('goDiagnosticError', a:errorMatches)
+      if go#config#DiagnosticsLevel() >= 2
+        call go#util#HighlightPositions('goDiagnosticError', a:errorMatches)
+      endif
     endif
   endif
 
@@ -1376,7 +1392,9 @@ function! s:highlightMatches(errorMatches, warningMatches) abort
     call go#util#ClearHighlights('goDiagnosticWarning')
     if go#config#HighlightDiagnosticWarnings()
       let b:go_diagnostic_matches.warnings = copy(a:warningMatches)
-      call go#util#HighlightPositions('goDiagnosticWarning', a:warningMatches)
+      if go#config#DiagnosticsLevel() >= 2
+        call go#util#HighlightPositions('goDiagnosticWarning', a:warningMatches)
+      endif
     endif
   endif
 
@@ -1435,7 +1453,7 @@ function! go#lsp#Imports() abort
   let l:lsp = s:lspfactory.get()
 
   let l:state = s:newHandlerState('')
-  let l:handler = go#promise#New(function('s:handleCodeAction', [], l:state), 10000, '')
+  let l:handler = go#promise#New(function('s:handleCodeAction', ['source.organizeImports', ''], l:state), 10000, '')
   let l:state.handleResult = l:handler.wrapper
   let l:state.error = l:handler.wrapper
   let l:state.handleError = function('s:handleCodeActionError', [l:fname], l:state)
@@ -1445,6 +1463,41 @@ function! go#lsp#Imports() abort
   " await the result to avoid any race conditions among autocmds (e.g.
   " BufWritePre and BufWritePost)
   call l:handler.await()
+endfunction
+
+" FillStruct executes the refactor.rewrite code action for the current buffer
+" and configures the handler to only apply the fillstruct command for the
+" current location.
+function! go#lsp#FillStruct() abort
+  let l:fname = expand('%:p')
+  " send the current file so that TextEdits will be relative to the current
+  " state of the buffer.
+  call go#lsp#DidChange(l:fname)
+
+  let l:lsp = s:lspfactory.get()
+
+  let l:state = s:newHandlerState('')
+  let l:handler = go#promise#New(function('s:handleCodeAction', ['refactor.rewrite', 'fill_struct'], l:state), 10000, '')
+  let l:state.handleResult = l:handler.wrapper
+  let l:state.error = l:handler.wrapper
+  let l:state.handleError = function('s:handleCodeActionError', [l:fname], l:state)
+
+  let [l:line, l:col] = go#lsp#lsp#Position()
+  let l:msg = go#lsp#message#CodeActionFillStruct(l:fname, l:line, l:col)
+  call l:lsp.sendMessage(l:msg, l:state)
+
+  " await the result to avoid any race conditions among autocmds (e.g.
+  " BufWritePre and BufWritePost)
+  call l:handler.await()
+endfunction
+
+function! s:executeCommand(cmd, args) abort
+  let l:lsp = s:lspfactory.get()
+
+  let l:state = s:newHandlerState('')
+
+  let l:msg = go#lsp#message#ExecuteCommand(a:cmd, a:args)
+  call l:lsp.sendMessage(l:msg, l:state)
 endfunction
 
 function! s:handleFormat(msg) abort dict
@@ -1457,7 +1510,7 @@ function! s:handleFormat(msg) abort dict
   call s:applyTextEdits(a:msg)
 endfunction
 
-function! s:handleCodeAction(msg) abort dict
+function! s:handleCodeAction(kind, cmd, msg) abort dict
   if type(a:msg) is type('')
     call self.handleError(a:msg)
     return
@@ -1468,24 +1521,37 @@ function! s:handleCodeAction(msg) abort dict
   endif
 
   for l:item in a:msg
-    if get(l:item, 'kind', '') is 'source.organizeImports'
+    if get(l:item, 'kind', '') is a:kind
       if !has_key(l:item, 'edit')
         continue
       endif
+
+      if has_key(l:item, 'command')
+        if has_key(l:item.command, 'command') && l:item.command.command is a:cmd
+          call s:executeCommand(l:item.command.command, l:item.command.arguments)
+          continue
+        endif
+      endif
+
       if !has_key(l:item.edit, 'documentChanges')
         continue
       endif
-      for l:change in l:item.edit.documentChanges
-        if !has_key(l:change, 'edits')
-          continue
-        endif
-        " TODO(bc): change to the buffer for l:change.textDocument.uri
-        call s:applyTextEdits(l:change.edits)
-      endfor
+      call s:applyDocumentChanges(l:item.edit.documentChanges)
     endif
   endfor
 endfunction
 
+function s:applyDocumentChanges(changes)
+  for l:change in a:changes
+    if !has_key(l:change, 'edits')
+      continue
+    endif
+    " TODO(bc): change to the buffer for l:change.textDocument.uri
+    call s:applyTextEdits(l:change.edits)
+  endfor
+endfunction
+
+" s:applyTextEdit applies the list of WorkspaceEdit values in msg.
 function s:applyTextEdits(msg) abort
   if a:msg is v:null
     return
@@ -1591,6 +1657,31 @@ function! s:deleteline(start, end) abort
   else
     call execute(printf('%d,%d d_', a:start, a:end))
   endif
+endfunction
+
+function! s:ensureWorkspace(dir)
+  let l:modroot = go#util#ModuleRoot(a:dir)
+  if l:modroot is -1 || l:modroot is ''
+    return
+  endif
+
+  let l:lsp = s:lspfactory.get()
+  for l:dir in l:lsp.workspaceDirectories
+    if l:dir == l:modroot
+      return
+    endif
+  endfor
+
+  call go#lsp#AddWorkspaceDirectory(l:modroot)
+endfunction
+
+function! s:dedup(list)
+  let l:dict = {}
+  for l:item in a:list
+    let l:dict[l:item] = 1
+  endfor
+
+  return sort(keys(l:dict))
 endfunction
 
 " restore Vi compatibility settings

@@ -264,15 +264,25 @@ function! go#config#SetTemplateAutocreate(value) abort
 endfunction
 
 function! go#config#MetalinterCommand() abort
-  return get(g:, "go_metalinter_command", "golangci-lint")
+  return get(g:, 'go_metalinter_command', 'golangci-lint')
 endfunction
 
 function! go#config#MetalinterAutosaveEnabled() abort
-  return get(g:, "go_metalinter_autosave_enabled", ["govet", "golint"])
+  let l:default = []
+  if get(g:, 'go_metalinter_command', 'golangci-lint') == 'golangci-lint'
+    let l:default = ['govet', 'golint']
+  endif
+
+  return get(g:, 'go_metalinter_autosave_enabled', l:default)
 endfunction
 
 function! go#config#MetalinterEnabled() abort
-  return get(g:, "go_metalinter_enabled", ["vet", "golint", "errcheck"])
+  let l:default = []
+  if get(g:, 'go_metalinter_command', 'golangci-lint') == 'golangci-lint'
+    let l:default = ['vet', 'golint', 'errcheck']
+  endif
+
+  return get(g:, 'go_metalinter_enabled', l:default)
 endfunction
 
 function! go#config#GolintBin() abort
@@ -512,7 +522,7 @@ function! go#config#ReferrersMode() abort
 endfunction
 
 function! go#config#ImplementsMode() abort
-  return get(g:, 'go_implements_mode', 'guru')
+  return get(g:, 'go_implements_mode', 'gopls')
 endfunction
 
 function! go#config#GoplsCompleteUnimported() abort
@@ -562,12 +572,42 @@ function! go#config#GoplsEnabled() abort
   return get(g:, 'go_gopls_enabled', 1)
 endfunction
 
+" TODO(bc): remove support for g:go_diagnostics_enabled;
+" g:go_diagnostics_level is the replacement.
 function! go#config#DiagnosticsEnabled() abort
   return get(g:, 'go_diagnostics_enabled', 0)
 endfunction
 
+function! go#config#DiagnosticsLevel() abort
+  let l:default = 2
+  if has_key(g:, 'go_diagnostics_enabled') && !g:go_diagnostics_enabled
+    let l:default = 0
+  endif
+
+  return get(g:, 'go_diagnostics_level', l:default)
+endfunction
+
 function! go#config#GoplsOptions() abort
   return get(g:, 'go_gopls_options', ['-remote=auto'])
+endfunction
+
+function! go#config#FillStructMode() abort
+  return get(g:, 'go_fillstruct_mode', 'fillstruct')
+endfunction
+
+function! go#config#DebugMappings() abort
+  let l:default = {
+     \ '(go-debug-continue)':   {'key': '<F5>'},
+     \ '(go-debug-print)':      {'key': '<F6>'},
+     \ '(go-debug-breakpoint)': {'key': '<F9>'},
+     \ '(go-debug-next)':       {'key': '<F10>'},
+     \ '(go-debug-step)':       {'key': '<F11>'},
+     \ '(go-debug-halt)':       {'key': '<F8>'},
+  \ }
+
+  let l:user = deepcopy(get(g:, 'go_debug_mappings', {}))
+
+  return extend(l:user, l:default, 'keep')
 endfunction
 
 " Set the default value. A value of "1" is a shortcut for this, for
