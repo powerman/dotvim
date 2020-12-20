@@ -605,6 +605,8 @@ autocmd FileType asciidoc               setlocal formatlistpat=^\\s*\\(-\\\\|\\*
 autocmd FileType go,nginx,gonginxtmpl   setlocal softtabstop=0 shiftwidth=0 noexpandtab
 " - коммиты в git
 autocmd FileType gitcommit              setlocal textwidth=72
+" - protobuf
+autocmd FileType proto                  setlocal textwidth=100
 " - переформатирование при сохранении sh/bash
 let g:shfmt_fmt_on_save = 1
 
