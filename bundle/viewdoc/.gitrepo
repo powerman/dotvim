@@ -6,7 +6,7 @@
 [subrepo]
 	remote = https://github.com/powerman/vim-plugin-viewdoc
 	branch = master
-	commit = 19a19d8a12e53a4d85d18a8753aab8934dc966fe
-	parent = 662a3d2124cafd4a9031156171cc42e217a1968c
+	commit = 0a936155c3d62b3d1bb1453a5ee55d8639bc4d40
+	parent = ecf1845af9e77733c0d7d7ae1cb0df9a05f2e3ac
 	method = merge
 	cmdver = 0.4.1
