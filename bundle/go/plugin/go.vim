@@ -176,12 +176,9 @@ function! s:GoInstallBinaries(updateBinaries, ...)
           if l:err
             call go#util#EchoError(printf('Error installing %s: %s', l:importPath, l:out))
           endif
-
-          call call(Restore_modules, [])
         finally
           call go#util#Chdir(l:dir)
         endtry
-        call call(Restore_modules, [])
       else
         let l:get_cmd = copy(l:get_base_cmd)
         let l:get_cmd += ['-d']
@@ -279,12 +276,7 @@ function! s:register()
     return
   endif
 
-  let l:RestoreGopath = function('s:noop')
-  if go#config#AutodetectGopath()
-    let l:RestoreGopath = go#util#SetEnv('GOPATH', go#path#Detect())
-  endif
   call go#lsp#DidOpen(expand('<afile>:p'))
-  call call(l:RestoreGopath, [])
 endfunction
 
 function! s:noop(...) abort

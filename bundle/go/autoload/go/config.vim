@@ -2,10 +2,6 @@
 let s:cpo_save = &cpo
 set cpo&vim
 
-function! go#config#AutodetectGopath() abort
-	return get(g:, 'go_autodetect_gopath', 0)
-endfunction
-
 function! go#config#ListTypeCommands() abort
   return get(g:, 'go_list_type_commands', {})
 endfunction
@@ -215,6 +211,10 @@ function! go#config#DebugWindows() abort
 
 endfunction
 
+function! go#config#DebugPreserveLayout() abort
+  return get(g:, 'go_debug_preserve_layout', 0)
+endfunction
+
 function! go#config#DebugAddress() abort
   return get(g:, 'go_debug_address', '127.0.0.1:8181')
 endfunction
@@ -263,13 +263,14 @@ function! go#config#SetTemplateAutocreate(value) abort
   let g:go_template_autocreate = a:value
 endfunction
 
+let s:default_metalinter = 'staticcheck'
 function! go#config#MetalinterCommand() abort
-  return get(g:, 'go_metalinter_command', 'golangci-lint')
+  return get(g:, 'go_metalinter_command', s:default_metalinter)
 endfunction
 
 function! go#config#MetalinterAutosaveEnabled() abort
   let l:default = []
-  if get(g:, 'go_metalinter_command', 'golangci-lint') == 'golangci-lint'
+  if get(g:, 'go_metalinter_command', s:default_metalinter) == 'golangci-lint'
     let l:default = ['govet', 'golint']
   endif
 
@@ -278,7 +279,7 @@ endfunction
 
 function! go#config#MetalinterEnabled() abort
   let l:default = []
-  if get(g:, 'go_metalinter_command', 'golangci-lint') == 'golangci-lint'
+  if get(g:, 'go_metalinter_command', s:default_metalinter) == 'golangci-lint'
     let l:default = ['vet', 'golint', 'errcheck']
   endif
 
