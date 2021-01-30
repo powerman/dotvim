@@ -1,9 +1,9 @@
 " Vim syntax file
 " Language:      Perl 5
 " Maintainer:    vim-htmlperl <vim-htmlperl@googlegroups.com>
-" Homepage:      http://github.com/vim-htmlperl/vim-htmlperl/tree/master
-" Bugs/requests: http://github.com/vim-htmlperl/vim-htmlperl/issues
-" Last Change:   2017-09-12
+" Homepage:      https://github.com/vim-htmlperl/vim-htmlperl/tree/master
+" Bugs/requests: https://github.com/vim-htmlperl/vim-htmlperl/issues
+" Last Change:   2020 Apr 15
 " Contributors:  Andy Lester <andy@petdance.com>
 "                Hinrik Örn Sigurðsson <hinrik.sig@gmail.com>
 "                Lukas Mai <l.mai.web.de>

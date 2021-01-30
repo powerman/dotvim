@@ -843,6 +843,7 @@ autocmd BufNewFile,BufRead *zsh*functions/*     set ft=zsh
 autocmd BufNewFile,BufRead *.cql                set ft=sql
 autocmd BufNewFile,BufRead .mailfilter*         set ft=maildrop
 autocmd BufNewFile,BufRead go.mod               set ft=gomod
+autocmd BufNewFile,BufRead *.vugu               set ft=html
 
 """ Особая проверка синтаксиса для некоторых файлов             
 " Использование вспомогательных скриптов при проверке синтаксиса некоторых
