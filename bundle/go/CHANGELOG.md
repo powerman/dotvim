@@ -62,6 +62,9 @@ IMPROVEMENTS:
   [[GH-3166]](https://github.com/fatih/vim-go/pull/3166)
 * Do not execute disabled code actions.
   [[GH-3155]](https://github.com/fatih/vim-go/pull/3155)
+* Add `:GoDebugConnect` to support connecting to an instance of delve started
+  outside of vim-go.
+  [[GH-3179]](https://github.com/fatih/vim-go/pull/3179)
 
 BUG FIXES:
 * Remove implications that terminal mode is only applied for Neovim.
@@ -92,6 +95,8 @@ BUG FIXES:
   [[GH-3128]](https://github.com/fatih/vim-go/pull/3128)
 * Organize imports correctly when `gopls` formatting uses `gofumpt`.
   [[GH-3154]](https://github.com/fatih/vim-go/pull/3154)
+* Rename all instances of an identifier when `g:go_rename_mode` is `gopls`.
+  [[GH-3181]](https://github.com/fatih/vim-go/pull/3181)
 
 ## v1.24 - (September 15, 2020)
 
