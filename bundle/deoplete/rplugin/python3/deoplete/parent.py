@@ -4,20 +4,20 @@
 # License: MIT license
 # ============================================================================
 
-import time
-import os
-import msgpack
-import subprocess
-import sys
-import typing
 from abc import abstractmethod
 from functools import partial
 from pathlib import Path
+from pynvim import Nvim
 from queue import Queue
+import msgpack
+import subprocess
+import sys
+import time
+import typing
 
 from deoplete import logger
 from deoplete.process import Process
-from deoplete.util import error_tb, error, Nvim
+from deoplete.util import error_tb, error
 
 UserContext = typing.Dict[str, typing.Any]
 
@@ -88,23 +88,23 @@ class AsyncParent(_Parent):
 
         This handles Python being embedded in Vim on Windows or OSX.
 
-        Taken from jedia.api.environment._try_get_same_env.
+        Taken from jedi.api.environment._try_get_same_env.
         """
         exe = sys.executable
-        if not os.path.basename(exe).lower().startswith('python'):
-            check: typing.Tuple[typing.Any, ...]
-            if os.name == 'nt':
+        if not Path(exe).name.lower().startswith('python'):
+            checks: typing.Tuple[typing.Any, ...]
+            if sys.platform == 'win32':
                 checks = (r'Scripts\python.exe', 'python.exe')
             else:
                 checks = (
-                    'bin/python%s.%s' % (  # type: ignore
+                    'bin/python%s.%s' % (
                         sys.version_info[0], sys.version[1]),
                     'bin/python%s' % (sys.version_info[0]),
                     'bin/python',
                 )
-            for check in checks:  # type: ignore
-                guess = os.path.join(sys.exec_prefix, check)  # type: ignore
-                if os.path.isfile(str(guess)):
+            for check in checks:
+                guess = Path(sys.exec_prefix).joinpath(check)
+                if guess.is_file():
                     return str(guess)
             if 'python3_host_prog' not in self._vim.vars:
                 return 'python3'
@@ -114,19 +114,27 @@ class AsyncParent(_Parent):
     def _start_process(self) -> None:
         self._stdin: typing.Optional[typing.Any] = None
         self._queue_id = ''
-        self._queue_in: Queue = Queue()  # type: ignore
-        self._queue_out: Queue = Queue()  # type: ignore
-        self._queue_err: Queue = Queue()  # type: ignore
-        self._packer = msgpack.Packer(
-            unicode_errors='surrogateescape')
-        self._unpacker = msgpack.Unpacker(
-            unicode_errors='surrogateescape')
+        self._queue_in: 'Queue[bytes]' = Queue()
+        self._queue_out: 'Queue[typing.Any]' = Queue()
+        self._queue_err: 'Queue[typing.Any]' = Queue()
+        if msgpack.version < (1, 0, 0):
+            self._packer = msgpack.Packer(
+                encoding='utf-8',
+                unicode_errors='surrogateescape')
+            self._unpacker = msgpack.Unpacker(
+                encoding='utf-8',
+                unicode_errors='surrogateescape')
+        else:
+            self._packer = msgpack.Packer(
+                unicode_errors='surrogateescape')
+            self._unpacker = msgpack.Unpacker(
+                unicode_errors='surrogateescape')
         self._prev_pos: typing.List[typing.Any] = []
 
         info = None
-        if os.name == 'nt':
-            info = subprocess.STARTUPINFO()  # type: ignore
-            info.dwFlags |= subprocess.STARTF_USESHOWWINDOW  # type: ignore
+        if sys.platform == 'win32':
+            info = subprocess.STARTUPINFO()
+            info.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 
         main = str(Path(__file__).parent.parent.parent.parent.joinpath(
             'autoload', 'deoplete', '_main.py'))
@@ -148,7 +156,9 @@ class AsyncParent(_Parent):
 
     def merge_results(self,
                       context: UserContext) -> typing.Tuple[typing.Any, ...]:
-        if (context['event'] == 'Update' and
+        # Note: TextChangedP is triggered when Update
+        event = context['event']
+        if ((event == 'Update' or event == 'TextChangedP') and
                 context['position'] == self._prev_pos and self._queue_id):
             # Use previous id
             queue_id = self._queue_id
@@ -165,7 +175,7 @@ class AsyncParent(_Parent):
             return (True, False, [])
         self._queue_id = ''
         results = get[0]
-        return (results['is_async'], results['is_async'],  # type: ignore
+        return (results['is_async'], results['is_async'],
                 results['merged_results']) if results else (False, [])
 
     def _put(self, name: str,

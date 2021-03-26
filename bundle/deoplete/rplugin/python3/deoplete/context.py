@@ -4,11 +4,12 @@
 # License: MIT license
 # ============================================================================
 
-import os
+from pathlib import Path
+from pynvim import Nvim
 import re
 import typing
 
-from deoplete.util import Nvim
+from deoplete.util import exists_path
 
 UserContext = typing.Dict[str, typing.Any]
 
@@ -48,6 +49,7 @@ class Context(object):
                 'deoplete#util#get_next_input', event),
             'position': self._vim.call('getpos', '.'),
             'same_filetypes': same_filetypes,
+            'time': self._vim.call('reltime'),
         }
         context.update(self._cached)  # type: ignore
 
@@ -79,9 +81,9 @@ class Context(object):
             bufname = self._vim.call('bufname', bufnr)
         cwd = self._vim.call('getcwd')
         buftype = self._vim.call('getbufvar', '%', '&buftype')
-        bufpath = (bufname if os.path.isabs(bufname)
-                   else os.path.join(cwd, bufname))
-        if not os.path.exists(bufpath) or 'nofile' in buftype:
+        bufpath = (bufname if Path(bufname).is_absolute()
+                   else str(Path(cwd).joinpath(bufname)))
+        if not exists_path(bufpath) or 'nofile' in buftype:
             bufpath = ''
 
         self._cached = {

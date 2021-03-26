@@ -4,24 +4,24 @@
 # License: MIT license
 # ============================================================================
 
+from collections import defaultdict
+from pathlib import Path
+from pynvim import Nvim
 import copy
-import os.path
+import msgpack
 import re
 import sys
 import time
-import msgpack
 import typing
-
-from collections import defaultdict
 
 from deoplete import logger
 from deoplete.exceptions import SourceInitError
 from deoplete.util import (bytepos2charpos, charpos2bytepos, error, error_tb,
                            import_plugin, get_custom, get_syn_names,
-                           convert2candidates, uniq_list_dict, Nvim)
+                           convert2candidates, uniq_list_dict)
 
 UserContext = typing.Dict[str, typing.Any]
-Candidates = typing.Dict[str, typing.Any]
+Candidates = typing.List[typing.Dict[str, typing.Any]]
 Result = typing.Dict[str, typing.Any]
 
 
@@ -39,10 +39,18 @@ class Child(logger.LoggingMixin):
         self._loaded_filters: typing.Dict[str, typing.Any] = {}
         self._source_errors: typing.Dict[str, int] = defaultdict(int)
         self._prev_results: typing.Dict[str, Result] = {}
-        self._unpacker = msgpack.Unpacker(
-            unicode_errors='surrogateescape')
-        self._packer = msgpack.Packer(
-            unicode_errors='surrogateescape')
+        if msgpack.version < (1, 0, 0):
+            self._packer = msgpack.Packer(
+                encoding='utf-8',
+                unicode_errors='surrogateescape')
+            self._unpacker = msgpack.Unpacker(
+                encoding='utf-8',
+                unicode_errors='surrogateescape')
+        else:
+            self._unpacker = msgpack.Unpacker(
+                unicode_errors='surrogateescape')
+            self._packer = msgpack.Packer(
+                unicode_errors='surrogateescape')
         self._ignore_sources: typing.List[typing.Any] = []
 
     def main_loop(self, stdout: typing.Any) -> None:
@@ -67,7 +75,8 @@ class Child(logger.LoggingMixin):
                     self._vim.call('deoplete#auto_complete', 'Update')
 
     def main(self, name: str, args: typing.List[typing.Any],
-             queue_id: typing.Optional[int]) -> typing.Optional[Candidates]:
+             queue_id: typing.Optional[int]) -> typing.Optional[
+                typing.Dict[str, typing.Any]]:
         ret = None
         if name == 'enable_logging':
             self._enable_logging()
@@ -95,6 +104,9 @@ class Child(logger.LoggingMixin):
         self.is_debug_enabled = True
 
     def _add_source(self, path: str) -> None:
+        # Resolve symbolic link
+        path = str(Path(path).resolve())
+
         source = None
         try:
             Source = import_plugin(path, 'source', 'Source')
@@ -102,14 +114,15 @@ class Child(logger.LoggingMixin):
                 return
 
             source = Source(self._vim)
-            name = os.path.splitext(os.path.basename(path))[0]
+            name = Path(path).stem
             source.name = getattr(source, 'name', name)
             source.path = path
-            if source.name in self._loaded_sources:
+            loaded_path = self._loaded_sources.get(source.name, '')
+            if source.name in self._loaded_sources and path != loaded_path:
                 # Duplicated name
                 error_tb(self._vim, 'Duplicated source: %s' % source.name)
                 error_tb(self._vim, 'path: "%s" "%s"' %
-                         (path, self._loaded_sources[source.name]))
+                         (path, loaded_path))
                 source = None
         except Exception:
             error_tb(self._vim, 'Could not load source: %s' % path)
@@ -121,6 +134,9 @@ class Child(logger.LoggingMixin):
                     f'Loaded Source: {source.name} ({path})')
 
     def _add_filter(self, path: str) -> None:
+        # Resolve symbolic link
+        path = str(Path(path).resolve())
+
         f = None
         try:
             Filter = import_plugin(path, 'filter', 'Filter')
@@ -128,14 +144,15 @@ class Child(logger.LoggingMixin):
                 return
 
             f = Filter(self._vim)
-            name = os.path.splitext(os.path.basename(path))[0]
+            name = Path(path).stem
             f.name = getattr(f, 'name', name)
             f.path = path
-            if f.name in self._loaded_filters:
+            loaded_path = self._loaded_filters.get(f.name, '')
+            if f.name in self._loaded_filters and path != loaded_path:
                 # Duplicated name
                 error_tb(self._vim, 'Duplicated filter: %s' % f.name)
                 error_tb(self._vim, 'path: "%s" "%s"' %
-                         (path, self._loaded_filters[f.name]))
+                         (path, loaded_path))
                 f = None
         except Exception:
             # Exception occurred when loading a filter.  Log stack trace.
@@ -176,8 +193,8 @@ class Child(logger.LoggingMixin):
         }
 
     def _gather_results(self, context: UserContext) -> typing.List[Result]:
-        if (context['changedtick'] !=
-                self._vim.current.buffer.vars.get('changedtick', 0)):
+        # Note: self._vim.current.buffer may not work when Vim quit
+        if context['changedtick'] != self._vim.eval('b:changedtick'):
             return []
         results = []
 
@@ -222,6 +239,8 @@ class Child(logger.LoggingMixin):
                     source.is_volatile, source.is_async)):
             return self._prev_results[source.name]
 
+        ctx['bufpath'] = context['bufpath']
+        ctx['cwd'] = context['cwd']
         ctx['is_async'] = False
         ctx['is_refresh'] = True
         ctx['max_abbr_width'] = min(source.max_abbr_width,
@@ -322,8 +341,7 @@ class Child(logger.LoggingMixin):
             error_tb(self._vim, 'Errors from: %s' % f)
 
     def _get_candidates(self, result: Result,
-                        context_input: str, next_input: str
-                        ) -> typing.Optional[Candidates]:
+                        context_input: str, next_input: str) -> Candidates:
         source = result['source']
 
         # Gather async results
@@ -331,7 +349,7 @@ class Child(logger.LoggingMixin):
             self._gather_async_results(result, source)
 
         if not result['candidates']:
-            return None
+            return []
 
         # Source context
         ctx = copy.copy(result['context'])
@@ -423,7 +441,7 @@ class Child(logger.LoggingMixin):
             # Remove duplicates
             ctx['candidates'] = uniq_list_dict(ctx['candidates'])
 
-        return ctx['candidates']  # type: ignore
+        return list(ctx['candidates'])
 
     def _itersource(self, context: UserContext
                     ) -> typing.Generator[typing.Any, None, None]:
@@ -435,7 +453,9 @@ class Child(logger.LoggingMixin):
                                'ignore_sources', ft, []))
 
         for source_name, source in self._get_sources().items():
-            if source.filetypes is None or source_name in ignore_sources:
+            if source.filetypes is None or (
+                    source_name in ignore_sources and
+                    context['event'] != 'Manual'):
                 continue
             if context['sources'] and source_name not in context['sources']:
                 continue
@@ -501,10 +521,10 @@ class Child(logger.LoggingMixin):
                         context['input'].find(result['prev_input']) == 0)
 
     def _is_skip(self, context: UserContext, source: typing.Any) -> bool:
-        if 'syntax_names' in context and source.disabled_syntaxes:
-            p = re.compile('(' + '|'.join(source.disabled_syntaxes) + ')$')
-            if next(filter(p.search, context['syntax_names']), None):
-                return True
+        if (context.get('syntax_names', []) and source.disabled_syntaxes
+                and len(set(context['syntax_names']) &
+                        set(source.disabled_syntaxes)) > 0):
+            return True
 
         iminsert = self._vim.call('getbufvar', '%', '&iminsert')
         if iminsert == 1 and source.is_skip_langmap:
@@ -515,7 +535,9 @@ class Child(logger.LoggingMixin):
             if (input_pattern != '' and
                     re.search('(' + input_pattern + ')$', context['input'])):
                 return False
-        if context['event'] == 'Manual':
+        auto_complete_popup = self._vim.call(
+            'deoplete#custom#_get_option', 'auto_complete_popup')
+        if context['event'] == 'Manual' or auto_complete_popup == 'manual':
             return False
         return not (source.min_pattern_length <=
                     len(context['complete_str']) <= source.max_pattern_length)
@@ -575,6 +597,7 @@ class Child(logger.LoggingMixin):
 
     def _on_event(self, context: UserContext) -> None:
         event = context['event']
+        context['vars'] = self._vim.vars
         for source_name, source in self._itersource(context):
             if not source.events or event in source.events:
                 try:
@@ -586,6 +609,7 @@ class Child(logger.LoggingMixin):
 
         for f in self._filters.values():
             f.on_event(context)
+        context['vars'] = None
 
     def _get_sources(self) -> typing.Dict[str, typing.Any]:
         # Note: for the size change of "self._sources" error

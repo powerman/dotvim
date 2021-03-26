@@ -35,10 +35,6 @@ function! deoplete#util#get_input(event) abort
         \         '^.*\%' . (mode ==# 'i' ? col('.') : col('.') - 1)
         \         . 'c' . (mode ==# 'i' ? '' : '.'))
 
-  if a:event ==# 'InsertCharPre'
-    let input .= v:char
-  endif
-
   return input
 endfunction
 function! deoplete#util#get_next_input(event) abort
@@ -208,4 +204,22 @@ function! deoplete#util#check_eskk_phase_henkan() abort
   let preedit = eskk#get_preedit()
   let phase = preedit.get_henkan_phase()
   return phase is g:eskk#preedit#PHASE_HENKAN
+endfunction
+
+function! deoplete#util#check_popup() abort
+  return exists('*complete_info') && complete_info().mode ==# 'eval'
+endfunction
+
+function! deoplete#util#indent_current_line() abort
+  let pos = getpos('.')
+  let len = len(getline('.'))
+  let equalprg = &l:equalprg
+  try
+    setlocal equalprg=
+    silent normal! ==
+  finally
+    let &l:equalprg = equalprg
+    let pos[2] += len(getline('.')) - len
+    call setpos('.', pos)
+  endtry
 endfunction

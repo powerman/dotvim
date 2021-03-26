@@ -4,15 +4,16 @@
 # License: MIT license
 # ============================================================================
 
+from pathlib import Path
+from pynvim import Nvim
 import copy
 import glob
-import os
 import typing
 
 import deoplete.parent
 from deoplete import logger
 from deoplete.context import Context
-from deoplete.util import error, error_tb, Nvim
+from deoplete.util import error, error_tb
 
 UserContext = typing.Dict[str, typing.Any]
 Candidates = typing.Dict[str, typing.Any]
@@ -70,6 +71,8 @@ class Deoplete(logger.LoggingMixin):
     def completion_begin(self, user_context: UserContext) -> None:
         if not self._context:
             self.init_context()
+        else:
+            self._context._init_cached()
 
         context = self._context.get(user_context['event'])  # type: ignore
         context.update(user_context)
@@ -96,27 +99,33 @@ class Deoplete(logger.LoggingMixin):
         if needs_poll:
             self._vim.call('deoplete#handler#_async_timer_start')
 
-        if not candidates:
-            self._vim.call('deoplete#mapping#_restore_completeopt')
-
-        # Async update is skipped if same.
         prev_completion = self._vim.vars['deoplete#_prev_completion']
+
+        # Skip if async update is same.
+        # Note: If needs_poll, it cannot be skipped.
         prev_candidates = prev_completion['candidates']
         event = context['event']
-        if (event == 'Async' or event == 'Update' and
-                prev_candidates and candidates == prev_candidates):
+        same_candidates = prev_candidates and candidates == prev_candidates
+        if not needs_poll and same_candidates and (
+                event == 'Async' or event == 'Update'):
+            return
+
+        # Skip if old completion.
+        if context['time'] < prev_completion['time']:
             return
 
         # error(self._vim, candidates)
         self._vim.vars['deoplete#_context'] = {
             'complete_position': position,
+            'complete_str': context['input'][position:],
             'candidates': candidates,
             'event': context['event'],
             'input': context['input'],
-            'is_async': is_async,
+            'time': context['time'],
+            'is_async': needs_poll,
         }
 
-        if candidates:
+        if candidates or self._vim.call('deoplete#util#check_popup'):
             self.debug('do_complete (%s): '  # type: ignore
                        + '%d candidates, input=%s, complete_position=%d, '
                        + 'is_async=%d',
@@ -165,9 +174,15 @@ class Deoplete(logger.LoggingMixin):
 
     def _merge_results(self, context: UserContext) -> typing.Tuple[
             bool, bool, int, typing.List[typing.Any]]:
+        # If parallel feature is enabled, it is updated frequently.
+        # But if it is single process, it cannot be updated.
+        # So it must be updated.
+        async_check = len(self._parents) > 1 or (
+            context['event'] != 'Async' and context['event'] != 'Update')
         use_prev = (context['input'] == self._prev_input
                     and context['next_input'] == self._prev_next_input
-                    and context['event'] != 'Manual')
+                    and context['event'] != 'Manual'
+                    and async_check)
         if not use_prev:
             self._prev_results = {}
 
@@ -182,7 +197,8 @@ class Deoplete(logger.LoggingMixin):
         complete_position = min(x['complete_position'] for x in results)
 
         all_candidates: typing.List[Candidates] = []
-        for result in sorted(results, key=lambda x: x['rank'], reverse=True):
+        for result in sorted(results,
+                             key=lambda x: int(x['rank']), reverse=True):
             candidates = result['candidates']
             prefix = context['input'][
                 complete_position:result['complete_position']]
@@ -228,25 +244,24 @@ class Deoplete(logger.LoggingMixin):
             return
 
         sources = (
-            os.path.join('rplugin', 'python3', 'deoplete',
-                         source, '*.py'),
-            os.path.join('rplugin', 'python3', 'deoplete',
-                         source + 's', '*.py'),
-            os.path.join('rplugin', 'python3', 'deoplete',
-                         source, '*', '*.py'),
+            Path('rplugin').joinpath('python3', 'deoplete',
+                                     source, '*.py'),
+            Path('rplugin').joinpath('python3', 'deoplete',
+                                     source + 's', '*.py'),
+            Path('rplugin').joinpath('python3', 'deoplete',
+                                     source, '*', '*.py'),
         )
 
         for src in sources:
             for path in self._runtimepath_list:
-                yield from glob.iglob(os.path.join(path, src))
+                yield from glob.iglob(str(Path(path).joinpath(src)))
 
     def _load_sources(self, context: UserContext) -> None:
         if not self._parents and self._max_parents == 1:
             self._add_parent(deoplete.parent.SyncParent)
 
         for path in self._find_rplugins('source'):
-            if (path in self._loaded_paths
-                    or os.path.basename(path) == 'base.py'):
+            if path in self._loaded_paths or Path(path).name == 'base.py':
                 continue
             self._loaded_paths.add(path)
 

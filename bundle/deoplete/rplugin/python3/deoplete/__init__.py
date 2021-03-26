@@ -4,19 +4,17 @@
 # License: MIT license
 # ============================================================================
 
+from importlib.util import find_spec
+from pynvim import Nvim
 import typing
 
-from importlib.util import find_spec
 from deoplete.deoplete import Deoplete
-from deoplete.util import Nvim
 
 
 if find_spec('yarp'):
     import vim
-elif find_spec('pynvim'):
-    import pynvim as vim
 else:
-    import neovim as vim
+    import pynvim as vim
 
 Context = typing.Dict[str, typing.Any]
 
@@ -33,6 +31,7 @@ if hasattr(vim, 'plugin'):
         def init_channel(self,
                          args: typing.List[typing.Any]) -> None:
             self._deoplete = Deoplete(self._vim)
+            self._vim.call('deoplete#send_event', 'BufReadPost')
 
         @vim.rpc_export('deoplete_enable_logging')  # type: ignore
         def enable_logging(self, context: Context) -> None:
@@ -56,7 +55,7 @@ if find_spec('yarp'):
     global_deoplete = Deoplete(vim)
 
     def deoplete_init() -> None:
-        pass
+        global_deoplete._vim.call('deoplete#send_event', 'BufReadPost')
 
     def deoplete_enable_logging(context: Context) -> None:
         global_deoplete.enable_logging()

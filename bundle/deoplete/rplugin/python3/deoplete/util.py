@@ -4,21 +4,17 @@
 # License: MIT license
 # ============================================================================
 
-import os
-import re
-import sys
+from os.path import expandvars
+from pathlib import Path
+from pynvim import Nvim
+from pynvim.api import Buffer
 import glob
 import importlib.util
+import re
+import sys
 import traceback
 import typing
 import unicodedata
-
-if importlib.util.find_spec('pynvim'):
-    from pynvim import Nvim
-    from pynvim.api import Buffer
-else:
-    from neovim import Nvim
-    from neovim.api import Buffer
 
 UserContext = typing.Dict[str, typing.Any]
 Candidate = typing.Dict[str, typing.Any]
@@ -35,16 +31,16 @@ def convert2list(expr: typing.Any) -> typing.List[typing.Any]:
     return (expr if isinstance(expr, list) else [expr])
 
 
-def convert2candidates(l: typing.Any) -> Candidates:
+def convert2candidates(li: typing.Any) -> Candidates:
     ret = []
-    if l and isinstance(l, list):
-        for x in l:
+    if li and isinstance(li, list):
+        for x in li:
             if isinstance(x, str):
                 ret.append({'word': x})
             else:
                 ret.append(x)
     else:
-        ret = l
+        ret = li
     return ret
 
 
@@ -61,7 +57,7 @@ def import_plugin(path: str, source: str,
 
     If the class exists, add its directory to sys.path.
     """
-    name = os.path.splitext(os.path.basename(path))[0]
+    name = str(Path(path).name)[: -3]
     module_name = 'deoplete.%s.%s' % (source, name)
 
     spec = importlib.util.spec_from_file_location(module_name, path)
@@ -71,7 +67,7 @@ def import_plugin(path: str, source: str,
     if not cls:
         return None
 
-    dirname = os.path.dirname(path)
+    dirname = str(Path(path).parent)
     if dirname not in sys.path:
         sys.path.insert(0, dirname)
     return cls
@@ -141,16 +137,16 @@ def get_custom(custom: typing.Dict[str, typing.Any],
         return default
 
 
-def get_syn_names(vim: Nvim) -> str:
-    return str(vim.call('deoplete#util#get_syn_names'))
+def get_syn_names(vim: Nvim) -> typing.List[str]:
+    return list(vim.call('deoplete#util#get_syn_names'))
 
 
 def parse_file_pattern(f: typing.Iterable[str],
                        pattern: str) -> typing.List[str]:
     p = re.compile(pattern)
     ret: typing.List[str] = []
-    for l in f:
-        ret += p.findall(l)
+    for li in f:
+        ret += p.findall(li)
     return list(set(ret))
 
 
@@ -169,8 +165,8 @@ def fuzzy_escape(string: str, camelcase: bool) -> str:
 
 
 def load_external_module(base: str, module: str) -> None:
-    current = os.path.dirname(os.path.abspath(base))
-    module_dir = os.path.join(os.path.dirname(current), module)
+    current = Path(base).parent.resolve()
+    module_dir = str(current.parent.joinpath(module))
     if module_dir not in sys.path:
         sys.path.insert(0, module_dir)
 
@@ -219,7 +215,20 @@ def charwidth(c: str) -> int:
 
 
 def expand(path: str) -> str:
-    return os.path.expanduser(os.path.expandvars(path))
+    if path.startswith('~'):
+        try:
+            path = str(Path(path).expanduser())
+        except Exception:
+            pass
+    return expandvars(path)
+
+
+def exists_path(path: str) -> bool:
+    try:
+        return Path(path).exists()
+    except Exception:
+        pass
+    return False
 
 
 def getlines(vim: Nvim, start: int = 1,
@@ -235,23 +244,23 @@ def getlines(vim: Nvim, start: int = 1,
     return lines
 
 
-def binary_search_begin(l: typing.List[Candidates], prefix: str) -> int:
-    if not l:
+def binary_search_begin(li: typing.List[Candidates], prefix: str) -> int:
+    if not li:
         return -1
-    if len(l) == 1:
-        word = l[0]['word']  # type: ignore
+    if len(li) == 1:
+        word = li[0]['word']  # type: ignore
         return 0 if word.lower().startswith(prefix) else -1
 
     s = 0
-    e = len(l)
+    e = len(li)
     prefix = prefix.lower()
     while s < e:
         index = int((s + e) / 2)
-        word = l[index]['word'].lower()  # type: ignore
+        word = li[index]['word'].lower()  # type: ignore
         if word.startswith(prefix):
             if (index - 1) < 0:
                 return index
-            prev_word = l[index-1]['word']  # type: ignore
+            prev_word = li[index-1]['word']  # type: ignore
             if not prev_word.lower().startswith(prefix):
                 return index
             e = index
@@ -262,23 +271,23 @@ def binary_search_begin(l: typing.List[Candidates], prefix: str) -> int:
     return -1
 
 
-def binary_search_end(l: typing.List[Candidates], prefix: str) -> int:
-    if not l:
+def binary_search_end(li: typing.List[Candidates], prefix: str) -> int:
+    if not li:
         return -1
-    if len(l) == 1:
-        word = l[0]['word']  # type: ignore
+    if len(li) == 1:
+        word = li[0]['word']  # type: ignore
         return 0 if word.lower().startswith(prefix) else -1
 
     s = 0
-    e = len(l)
+    e = len(li)
     prefix = prefix.lower()
     while s < e:
         index = int((s + e) / 2)
-        word = l[index]['word'].lower()  # type: ignore
+        word = li[index]['word'].lower()  # type: ignore
         if word.startswith(prefix):
-            if (index + 1) >= len(l):
+            if (index + 1) >= len(li):
                 return index
-            next_word = l[index+1]['word']  # type: ignore
+            next_word = li[index+1]['word']  # type: ignore
             if not next_word.lower().startswith(prefix):
                 return index
             s = index + 1
@@ -289,10 +298,10 @@ def binary_search_end(l: typing.List[Candidates], prefix: str) -> int:
     return -1
 
 
-def uniq_list_dict(l: typing.List[typing.Any]) -> typing.List[typing.Any]:
+def uniq_list_dict(li: typing.List[typing.Any]) -> typing.List[typing.Any]:
     # Uniq list of dictionaries
     ret: typing.List[typing.Any] = []
-    for d in l:
+    for d in li:
         if d not in ret:
             ret.append(d)
     return ret
