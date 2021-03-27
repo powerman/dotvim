@@ -387,21 +387,6 @@ autocmd FileType go nnoremap <buffer> Q} gq/\m\%#.*\(^\s*\/\/.*\)\@<=\(\n\s*\/\/
 " Plugin: go
 " Plugin: html5
 
-" Avoid slowdown at startup.
-let g:python3_host_prog = '/usr/bin/python3'
-let g:deoplete#enable_at_startup = 0
-call timer_start(1, 'DeopleteEnable', {})
-func DeopleteEnable(timer)
-    silent call deoplete#enable()
-endfunc
-
-" Autocomplete style.
-call deoplete#custom#source('_',
-    \ 'matchers', ['matcher_head'])
-
-" <Tab> behaviour.
-call deoplete#custom#option('auto_complete_popup', 'manual')
-
 " XXX Often (but not always!) after these two steps:
 " 1. Press <S-Tab> to expand some UltiSnip's snipped.
 " 2. Press :w to trigger vim-go autosave which WILL reformat file.
@@ -414,24 +399,57 @@ call deoplete#custom#option('auto_complete_popup', 'manual')
 " same file next time.
 " So, let's unmap these mappings as a dirty workaround.
 autocmd BufEnter * call s:unmap_bad_view()
-function s:unmap_bad_view()
+function! s:unmap_bad_view()
     silent! iunmap <buffer> <Tab>
     silent! sunmap <buffer> <Tab>
     silent! iunmap <buffer> <S-Tab>
     silent! sunmap <buffer> <S-Tab>
 endfunction
 
+" Avoid slowdown at startup.
+let g:python3_host_prog = '/usr/bin/python3'
+let g:deoplete#enable_at_startup = 1
+" call timer_start(1, 'DeopleteEnable', {})
+" func DeopleteEnable(timer)
+"     silent call deoplete#enable()
+" endfunc
+
+" Autocomplete style.
+call deoplete#custom#source('_',
+    \ 'matchers', ['matcher_head'])
+call deoplete#custom#option({
+    \ 'auto_complete_popup': 'manual',
+    \ })
+
+let s:in_complete = v:false " Like pumvisible() when auto_complete_popup=manual.
+
+autocmd CompleteDone * let s:in_complete = v:false
+
+" With popup: avoid needs to confirm selection from menu with <C-y>.
+inoremap <expr> <Down>  pumvisible() ? "\<C-n>" : "\<Down>"
+inoremap <expr> <Up>    pumvisible() ? "\<C-p>" : "\<Up>"
+" Tab combines two features: smart tab/space and take next completion.
+" - If previous char is a space then insert <Tab> or <Space> in a smart way;
+" - If popup shown (auto_complete_popup=auto):
+"   - <Tab> is just same as <Down>: take next completion.
+" - Else (auto_complete_popup=manual):
+"   - If completion isn't active but possible then start it;
+"   - Else if completion is already in progress then take next completion;
+"   - Else start generic (non-deoplete) completion as a fallback.
 inoremap <silent><expr> <TAB>
-    \ pumvisible() ? "\<C-n>" :
     \ <SID>check_back_space() ? <SID>smart_tab() :
-    \ <SID>manual_complete()
+    \ <SID>is_in_complete() ? "\<C-n>" :
+    \ deoplete#can_complete() ? <SID>complete_deoplete() : <SID>complete_generic()
+" Fix indent on <CR> at end of line with active completion.
+inoremap <silent><expr> <CR>
+    \ <SID>is_in_complete() ? <SID>fix_cr_indent() : "\<CR>"
 
 function! s:check_back_space() abort
     let col = col('.') - 1
     return !col || getline('.')[col - 1] =~# '\s'
 endfunction
 
-function s:smart_tab()
+function! s:smart_tab()
     let col = col('.') - 1
     if &expandtab || !col || getline('.')[:col-1] =~# '^\s*$'
         return "\<Tab>"
@@ -439,15 +457,24 @@ function s:smart_tab()
     return ' '
 endfunction
 
-function! s:manual_complete()
-    call timer_start(100, {-> feedkeys("\<C-n>", 'in')})
-    return deoplete#manual_complete()
+function! s:is_in_complete() abort
+    return pumvisible() || s:in_complete
 endfunction
 
-" Experimental.
-inoremap <expr> <CR>    pumvisible() ? "\<C-y>" : "\<CR>"
-inoremap <expr> <Down>  pumvisible() ? "\<C-n>" : "\<Down>"
-inoremap <expr> <Up>    pumvisible() ? "\<C-p>" : "\<Up>"
+function! s:complete_deoplete()
+    let s:in_complete = v:true
+    return deoplete#complete()
+endfunction
+
+function! s:complete_generic()
+    let s:in_complete = v:true
+    return "\<C-n>"
+endfunction
+
+function! s:fix_cr_indent()
+    call timer_start(1, {-> feedkeys("\<CR>", 'in')})
+    return " \<BS>" " Stop completion to fix autoindent on following <CR>.
+endfunction
 
 " Configure file types.
 call deoplete#custom#var('omni', 'functions', {
@@ -455,14 +482,10 @@ call deoplete#custom#var('omni', 'functions', {
     \ 'javascript':  ['javascriptcomplete#CompleteJS'],
     \ })
 call deoplete#custom#var('omni', 'input_patterns', {
+    \ 'go':          ['[^. *\t]\.\w*', '\w'],
     \ 'javascript':  ['[^. *\t]\.\w*', '^\w+', '\s\w+'],
-    \ 'css':         ['^\w+', '\s\w+'],
     \ })
-" XXX Теоретически input_patterns должен быть более функционален, но он
-" почему-то глючит для Go, поэтому пока используем omni_patterns.
-"     \ 'go': ['[^. *\t]\.\w*', '^\w\+', '\s\w\+'],
 call deoplete#custom#option('omni_patterns', {
-    \ 'go':     ['[^. *\t]\.\w*'],
     \ 'html':   ['<\w*', '</\w*', '<[^>]*\s[[:alnum:]-]*'],
     \ 'xhtml':  ['<\w*', '</\w*', '<[^>]*\s[[:alnum:]-]*'],
     \ 'xml':    ['<\w*', '</\w*', '<[^>]*\s[[:alnum:]-]*'],
