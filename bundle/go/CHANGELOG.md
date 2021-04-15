@@ -65,6 +65,10 @@ IMPROVEMENTS:
 * Add `:GoDebugConnect` to support connecting to an instance of delve started
   outside of vim-go.
   [[GH-3179]](https://github.com/fatih/vim-go/pull/3179)
+* Use gopls to adjust imports and formatting by default.
+  [[GH-2986]](https://github.com/fatih/vim-go/pull/2986)
+* Set the filetype for .tmpl files to gohtmltmpl even if it's already been set.
+  [[GH-3146]](https://github.com/fatih/vim-go/pull/3146)
 
 BUG FIXES:
 * Remove implications that terminal mode is only applied for Neovim.
@@ -98,6 +102,11 @@ BUG FIXES:
 * Rename all instances of an identifier when `g:go_rename_mode` is `gopls`.
   [[GH-3181]](https://github.com/fatih/vim-go/pull/3181)
   [[GH-3182]](https://github.com/fatih/vim-go/pull/3182)
+* Terminate a case statement in the select snippet with a colon.
+  [[GH-3185]](https://github.com/fatih/vim-go/pull/3185)
+* Fix syntax highlighting in template files.
+  [[GH-3188]](https://github.com/fatih/vim-go/pull/3188)
+  [[GH-3189]](https://github.com/fatih/vim-go/pull/3189)
 
 ## v1.24 - (September 15, 2020)
 
