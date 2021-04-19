@@ -476,11 +476,16 @@ function! s:fix_cr_indent()
     return " \<BS>" " Stop completion to fix autoindent on following <CR>.
 endfunction
 
+" Prevent showing "vim-go: no matches" after every keypress (this happens only in some projects).
+function! SilentGoComplete(findstart, base) abort
+    silent! return go#complete#Complete(a:findstart, a:base)
+endfunction
+
 " Configure file types.
 call deoplete#custom#var('omni', 'functions', {
     \ 'css':         ['csscomplete#CompleteCSS'],
     \ 'javascript':  ['javascriptcomplete#CompleteJS'],
-    \ 'go':          ['go#complete#Complete'],
+    \ 'go':          ['SilentGoComplete'],
     \ })
 call deoplete#custom#var('omni', 'input_patterns', {
     \ 'go':          '[^. *\t]\.\w*|^\w+|\s\w+',
