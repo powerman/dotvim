@@ -729,6 +729,13 @@ autocmd FileType go nmap <buffer> <nowait> <Leader>gb    <Plug>(go-doc-browser)
 autocmd FileType go nmap <buffer> <nowait> <Leader>s     <Plug>(go-implements)
 autocmd FileType go nmap <buffer> <nowait> <Leader>i     <Plug>(go-info)
 autocmd FileType go nmap <buffer> <nowait> <Leader>e     <Plug>(go-rename)
+" Try to use <Cmd>GoIfErr<CR> after upgrading to 8.2.1978.
+autocmd FileType go iabbr <buffer> errn                  <C-R>=<SID>goiferr()<CR>
+
+function! s:goiferr()
+    call go#iferr#Generate()
+    return "\<Esc>O"
+endfunction
 
 function! s:setlocal()
     try
