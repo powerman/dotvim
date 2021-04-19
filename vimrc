@@ -480,10 +480,11 @@ endfunction
 call deoplete#custom#var('omni', 'functions', {
     \ 'css':         ['csscomplete#CompleteCSS'],
     \ 'javascript':  ['javascriptcomplete#CompleteJS'],
+    \ 'go':          ['go#complete#Complete'],
     \ })
 call deoplete#custom#var('omni', 'input_patterns', {
-    \ 'go':          ['[^. *\t]\.\w*', '\w'],
-    \ 'javascript':  ['[^. *\t]\.\w*', '^\w+', '\s\w+'],
+    \ 'go':          '[^. *\t]\.\w*|^\w+|\s\w+',
+    \ 'javascript':  '[^. *\t]\.\w*|^\w+|\s\w+',
     \ })
 call deoplete#custom#option('omni_patterns', {
     \ 'html':   ['<\w*', '</\w*', '<[^>]*\s[[:alnum:]-]*'],
@@ -720,7 +721,7 @@ let g:go_build_tags = 'integration'
 let g:go_gopls_matcher = 'caseSensitive'
 let g:go_gopls_deep_completion = 0
 let g:go_gopls_temp_modfile = 1
-let g:go_gopls_use_placeholders = 1
+let g:go_gopls_use_placeholders = 0
 autocmd FileType go nmap <buffer> <nowait> <Leader>r     <Plug>(go-run)
 autocmd FileType go nmap <buffer> <nowait> <Leader>b     <Plug>(go-build)
 autocmd FileType go nmap <buffer> <nowait> <Leader>t     <Plug>(go-test)
