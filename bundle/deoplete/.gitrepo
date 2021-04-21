@@ -6,7 +6,7 @@
 [subrepo]
 	remote = https://github.com/Shougo/deoplete.nvim.git
 	branch = master
-	commit = 14bdca5c5619b5f153d1e0a78cd9b5cbcf51bebc
-	parent = b165eaecc4f7ee65d237b4d57f22db0c7a09de95
+	commit = 187b2bd2beb7802e66c93900430c29b4ab9c20c8
+	parent = 3b8229479c1aed950e6d6fe1627585b66987b959
 	method = merge
 	cmdver = 0.4.1
