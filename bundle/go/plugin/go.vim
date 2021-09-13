@@ -47,6 +47,7 @@ let s:packages = {
       \ 'godef':         ['github.com/rogpeppe/godef@latest'],
       \ 'goimports':     ['golang.org/x/tools/cmd/goimports@master'],
       \ 'golint':        ['golang.org/x/lint/golint@master'],
+      \ 'revive':        ['github.com/mgechev/revive@latest'],
       \ 'gopls':         ['golang.org/x/tools/gopls@latest', {}, {'after': function('go#lsp#Restart', [])}],
       \ 'golangci-lint': ['github.com/golangci/golangci-lint/cmd/golangci-lint@latest'],
       \ 'staticcheck':   ['honnef.co/go/tools/cmd/staticcheck@latest'],
@@ -132,6 +133,7 @@ function! s:GoInstallBinaries(updateBinaries, ...)
   let l:oldmore = &more
   let &more = 0
 
+  let Restore_modules = go#util#SetEnv('GO111MODULE', 'on')
   for [l:binary, l:pkg] in items(l:packages)
     let l:importPath = l:pkg[0]
 
@@ -158,7 +160,6 @@ function! s:GoInstallBinaries(updateBinaries, ...)
       endif
 
       if l:importPath =~ "@"
-        let Restore_modules = go#util#SetEnv('GO111MODULE', 'on')
         let l:tmpdir = go#util#tempdir('vim-go')
         try
           let l:dir = go#util#Chdir(l:tmpdir)
@@ -179,34 +180,6 @@ function! s:GoInstallBinaries(updateBinaries, ...)
         finally
           call go#util#Chdir(l:dir)
         endtry
-      else
-        let l:get_cmd = copy(l:get_base_cmd)
-        let l:get_cmd += ['-d']
-        if get(g:, "go_get_update", 1) != 0
-          let l:get_cmd += ['-u']
-        endif
-
-        let Restore_modules = go#util#SetEnv('GO111MODULE', 'off')
-
-        " first download the binary
-        let [l:out, l:err] = go#util#Exec(l:get_cmd + [l:importPath])
-        if l:err
-          call go#util#EchoError(printf('Error downloading %s: %s', l:importPath, l:out))
-        endif
-
-        " and then build and install it
-        let l:build_cmd = ['go', 'build']
-        if len(l:pkg) > 1 && get(l:pkg[1], l:platform, []) isnot []
-          let l:build_cmd += get(l:pkg[1], l:platform, [])
-        endif
-        let l:build_cmd += ['-o', printf('%s%s%s', go_bin_path, go#util#PathSep(), bin), l:importPath]
-
-        let [l:out, l:err] = go#util#Exec(l:build_cmd)
-        if l:err
-          call go#util#EchoError(printf('Error installing %s: %s', l:importPath, l:out))
-        endif
-
-        call call(Restore_modules, [])
       endif
 
       if len(l:pkg) > 2
@@ -216,6 +189,7 @@ function! s:GoInstallBinaries(updateBinaries, ...)
   endfor
 
   " restore back!
+  call call(Restore_modules, [])
   call call(Restore_path, [])
   call call(Restore_gobin, [])
   call call(Restore_goarch, [])
