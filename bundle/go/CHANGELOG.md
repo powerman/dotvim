@@ -40,6 +40,14 @@ IMPROVEMENTS:
   source is hosted in a local location that is different from where the binary
   was compiled.
   [[GH-3301]](https://github.com/fatih/vim-go/pull/3301)
+* Wrap text in the fzf preview window by default.
+  [[GH-3310]](https://github.com/fatih/vim-go/pull/3310)
+* Wait for up to five seconds when opening a connection to a remote debugger.
+  [[GH-3312]](https://github.com/fatih/vim-go/pull/3312)
+* Install tools with `go install` instead of `go get`.
+  [[GH-3317]](https://github.com/fatih/vim-go/pull/3317)
+* Update `:GoPlay` to use `go.dev/play` instead of `play.golang.org`.
+  [[GH-3331]](https://github.com/fatih/vim-go/pull/3331)
 
 BUG FIXES:
 * Handle terminating parenthesis on hexadecimal values.
@@ -57,6 +65,9 @@ BUG FIXES:
 * Highlight the receive type when method declarations that omit the receiver
   identifier.
   [[GH-3306]](https://github.com/fatih/vim-go/pull/3306)
+* Do not highlight misspellings in import paths.
+  [[GH-3308]](https://github.com/fatih/vim-go/pull/3308)
+  [[GH-3321]](https://github.com/fatih/vim-go/pull/3321)
 
 ## v1.25 - (April 18, 2021)
 
