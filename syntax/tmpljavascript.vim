@@ -7,7 +7,7 @@
 "		(ss) repaired several quoting and grouping glitches
 "		(ss) fixed regex parsing issue with multiple qualifiers [gi]
 "		(ss) additional factoring of keywords, globals, and members
-" Last Change:	2019 Sep 27
+" Last Change:	2021 Mar 30
 " 		2013 Jun 12: adjusted tmpljavaScriptRegexpString (Kevin Locke)
 " 		2018 Apr 14: adjusted tmpljavaScriptRegexpString (LongJohnCoder)
 
@@ -41,6 +41,7 @@ syn region  tmpljavaScriptEmbed	       start=+${+  end=+}+	contains=@tmpljavaScr
 
 syn match   tmpljavaScriptSpecialCharacter "'\\.'"
 syn match   tmpljavaScriptNumber	       "-\=\<\d\+L\=\>\|0[xX][0-9a-fA-F]\+\>"
+syn match   tmpljavaScriptNumber	       "-\=\<\d\+\%(_\d\+\)*\>"
 syn region  tmpljavaScriptRegexpString     start=+[,(=+]\s*/[^/*]+ms=e-1,me=e-1 skip=+\\\\\|\\/+ end=+/[gimuys]\{0,2\}\s*$+ end=+/[gimuys]\{0,2\}\s*[+;.,)\]}]+me=e-1 end=+/[gimuys]\{0,2\}\s\+\/+me=e-1 contains=@htmlPreproc,tmpljavaScriptComment oneline
 
 syn keyword tmpljavaScriptConditional	if else switch
@@ -77,10 +78,10 @@ else
     syn match	tmpljavaScriptParens	   "[()]"
 endif
 
-syn sync fromstart
-syn sync maxlines=100
-
 if main_syntax == "tmpljavascript"
+  syn sync fromstart
+  syn sync maxlines=100
+
   syn sync ccomment tmpljavaScriptComment
 endif
 
