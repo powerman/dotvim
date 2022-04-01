@@ -856,6 +856,8 @@ let perlpath = ''
 autocmd BufNewFile,BufRead */bin/*.go   let b:syntastic_go_go_build_args=g:syntastic_go_go_build_args.' '.expand('%:p')
 " packages which depends on static libgit2/git2go
 autocmd BufNewFile,BufRead */vcprompt-fast/*.go let b:syntastic_go_go_build_args=g:syntastic_go_go_build_args.' -tags static -buildmode pie'
+" convenient screenshots for audit
+autocmd BufRead */samat/src*            set laststatus=2
 
 """ Улучшение определения типа файлов                           
 autocmd BufRead */.fluxbox/keys                 set ft=fluxkeys
