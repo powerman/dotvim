@@ -24,6 +24,7 @@ IMPROVEMENTS:
   [[GH-3252]](https://github.com/fatih/vim-go/pull/3252)
 * Default to using `revive` in place of `golint`.
   [[GH-3248]](https://github.com/fatih/vim-go/pull/3248)
+  [[GH-3401]](https://github.com/fatih/vim-go/pull/3401)
 * Teach `:GoDebugPrint` to show function call return values.
   [[GH-3256]](https://github.com/fatih/vim-go/pull/3256)
 * Do not enable keyify unless in GOPATH.
@@ -62,6 +63,8 @@ IMPROVEMENTS:
   disk and is open in a buffer.
   [[GH-3387]](https://github.com/fatih/vim-go/pull/3387)
   [[GH-3391]](https://github.com/fatih/vim-go/pull/3391)
+* Add syntax support for generics.
+  [[GH-3397]](https://github.com/fatih/vim-go/pull/3397)
 
 BUG FIXES:
 * Handle terminating parenthesis on hexadecimal values.
@@ -91,6 +94,8 @@ BUG FIXES:
   [[GH-3353]](https://github.com/fatih/vim-go/pull/3353)
 * Fix `:GoRename` in Neovim so that it does not take 10 seconds to complete.
   [[GH-3386]](https://github.com/fatih/vim-go/pull/3386)
+* Fix `:GoDebugConnect` argument handling.
+  [[GH-3400]](https://github.com/fatih/vim-go/pull/3400)
 
 ## v1.25 - (April 18, 2021)
 
