@@ -7,7 +7,7 @@ endif
 let colors_name = 'powerman'
 
 """ Базовые
-hi Normal                        ctermfg=7    ctermbg=4    cterm=NONE      guifg=#888888 guibg=#000088 gui=NONE
+hi Normal                        ctermfg=7    ctermbg=18   cterm=NONE      guifg=#888888 guibg=#000088 gui=NONE
 hi Comment                       ctermfg=6    ctermbg=0    cterm=NONE      guifg=#008888 guibg=#000000 gui=NONE
 hi PreProc                       ctermfg=5    ctermbg=0    cterm=bold      guifg=#880088 guibg=#000000 gui=bold
 hi Constant                      ctermfg=3    ctermbg=NONE cterm=bold      guifg=#884400 guibg=NONE    gui=bold
