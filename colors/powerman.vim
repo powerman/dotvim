@@ -25,6 +25,7 @@ hi ColorColumn                   ctermfg=4    ctermbg=NONE cterm=bold      guifg
 """ Стоп-слова
 hi Todo                                       ctermbg=3    cterm=NONE                    guibg=#884400 gui=NONE
 """ vim
+hi DiffAdd                                    ctermbg=18
 hi vimBracket                    ctermfg=2    ctermbg=NONE cterm=bold      guifg=#008800 guibg=NONE    gui=bold
 hi qfError                       ctermfg=9    ctermbg=NONE cterm=NONE      guifg=#cc4444 guibg=NONE    gui=NONE
 """ mail
