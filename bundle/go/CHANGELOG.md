@@ -3,6 +3,14 @@
 BACKWARDS INCOMPATIBILITIES:
 
 IMPROVEMENTS:
+
+BUG FIXES:
+
+## v1.26 - (April 23, 2022)
+
+BACKWARDS INCOMPATIBILITIES:
+
+IMPROVEMENTS:
 * Add mapping for formatting, `(go-fmt)`.
   [[GH-3209]](https://github.com/fatih/vim-go/pull/3209)
 * Add `tr` snippet for `"testing.T".Run`.
@@ -65,6 +73,8 @@ IMPROVEMENTS:
   [[GH-3391]](https://github.com/fatih/vim-go/pull/3391)
 * Add syntax support for generics.
   [[GH-3397]](https://github.com/fatih/vim-go/pull/3397)
+* Remove invalid numeric literal highlighting.
+  [[GH-3404]](https://github.com/fatih/vim-go/pull/3404)
 
 BUG FIXES:
 * Handle terminating parenthesis on hexadecimal values.
