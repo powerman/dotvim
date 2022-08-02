@@ -8,6 +8,10 @@ IMPROVEMENTS:
 * Show diagnostics via go#tool#DescribeBalloon().
   [[GH-3415]](https://github.com/fatih/vim-go/pull/3415)
   [[GH-3417]](https://github.com/fatih/vim-go/pull/3417)
+* Allow version of individual tools to be installed with `:GoUpdateBinaries`
+  and `:GoInstallBinaries` to be overridden by users.
+  [[GH-3435]](https://github.com/fatih/vim-go/pull/3435)
+  [[GH-3436]](https://github.com/fatih/vim-go/pull/3436)
 
 BUG FIXES:
 * Fix quoting of arguments when shell is set to pwsh on Windows.
