@@ -7,7 +7,7 @@
 "		(ss) repaired several quoting and grouping glitches
 "		(ss) fixed regex parsing issue with multiple qualifiers [gi]
 "		(ss) additional factoring of keywords, globals, and members
-" Last Change:	2021 Mar 30
+" Last Change:	2022 Jun 09
 " 		2013 Jun 12: adjusted tmpljavaScriptRegexpString (Kevin Locke)
 " 		2018 Apr 14: adjusted tmpljavaScriptRegexpString (LongJohnCoder)
 
@@ -39,9 +39,16 @@ syn region  tmpljavaScriptStringT	       start=+`+  skip=+\\\\\|\\`+  end=+`+	co
 
 syn region  tmpljavaScriptEmbed	       start=+${+  end=+}+	contains=@tmpljavaScriptEmbededExpr
 
+" number handling by Christopher Leonard chris.j.leonard@gmx.com
 syn match   tmpljavaScriptSpecialCharacter "'\\.'"
-syn match   tmpljavaScriptNumber	       "-\=\<\d\+L\=\>\|0[xX][0-9a-fA-F]\+\>"
-syn match   tmpljavaScriptNumber	       "-\=\<\d\+\%(_\d\+\)*\>"
+syn match   tmpljavaScriptNumber           "\<0[bB][0-1]\+\(_[0-1]\+\)*\>"
+syn match   tmpljavaScriptNumber           "\<0[oO][0-7]\+\(_[0-7]\+\)*\>"
+syn match   tmpljavaScriptNumber           "\<0\([0-7]\+\(_[0-7]\+\)*\)\?\>"
+syn match   tmpljavaScriptNumber           "\<0[xX][0-9a-fA-F]\+\(_[0-9a-fA-F]\+\)*\>"
+syn match   tmpljavaScriptNumber           "\<\d\+\(_\d\+\)*[eE][+-]\?\d\+\>"
+syn match   tmpljavaScriptNumber           "\<[1-9]\d*\(_\d\+\)*\(\.\(\d\+\(_\d\+\)*\([eE][+-]\?\d\+\)\?\)\?\)\?\>"
+syn match   tmpljavaScriptNumber           "\<\(\d\+\(_\d\+\)*\)\?\.\d\+\(_\d\+\)*\([eE][+-]\?\d\+\)\?\>"
+syn match   tmpljavaScriptNumber           "\<\d\+\(_\d\+\)*\.\(\d\+\(_\d\+\)*\([eE][+-]\?\d\+\)\?\)\?\>"
 syn region  tmpljavaScriptRegexpString     start=+[,(=+]\s*/[^/*]+ms=e-1,me=e-1 skip=+\\\\\|\\/+ end=+/[gimuys]\{0,2\}\s*$+ end=+/[gimuys]\{0,2\}\s*[+;.,)\]}]+me=e-1 end=+/[gimuys]\{0,2\}\s\+\/+me=e-1 contains=@htmlPreproc,tmpljavaScriptComment oneline
 
 syn keyword tmpljavaScriptConditional	if else switch
