@@ -874,6 +874,7 @@ autocmd BufNewFile,BufRead */go/src/*.tmpl      set ft=gotexttmpl
 autocmd BufNewFile,BufRead */go/src/*.html.tmpl set ft=gohtmltmpl
 autocmd BufNewFile,BufRead *nginx*/*.tmpl       set ft=gonginxtmpl
 autocmd BufNewFile,BufRead *.yml.tmpl,*.yaml.tmpl set ft=goyamltmpl
+autocmd BufNewFile,BufRead *.nft.tmpl,nftables.conf.tmpl set ft=gonftablestmpl
 autocmd BufNewFile,BufRead *zsh*functions/*     set ft=zsh
 autocmd BufNewFile,BufRead *.cql                set ft=sql
 autocmd BufNewFile,BufRead .mailfilter*         set ft=maildrop
