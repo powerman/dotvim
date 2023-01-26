@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/isobit/vim-caddyfile
+	branch = master
+	commit = 24fe0720551883e407cb70ae1d7c03f162d1d5a0
+	parent = 685e0a44585538f768276b54d81f10845f33cba1
+	method = merge
+	cmdver = 0.4.1
