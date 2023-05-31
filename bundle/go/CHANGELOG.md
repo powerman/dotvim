@@ -3,6 +3,53 @@
 BACKWARDS INCOMPATIBILITIES:
 
 IMPROVEMENTS:
+* Change the group that godebugStracktrace is default linked to.
+  [[GH-3483]](https://github.com/fatih/vim-go/pull/3483)
+* Add `:GoCoverageOverlay`.
+  [[GH-3485]](https://github.com/fatih/vim-go/pull/3485)
+* Add `:GoTestFile`.
+  [[GH-3486]](https://github.com/fatih/vim-go/pull/3486)
+  [[GH-3487]](https://github.com/fatih/vim-go/pull/3487)
+* Add `(go-fill-struct)` mapping.
+  [[GH-3502]](https://github.com/fatih/vim-go/pull/3502)
+  [[GH-3503]](https://github.com/fatih/vim-go/pull/3503)
+* Output an error message when `g:go_fillstruct_mode` and `g:go_gopls_enabled`
+  conflict.
+  [[GH-3504]](https://github.com/fatih/vim-go/pull/3504)
+* Add `:GoExtract` command and related mapping.
+  [[GH-3506]](https://github.com/fatih/vim-go/pull/3506)
+* Halt the debugger after a connection is establish with `:GoDebugConnect`.
+  [[GH-3514]](https://github.com/fatih/vim-go/pull/3514)
+  [[GH-3520]](https://github.com/fatih/vim-go/pull/3520)
+* Clarify `:GoImpl` usage message.
+  [[GH-3522]](https://github.com/fatih/vim-go/pull/3522)
+* Add commands and mappings related to godoc to the godoc preview window.
+  [[GH-3527]](https://github.com/fatih/vim-go/pull/3527)
+  [[GH-3532]](https://github.com/fatih/vim-go/pull/3532)
+* Link goPredefinedIdentifiers to Constant instead of goBoolean by default.
+  [[GH-3528]](https://github.com/fatih/vim-go/pull/3528)
+* Add `gD` mapping for `:GoDefType`.
+  [[GH-3531]](https://github.com/fatih/vim-go/pull/3531)
+* Use Vim's native tag stack when possible.
+  [[GH-3548]](https://github.com/fatih/vim-go/pull/3548)
+
+BUG FIXES:
+* Update [impl](https://github.com/josharian/impl) source path after its default branch was changed from master to main.
+  [[GH-3477]](https://github.com/fatih/vim-go/pull/3477)
+* Update `:GoMetaLinter` help.
+  [[GH-3534]](https://github.com/fatih/vim-go/pull/3534)
+
+## v1.28 - (December 17, 2022)
+
+BUG FIXES:
+* Remove diagnostic message used during development.
+  [[GH-3476]](https://github.com/fatih/vim-go/pull/3476)
+
+## v1.27 - (December 17, 2022)
+
+BACKWARDS INCOMPATIBILITIES:
+
+IMPROVEMENTS:
 * Update documentation for installing tools.
   [[GH-3413]](https://github.com/fatih/vim-go/pull/3413)
 * Show diagnostics via go#tool#DescribeBalloon().
@@ -12,10 +59,23 @@ IMPROVEMENTS:
   and `:GoInstallBinaries` to be overridden by users.
   [[GH-3435]](https://github.com/fatih/vim-go/pull/3435)
   [[GH-3436]](https://github.com/fatih/vim-go/pull/3436)
+* Highlight numeric formats introduced in Go 1.13.
+  [[GH-3440]](https://github.com/fatih/vim-go/pull/3440)
 
 BUG FIXES:
 * Fix quoting of arguments when shell is set to pwsh on Windows.
   [[GH-3422]](https://github.com/fatih/vim-go/pull/3422)
+* Use -mod=mod instead of -mod=readonly when installing tools.
+  [[GH-3449]](https://github.com/fatih/vim-go/pull/3449)
+* Remove support for /* */ comments in go.mod files.
+  [[GH-3460]](https://github.com/fatih/vim-go/pull/3460)
+* Fix go.work syntax support.
+  [[GH-3461]](https://github.com/fatih/vim-go/pull/3461)
+* Split the buffer without considering the current buffer when a mapping to
+  split and jump to definition is used.
+  [[GH-3462]](https://github.com/fatih/vim-go/pull/3462)
+* Fix hilighting of package references via `:GoSameIds`.
+  [[GH-3469]](https://github.com/fatih/vim-go/pull/3469)
 
 ## v1.26 - (April 23, 2022)
 

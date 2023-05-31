@@ -39,8 +39,10 @@ fun! gotest#write_file(path, contents) abort
       call setline('.', substitute(getline('.'), "\x1f", '', ''))
       silent noautocmd w!
 
-      call go#lsp#DidClose(expand('%:p'))
-      call go#lsp#DidOpen(expand('%:p'))
+      if go#config#GoplsEnabled()
+        call go#lsp#DidClose(expand('%:p'))
+        call go#lsp#DidOpen(expand('%:p'))
+      endif
 
       break
     endif
@@ -86,11 +88,11 @@ endfun
 " If a:skipHeader is true we won't bother with the package and import
 " declarations; so e.g.:
 "
-"     let l:diff = s:diff_buffer(1, ['_ = mail.Address{}'])
+"     let l:diff = s:assert_buffer(1, ['_ = mail.Address{}'])
 "
 " will pass, whereas otherwise you'd have to:
 "
-"     let l:diff = s:diff_buffer(0, ['package main', 'import "net/mail", '_ = mail.Address{}'])
+"     let l:diff = s:assert_buffer(0, ['package main', 'import "net/mail", '_ = mail.Address{}'])
 fun! gotest#assert_buffer(skipHeader, want) abort
   let l:buffer = go#util#GetLines()
 
@@ -115,7 +117,7 @@ fun! gotest#assert_buffer(skipHeader, want) abort
     call writefile(l:want, l:tmp . '/want')
     call go#fmt#run('gofmt', l:tmp . '/have', l:tmp . '/have')
     call go#fmt#run('gofmt', l:tmp . '/want', l:tmp . '/want')
-    let [l:out, l:err] = go#util#Exec(["diff", "-u", l:tmp . '/have', l:tmp . '/want'])
+    let [l:out, l:err] = go#util#Exec(["diff", "-u", l:tmp . '/want', l:tmp . '/have'])
   finally
     call delete(l:tmp . '/have')
     call delete(l:tmp . '/want')

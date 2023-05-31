@@ -6,6 +6,7 @@ function! Test_gomodVersion_highlight() abort
   try
     syntax on
 
+    let g:go_gopls_enabled = 0
     let l:dir = gotest#write_file('gomodtest/go.mod', [
           \ 'module github.com/fatih/vim-go',
           \ '',
@@ -58,6 +59,7 @@ function! Test_gomodVersion_incompatible_highlight() abort
   try
     syntax on
 
+    let g:go_gopls_enabled = 0
     let l:dir = gotest#write_file('gomodtest/go.mod', [
           \ 'module github.com/fatih/vim-go',
           \ '',
@@ -100,14 +102,18 @@ endfunc
 
 function! Test_numeric_literal_highlight() abort
   syntax on
+  let g:go_gopls_enabled = 0
 
-  let tests = {
+  let l:tests = {
         \ 'lone zero': {'group': 'goDecimalInt', 'value': '0'},
+        \ 'float loan zero': {'group': 'goFloat', 'value': '0.'},
         \ 'integer': {'group': 'goDecimalInt', 'value': '1234567890'},
         \ 'integerGrouped': {'group': 'goDecimalInt', 'value': '1_234_567_890'},
-        \ 'hexadecimal': {'group': 'goHexadecimalInt', 'value': '0x0123456789abdef'},
-        \ 'hexadecimalGrouped': {'group': 'goHexadecimalInt', 'value': '0x012_345_678_9ab_def'},
-        \ 'heXadecimal': {'group': 'goHexadecimalInt', 'value': '0X0123456789abdef'},
+        \ 'hexadecimal': {'group': 'goHexadecimalInt', 'value': '0x0123456789abcdef'},
+        \ 'hexadecimalGrouped': {'group': 'goHexadecimalInt', 'value': '0x012_345_678_9abc_def'},
+        \ 'heXadecimal': {'group': 'goHexadecimalInt', 'value': '0X0123456789abcdef'},
+        \ 'hexadecimalFloatUp': {'group': 'goHexadecimalFloat', 'value': '0x0123456789abcdef.0123456789abcdefp2'},
+        \ 'hexadecimalFloatDown': {'group': 'goHexadecimalFloat', 'value': '0x0123456789abcdef.0123456789abcdefp-2'},
         \ 'octal': {'group': 'goOctalInt', 'value': '01234567'},
         \ 'octalPrefix': {'group': 'goOctalInt', 'value': '0o1234567'},
         \ 'octalGrouped': {'group': 'goOctalInt', 'value': '0o1_234_567'},
@@ -115,16 +121,38 @@ function! Test_numeric_literal_highlight() abort
         \ 'binaryInt': {'group': 'goBinaryInt', 'value': '0b0101'},
         \ 'binaryIntGrouped': {'group': 'goBinaryInt', 'value': '0b_01_01'},
         \ 'BinaryInt': {'group': 'goBinaryInt', 'value': '0B0101'},
+        \ 'floatFractionalOnly': {'group': 'goFloat', 'value': '.1'},
+        \ 'hexadecimalFloatFractionalOnly': {'group': 'goHexadecimalFloat', 'value': '0x.1'},
+        \ 'floatIntegerOnly': {'group': 'goFloat', 'value': '1e6'},
         \ }
 
-  for kv in items(tests)
-    let l:actual = s:numericHighlightGroupInAssignment(kv[0], kv[1].value)
-    call assert_equal(kv[1].group, l:actual, kv[0])
+  for l:kv in items(copy(l:tests))
+    let l:value = deepcopy(l:kv[1])
+    let l:value.group = substitute(l:value.group, 'go', 'goImaginary', '')
+    let l:value.group = substitute(l:value.group, 'Int$', '', '')
+    let l:value.value = printf('%si', l:value.value)
+    let l:tests[printf('imaginary %s', l:kv[0])] = l:value
+  endfor
+
+  for l:kv in items(copy(l:tests))
+    let l:value = deepcopy(l:kv[1])
+    let l:value.value = printf('-%s', l:value.value)
+    let l:tests[printf('negative %s', l:kv[0])] = l:value
+  endfor
+
+  for l:kv in items(tests)
+    let l:actual = s:numericHighlightGroupInAssignment(l:kv[0], l:kv[1].value)
+    call assert_equal(l:kv[1].group, l:actual, l:kv[1].value)
+
+    let l:groupName = 'goString'
+    let l:actual = s:stringHighlightGroupInAssignment(l:kv[0], l:kv[1].value)
+    call assert_equal('goString', l:actual, printf('"%s"', l:kv[1].value))
   endfor
 endfunction
 
 function! Test_zero_as_index_element() abort
   syntax on
+  let g:go_gopls_enabled = 0
 
   let l:actual = s:numericHighlightGroupInSliceElement('zero-element', '0')
   call assert_equal('goDecimalInt', l:actual)
@@ -134,6 +162,7 @@ endfunction
 
 function! Test_zero_as_slice_index() abort
   syntax on
+  let g:go_gopls_enabled = 0
 
   let l:actual = s:numericHighlightGroupInSliceIndex('zero-index', '0')
   call assert_equal('goDecimalInt', l:actual)
@@ -144,6 +173,7 @@ endfunction
 
 function! Test_zero_as_start_slicing_slice() abort
   syntax on
+  let g:go_gopls_enabled = 0
 
   let l:actual = s:numericHighlightGroupInSliceSlicing('slice-slicing', '0', '1')
   call assert_equal('goDecimalInt', l:actual)
@@ -154,6 +184,22 @@ function! s:numericHighlightGroupInAssignment(testname, value)
         \ 'package numeric',
         \ '',
         \ printf("var v = %s\x1f", a:value),
+        \ ])
+
+  try
+    let l:pos = getcurpos()
+    let l:actual = synIDattr(synID(l:pos[1], l:pos[2], 1), 'name')
+    return l:actual
+  finally
+    call delete(l:dir, 'rf')
+  endtry
+endfunction
+
+function! s:stringHighlightGroupInAssignment(testname, value)
+  let l:dir = gotest#write_file(printf('numeric/%s.go', a:testname), [
+        \ 'package numeric',
+        \ '',
+        \ printf("var v = \"%s\x1f\"", a:value),
         \ ])
 
   try
@@ -261,7 +307,6 @@ function! Test_diagnostic_after_fmt() abort
           \ '}',
           \ ], [])
   finally
-    unlet g:go_fmt_command
   endtry
 endfunction
 
@@ -280,7 +325,6 @@ function! Test_diagnostic_after_fmt_change() abort
           \ '}',
           \ ], [])
   finally
-    unlet g:go_fmt_command
   endtry
 endfunction
 
@@ -299,7 +343,6 @@ function! Test_diagnostic_after_fmt_cleared() abort
           \ '}',
           \ ], ['hello := "hello, vim-go"'])
   finally
-    unlet g:go_fmt_command
   endtry
 endfunction
 
@@ -402,6 +445,7 @@ endfunction
 
 function! Test_goStringHighlight() abort
   syntax on
+  let g:go_gopls_enabled = 0
 
   let l:dir = gotest#write_file('highlight/gostring.go', [
         \ 'package highlight',
@@ -424,6 +468,7 @@ endfunc
 
 function! Test_goImportStringHighlight() abort
   syntax on
+  let g:go_gopls_enabled = 0
 
   let l:dir = gotest#write_file('highlight/import.go', [
         \ 'package highlight',
@@ -446,6 +491,7 @@ endfunc
 
 function! Test_goReceiverHighlight() abort
   syntax on
+  let g:go_gopls_enabled = 0
 
   let l:tests = {
       \ 'PointerReceiverVar': {'group': 'goReceiverVar', 'value': "t\x1f *T"},
@@ -467,7 +513,6 @@ function! Test_goReceiverHighlight() abort
     let l:actual = s:receiverHighlightGroup(l:kv[0], l:kv[1].value)
     call assert_equal(l:kv[1].group, l:actual, l:kv[0])
   endfor
-  unlet g:go_highlight_function_parameters
 endfunc
 
 function! s:receiverHighlightGroup(testname, value)
@@ -491,6 +536,7 @@ endfunc
 
 function! Test_GoTypeHighlight() abort
   syntax on
+  let g:go_gopls_enabled = 0
 
   let l:tests = {
       \ 'StandardType': {'group': 'goTypeName', 'value': "T\x1f"},
@@ -502,7 +548,6 @@ function! Test_GoTypeHighlight() abort
     let l:actual = s:typeHighlightGroup(l:kv[0], l:kv[1].value)
     call assert_equal(l:kv[1].group, l:actual, l:kv[0])
   endfor
-  unlet g:go_highlight_types
 endfunc
 
 function! s:typeHighlightGroup(testname, value)
@@ -524,6 +569,7 @@ endfunc
 
 function! Test_goFunction() abort
   syntax on
+  let g:go_gopls_enabled = 0
 
   let l:tests = {
         \ 'StandardFunction': {'group': 'goFunction', 'value': "F\x1f(){}"},
@@ -535,7 +581,6 @@ function! Test_goFunction() abort
     let l:actual = s:functionHighlightGroup(l:kv[0], l:kv[1].value)
     call assert_equal(l:kv[1].group, l:actual, l:kv[0])
   endfor
-  unlet g:go_highlight_functions
 endfunc
 
 function! s:functionHighlightGroup(testname, value)
@@ -557,6 +602,7 @@ endfunc
 
 function! Test_goFunctionCall() abort
   syntax on
+  let g:go_gopls_enabled = 0
 
   let l:tests = {
       \ 'StandardFunctionCall': {'group': 'goFunctionCall', 'value': "f\x1f()"},
@@ -568,7 +614,6 @@ function! Test_goFunctionCall() abort
     let l:actual = s:functionCallHighlightGroup(l:kv[0], l:kv[1].value)
     call assert_equal(l:kv[1].group, l:actual, l:kv[0])
   endfor
-  unlet g:go_highlight_function_calls
 endfunc
 
 function! s:functionCallHighlightGroup(testname, value)

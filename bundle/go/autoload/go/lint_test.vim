@@ -3,10 +3,12 @@ let s:cpo_save = &cpo
 set cpo&vim
 
 func! Test_GometaGolangciLint() abort
+  let g:go_gopls_enabled = 0
   call s:gometa('golangci-lint')
 endfunc
 
 func! Test_GometaStaticcheck() abort
+  let g:go_gopls_enabled = 0
   call s:gometa('staticcheck')
 endfunc
 
@@ -23,6 +25,7 @@ func! s:gometa(metalinter) abort
         \ ]
     if a:metalinter == 'golangci-lint'
       let expected = [
+            \ {'lnum': 1, 'bufnr': bufnr('%'), 'col': 1, 'pattern': '', 'valid': 1, 'vcol': 0, 'nr': -1, 'type': '', 'module': '', 'text': 'package-comments: should have a package comment (revive)'},
             \ {'lnum': 5, 'bufnr': bufnr('%'), 'col': 1, 'pattern': '', 'valid': 1, 'vcol': 0, 'nr': -1, 'type': '', 'module': '', 'text': 'exported: exported function MissingFooDoc should have comment or be unexported (revive)'}
           \ ]
     endif
@@ -52,8 +55,6 @@ func! s:gometa(metalinter) abort
     call gotest#assert_quickfix(actual, expected)
   finally
       call call(RestoreGOPATH, [])
-      unlet g:go_metalinter_enabled
-      unlet g:go_metalinter_command
   endtry
 endfunc
 
@@ -89,16 +90,16 @@ endfunc
 "    call gotest#assert_quickfix(actual, expected)
 "  finally
 "      call call(RestoreGOPATH, [])
-"      unlet g:go_metalinter_enabled
-"      unlet g:go_metalinter_command
 "  endtry
 "endfunc
 
 func! Test_GometaAutoSaveGolangciLint() abort
+  let g:go_gopls_enabled = 0
   call s:gometaautosave('golangci-lint', 0)
 endfunc
 
 func! Test_GometaAutoSaveStaticcheck() abort
+  let g:go_gopls_enabled = 0
   call s:gometaautosave('staticcheck', 0)
 endfunc
 
@@ -106,15 +107,15 @@ func! Test_GometaAutoSaveGopls() abort
   let g:go_gopls_staticcheck = 1
   let g:go_diagnostics_level = 2
   call s:gometaautosave('gopls', 0)
-  unlet g:go_gopls_staticcheck
-  unlet g:go_diagnostics_level
 endfunc
 
 func! Test_GometaAutoSaveGolangciLintKeepsErrors() abort
+  let g:go_gopls_enabled = 0
   call s:gometaautosave('golangci-lint', 1)
 endfunc
 
 func! Test_GometaAutoSaveStaticcheckKeepsErrors() abort
+  let g:go_gopls_enabled = 0
   call s:gometaautosave('staticcheck', 1)
 endfunc
 
@@ -125,7 +126,7 @@ func! s:gometaautosave(metalinter, withList) abort
     let g:go_metalinter_command = a:metalinter
     let l:vim = s:vimdir()
     let l:expected = [
-          \ {'lnum': 1, 'bufnr': bufnr('%'), 'col': 1, 'valid': 1, 'vcol': 0, 'nr': -1, 'type': '', 'pattern': '', 'text': 'at least one file in a package should have a package comment (ST1000)'},
+          \ {'lnum': 1, 'bufnr': bufnr('%'), 'col': 1, 'pattern': '', 'valid': 1, 'vcol': 0, 'nr': -1, 'type': '', 'module': '', 'text': 'at least one file in a package should have a package comment (ST1000)'},
         \ ]
     if a:metalinter == 'gopls'
       let l:expected = []
@@ -134,6 +135,7 @@ func! s:gometaautosave(metalinter, withList) abort
 "          \ ]
     elseif a:metalinter == 'golangci-lint'
       let l:expected = [
+            \ {'lnum': 1, 'bufnr': bufnr('%'), 'col': 1, 'pattern': '', 'valid': 1, 'vcol': 0, 'nr': -1, 'type': '', 'module': '', 'text': 'package-comments: should have a package comment (revive)'},
             \ {'lnum': 5, 'bufnr': bufnr('%'), 'col': 1, 'pattern': '', 'valid': 1, 'vcol': 0, 'nr': -1, 'type': '', 'module': '', 'text': 'exported: exported function MissingDoc should have comment or be unexported (revive)'}
           \ ]
     endif
@@ -141,7 +143,7 @@ func! s:gometaautosave(metalinter, withList) abort
     let l:list = []
     if a:withList
       let l:list = [
-            \ {'lnum': 1, 'bufnr': bufnr('%'), 'col': 1, 'valid': 1, 'vcol': 0, 'nr': -1, 'type': '', 'pattern': '', 'text': 'before metalinter'}
+            \ {'lnum': 1, 'bufnr': bufnr('%'), 'col': 1, 'pattern': '', 'valid': 1, 'vcol': 0, 'nr': -1, 'type': '', 'module': '', 'text': 'before metalinter'}
           \ ]
       let l:expected = extend(copy(l:list), l:expected)
     endif
@@ -171,8 +173,6 @@ func! s:gometaautosave(metalinter, withList) abort
     call gotest#assert_quickfix(l:actual, l:expected)
   finally
     call delete(l:tmp, 'rf')
-    unlet g:go_metalinter_autosave_enabled
-    unlet g:go_metalinter_command
   endtry
 endfunc
 
@@ -212,8 +212,6 @@ endfunc
 "    call gotest#assert_quickfix(actual, expected)
 "  finally
 "      call call(RestoreGOPATH, [])
-"      unlet g:go_metalinter_enabled
-"      unlet g:go_metalinter_command
 "  endtry
 "endfunc
 "
@@ -249,8 +247,6 @@ endfunc
 "    call gotest#assert_quickfix(actual, expected)
 "  finally
 "    call call(RestoreGOPATH, [])
-"    unlet g:go_metalinter_autosave_enabled
-"    unlet g:go_metalinter_command
 "  endtry
 "endfunc
 "
@@ -265,8 +261,9 @@ func! s:gometa_multiple(metalinter) abort
   try
     let g:go_metalinter_command = a:metalinter
     let expected = [
+          \ {'lnum': 4, 'bufnr': bufnr('%'), 'col': 2, 'pattern': '', 'valid': 1, 'vcol': 0, 'nr': -1, 'type': '', 'module': '', 'text': '"time" imported and not used (typecheck)'},
+          \ {'lnum': 8, 'bufnr': bufnr('%'), 'col': 24, 'pattern': '', 'valid': 1, 'vcol': 0, 'nr': -1, 'type': '', 'module': '', 'text': 'time.Millisecond undefined (type int has no field or method Millisecond) (typecheck)'},
           \ {'lnum': 8, 'bufnr': bufnr('%'), 'col': 7, 'pattern': '', 'valid': 1, 'vcol': 0, 'nr': -1, 'type': '', 'module': '', 'text': 'time.Sleep undefined (type int has no field or method Sleep) (typecheck)'},
-          \ {'lnum': 4, 'bufnr': bufnr('%'), 'col': 2, 'pattern': '', 'valid': 1, 'vcol': 0, 'nr': -1, 'type': '', 'module': '', 'text': '"time" imported but not used (typecheck)'}
         \ ]
 
     " clear the quickfix list
@@ -291,12 +288,11 @@ func! s:gometa_multiple(metalinter) abort
     call gotest#assert_quickfix(actual, expected)
   finally
       call call(RestoreGOPATH, [])
-      unlet g:go_metalinter_enabled
-      unlet g:go_metalinter_command
   endtry
 endfunc
 
 func! Test_GometaAutoSaveGolangciLint_multiple() abort
+  let g:go_gopls_enabled = 0
   call s:gometaautosave_multiple('golangci-lint')
 endfunc
 
@@ -307,9 +303,19 @@ func! s:gometaautosave_multiple(metalinter) abort
   try
     let g:go_metalinter_command = a:metalinter
     let expected = [
-          \ {'lnum': 8, 'bufnr': bufnr('%'), 'col': 7, 'pattern': '', 'valid': 1, 'vcol': 0, 'nr': -1, 'type': '', 'module': '', 'text': 'time.Sleep undefined (type int has no field or method Sleep) (typecheck)'},
-          \ {'lnum': 4, 'bufnr': bufnr('%'), 'col': 2, 'pattern': '', 'valid': 1, 'vcol': 0, 'nr': -1, 'type': '', 'module': '', 'text': '"time" imported but not used (typecheck)'}
+          \ {'lnum': 4, 'bufnr': bufnr('%'), 'col': 2, 'pattern': '', 'valid': 1, 'vcol': 0, 'nr': -1, 'type': '', 'module': '', 'text': '"time" imported and not used'},
+          \ {'lnum': 8, 'bufnr': bufnr('%'), 'col': 24, 'pattern': '', 'valid': 1, 'vcol': 0, 'nr': -1, 'type': '', 'module': '', 'text': 'time.Millisecond undefined (type int has no field or method Millisecond)'},
+          \ {'lnum': 8, 'bufnr': bufnr('%'), 'col': 7, 'pattern': '', 'valid': 1, 'vcol': 0, 'nr': -1, 'type': '', 'module': '', 'text': 'time.Sleep undefined (type int has no field or method Sleep)'},
         \ ]
+
+    let [l:goversion, l:err] = go#util#Exec(['go', 'env', 'GOVERSION'])
+    let l:goversion = split(l:goversion, "\n")[0]
+    if l:goversion < 'go1.20'
+      let expected = [
+            \ {'lnum': 4, 'bufnr': bufnr('%'), 'col': 2, 'pattern': '', 'valid': 1, 'vcol': 0, 'nr': -1, 'type': '', 'module': '', 'text': '"time" imported but not used (typecheck)'},
+            \ {'lnum': 8, 'bufnr': bufnr('%'), 'col': 7, 'pattern': '', 'valid': 1, 'vcol': 0, 'nr': -1, 'type': '', 'module': '', 'text': 'time.Sleep undefined (type int has no field or method Sleep) (typecheck)'},
+          \ ]
+    endif
 
     " clear the location list
     call setloclist(0, [], 'r')
@@ -325,20 +331,33 @@ func! s:gometaautosave_multiple(metalinter) abort
       let actual = copy(getloclist(0))
     endwhile
 
-    " sort the results, because golangci-lint doesn't always return notices in
-    " a deterministic order.
+
+    " golangci-lint does not always return notices in a determinstic order and
+    " at least with Go 1.20 removes only suffixes the last of the results from
+    " a checker with the checker name. Therefore:
+    " * strip off the checker name on Go 1.20 and above
+    " * sort the results.
+    if l:goversion >= 'go1.20'
+      for l:error in l:actual
+        for l:key in keys(l:error)
+          if l:key == 'text'
+            let l:error[l:key] = substitute(l:error[l:key], ' (typecheck)', '', '')
+          endif
+        endfor
+      endfor
+    endif
+
     call sort(l:actual)
     call sort(l:expected)
 
     call gotest#assert_quickfix(actual, expected)
   finally
     call call(RestoreGOPATH, [])
-    unlet g:go_metalinter_autosave_enabled
-    unlet g:go_metalinter_command
   endtry
 endfunc
 
 func! Test_Vet() abort
+  let g:go_gopls_enabled = 0
   let l:tmp = gotest#load_fixture('lint/src/vet/vet.go')
 
   try
@@ -375,6 +394,7 @@ func! Test_Vet() abort
 endfunc
 
 func! Test_Vet_subdir() abort
+  let g:go_gopls_enabled = 0
   let l:tmp = gotest#load_fixture('lint/src/vet/vet.go')
 
   " go up one directory to easily test that go vet's file paths are handled
@@ -416,6 +436,7 @@ func! Test_Vet_subdir() abort
 endfunc
 
 func! Test_Vet_compilererror() abort
+  let g:go_gopls_enabled = 0
   let l:tmp = gotest#load_fixture('lint/src/vet/compilererror/compilererror.go')
 
   try
@@ -444,15 +465,17 @@ func! Test_Vet_compilererror() abort
 endfunc
 
 func! Test_Lint_GOPATH() abort
+  let g:go_gopls_enabled = 0
   let RestoreGO111MODULE = go#util#SetEnv('GO111MODULE', 'off')
   let RestoreGOPATH = go#util#SetEnv('GOPATH', fnameescape(fnamemodify(getcwd(), ':p')) . 'test-fixtures/lint')
 
+  silent exe 'e! ' . $GOPATH . '/src/lint/baz.go'
   silent exe 'e! ' . $GOPATH . '/src/lint/quux.go'
   silent exe 'e! ' . $GOPATH . '/src/lint/lint.go'
   compiler go
 
   let expected = [
-          \ {'lnum': 1, 'bufnr': bufnr('%')+9, 'col': 1, 'valid': 1, 'vcol': 0, 'nr': -1, 'type': '', 'pattern': '', 'text': 'should have a package comment'},
+          \ {'lnum': 1, 'bufnr': bufnr('test-fixtures/lint/src/lint/baz.go'), 'col': 1, 'valid': 1, 'vcol': 0, 'nr': -1, 'type': '', 'pattern': '', 'text': 'should have a package comment'},
           \ {'lnum': 5, 'bufnr': bufnr('%'), 'col': 1, 'valid': 1, 'vcol': 0, 'nr': -1, 'type': '', 'pattern': '', 'text': 'exported function MissingDoc should have comment or be unexported'},
           \ {'lnum': 5, 'bufnr': bufnr('test-fixtures/lint/src/lint/quux.go'), 'col': 1, 'valid': 1, 'vcol': 0, 'nr': -1, 'type': '', 'pattern': '', 'text': 'exported function AlsoMissingDoc should have comment or be unexported'}
       \ ]
@@ -484,13 +507,15 @@ func! Test_Lint_GOPATH() abort
 endfunc
 
 func! Test_Lint_NullModule() abort
+  let g:go_gopls_enabled = 0
   let RestoreGO111MODULE = go#util#SetEnv('GO111MODULE', 'off')
+  silent exe 'e! ' . fnameescape(fnamemodify(getcwd(), ':p')) . 'test-fixtures/lint/src/lint/baz.go'
   silent exe 'e! ' . fnameescape(fnamemodify(getcwd(), ':p')) . 'test-fixtures/lint/src/lint/quux.go'
   silent exe 'e! ' . fnameescape(fnamemodify(getcwd(), ':p')) . 'test-fixtures/lint/src/lint/lint.go'
   compiler go
 
   let expected = [
-          \ {'lnum': 1, 'bufnr': bufnr('%')+9, 'col': 1, 'valid': 1, 'vcol': 0, 'nr': -1, 'type': '', 'pattern': '', 'text': 'should have a package comment'},
+          \ {'lnum': 1, 'bufnr': bufnr('test-fixtures/lint/src/lint/baz.go'), 'col': 1, 'valid': 1, 'vcol': 0, 'nr': -1, 'type': '', 'pattern': '', 'text': 'should have a package comment'},
           \ {'lnum': 5, 'bufnr': bufnr('%'), 'col': 1, 'valid': 1, 'vcol': 0, 'nr': -1, 'type': '', 'pattern': '', 'text': 'exported function MissingDoc should have comment or be unexported'},
           \ {'lnum': 5, 'bufnr': bufnr('test-fixtures/lint/src/lint/quux.go'), 'col': 1, 'valid': 1, 'vcol': 0, 'nr': -1, 'type': '', 'pattern': '', 'text': 'exported function AlsoMissingDoc should have comment or be unexported'}
       \ ]
@@ -518,6 +543,7 @@ func! Test_Lint_NullModule() abort
 endfunc
 
 func! Test_Errcheck() abort
+  let g:go_gopls_enabled = 0
   let RestoreGOPATH = go#util#SetEnv('GOPATH', fnamemodify(getcwd(), ':p') . 'test-fixtures/lint')
   silent exe 'e! ' . $GOPATH . '/src/errcheck/errcheck.go'
 
@@ -541,6 +567,7 @@ func! Test_Errcheck() abort
 endfunc
 
 func! Test_Errcheck_options() abort
+  let g:go_gopls_enabled = 0
   let RestoreGOPATH = go#util#SetEnv('GOPATH', fnamemodify(getcwd(), ':p') . 'test-fixtures/lint')
   silent exe 'e! ' . $GOPATH . '/src/errcheck/errcheck.go'
 
@@ -563,6 +590,7 @@ func! Test_Errcheck_options() abort
 endfunc
 
 func! Test_Errcheck_compilererror() abort
+  let g:go_gopls_enabled = 0
   let l:tmp = gotest#load_fixture('lint/src/errcheck/compilererror/compilererror.go')
 
   try

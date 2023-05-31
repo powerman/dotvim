@@ -860,7 +860,6 @@ function! s:sameIDsHandler(next, msg) abort dict
 
   let l:result = {
         \ 'sameids': [],
-        \ 'enclosing': [],
       \ }
 
   let l:msg = a:msg
@@ -873,18 +872,10 @@ function! s:sameIDsHandler(next, msg) abort dict
       continue
     endif
 
-    if len(l:result.enclosing) == 0
-      let l:result.enclosing = [{
-            \ 'desc': 'identifier',
-            \ 'start': l:loc.range.start.character+1,
-            \ 'end': l:loc.range.end.character+1,
-          \ }]
-    endif
-
-    let l:result.sameids = add(l:result.sameids, printf('%s:%s:%s', go#path#FromURI(l:loc.uri), l:loc.range.start.line+1, l:loc.range.start.character+1))
+    let l:result.sameids = add(l:result.sameids, [l:loc.range.start.line+1, l:loc.range.start.character+1, l:loc.range.end.character+1])
   endfor
 
-  call call(a:next, [0, json_encode(l:result), ''])
+  call call(a:next, [0, l:result, ''])
 endfunction
 
 " go#lsp#Referrers calls gopls to get the references to the identifier at line
@@ -1320,49 +1311,63 @@ function! s:exit(restart) abort
 endfunction
 
 let s:log = []
+let s:logtimer = 0
 function! s:debugasync(timer) abort
+  let s:logtimer = 0
+
   if !go#util#HasDebug('lsp')
     let s:log = []
     return
   endif
 
-  let l:winid = win_getid()
-
-  let l:name = '__GOLSP_LOG__'
-  let l:log_winid = bufwinid(l:name)
-  if l:log_winid == -1
-    silent keepalt botright 10new
-    silent file `='__GOLSP_LOG__'`
-    setlocal buftype=nofile bufhidden=wipe nomodified nobuflisted noswapfile nowrap nonumber nocursorline
-    setlocal filetype=golsplog
-  else
-    call win_gotoid(l:log_winid)
-  endif
-
   try
-    setlocal modifiable
-    for [l:event, l:data] in s:log
-      call remove(s:log, 0)
-      if getline(1) == ''
-        call setline('$', printf('===== %s =====', l:event))
-      else
-        call append('$', printf('===== %s =====', l:event))
-      endif
-      call append('$', split(l:data, "\r\n"))
-    endfor
-    normal! G
-    setlocal nomodifiable
+    let l:winid = win_getid()
+
+    let l:name = '__GOLSP_LOG__'
+    let l:log_winid = bufwinid(l:name)
+    if l:log_winid == -1
+      silent keepalt botright 10new
+      silent file `='__GOLSP_LOG__'`
+      setlocal buftype=nofile bufhidden=wipe nomodified nobuflisted noswapfile nowrap nonumber nocursorline
+      setlocal filetype=golsplog
+    else
+      call win_gotoid(l:log_winid)
+    endif
+
+    try
+      setlocal modifiable
+      for [l:event, l:data] in s:log
+        call remove(s:log, 0)
+        if getline(1) == ''
+          call setline('$', printf('===== %s =====', l:event))
+        else
+          call append('$', printf('===== %s =====', l:event))
+        endif
+        call append('$', split(l:data, "\r\n"))
+      endfor
+      normal! G
+      setlocal nomodifiable
+    finally
+      call win_gotoid(l:winid)
+    endtry
+  catch
+    call go#util#EchoError(v:exception)
   finally
-    call win_gotoid(l:winid)
+    " retry in when there's an exception. This can happen when trying to do
+    " completion, because the window can not be changed while completion is in
+    " progress.
+    if len(s:log) != 0
+      let s:logtimer = timer_start(10, function('s:debugasync', []))
+    endif
   endtry
 endfunction
 
 function! s:debug(event, data) abort
-  let l:shouldStart = len(s:log) == 0
+  let l:shouldStart = s:logtimer is 0
   let s:log = add(s:log, [a:event, a:data])
 
   if l:shouldStart
-    call timer_start(10, function('s:debugasync', []))
+    let s:logtimer = timer_start(10, function('s:debugasync', []))
   endif
 endfunction
 
@@ -1639,6 +1644,39 @@ function! go#lsp#FillStruct() abort
   call l:handler.await()
 endfunction
 
+" Extract executes the refactor.extract code action for the current buffer
+" and configures the handler to only apply the fillstruct command for the
+" current location.
+function! go#lsp#Extract(selected) abort
+  let l:fname = expand('%:p')
+  " send the current file so that TextEdits will be relative to the current
+  " state of the buffer.
+  call go#lsp#DidChange(l:fname)
+
+  let l:lsp = s:lspfactory.get()
+
+  let l:state = s:newHandlerState('')
+  let l:handler = go#promise#New(function('s:handleCodeAction', ['refactor.extract', 'apply_fix'], l:state), 10000, '')
+  let l:state.handleResult = l:handler.wrapper
+  let l:state.error = l:handler.wrapper
+  let l:state.handleError = function('s:handleCodeActionError', [l:fname], l:state)
+
+  if a:selected == -1
+    call go#util#EchoError('no range selected')
+    return
+  endif
+
+  let [l:startline, l:startcol] = go#lsp#lsp#Position(line("'<"), col("'<"))
+  let [l:endline, l:endcol] = go#lsp#lsp#Position(line("'>"), col("'>"))
+
+  let l:msg = go#lsp#message#CodeActionRefactorExtract(l:fname, l:startline, l:startcol, l:endline, l:endcol)
+  call l:lsp.sendMessage(l:msg, l:state)
+
+  " await the result to avoid any race conditions among autocmds (e.g.
+  " BufWritePre and BufWritePost)
+  call l:handler.await()
+endfunction
+
 function! go#lsp#Rename(newName) abort
   let l:fname = expand('%:p')
   let [l:line, l:col] = go#lsp#lsp#Position()
@@ -1908,7 +1946,7 @@ function! s:handleFormatError(filename, msg) abort dict
 endfunction
 
 function! s:handleCodeActionError(filename, msg) abort dict
-  " TODO(bc): handle the error?
+  call go#util#EchoError(a:msg)
 endfunction
 
 function! s:handleRenameError(msg) abort dict

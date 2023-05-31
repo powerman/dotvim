@@ -62,7 +62,7 @@ experience.
     display `GOPATH` with |:GoPath|.
   * Integrated and improved snippets, supporting `ultisnips`, `neosnippet`,
     and `vim-minisnip`.
-  * Share your current code to play.golang.org with |:GoPlay|.
+  * Share your current code to `go.dev/play` with |:GoPlay|.
   * On-the-fly information about the word under the cursor. Plug it into your
     custom Vim function.
   * Text objects such as "a function" (|go-af|) or "inner function" (|go-if|).
@@ -216,7 +216,7 @@ COMMANDS                                                         *go-commands*
 
     Open the relevant GoDoc in browser for either the word[s] passed to the
     command or by default, the word under the cursor. By default it opens the
-    documentation in 'https://pkg.go.dev'. To change it see |'g:go_doc_url'|.
+    documentation in `https://pkg.go.dev`. To change it see |'g:go_doc_url'|.
 
                                                                       *:GoFmt*
 :GoFmt
@@ -234,10 +234,10 @@ COMMANDS                                                         *go-commands*
                                                                      *:GoPlay*
 :[range]GoPlay
 
-    Share snippet to play.golang.org. If no [range] is given it shares
-    the whole file, otherwise the selected lines are shared. Snippet URL
-    is copied to system clipboard if Vim is compiled with 'clipboard' or
-     'xterm-clipboard' otherwise it's get yanked into the `""` register.
+    Share snippet to `go.dev/play`. If no [range] is given it shares the whole
+    file, otherwise the selected lines are shared. Snippet URL is copied to
+    system clipboard if Vim is compiled with 'clipboard' or 'xterm-clipboard'
+    otherwise it's get yanked into the `""` register.
 
                                                                       *:GoVet*
 :GoVet[!] [options]
@@ -411,6 +411,14 @@ CTRL-t
     in the background according to |'g:go_term_enabled'|. You can set the mode
     of the new terminal with |'g:go_term_mode'|.
 
+                                                                 *:GoTestFile*
+:GoTestFile[!] [expand]
+
+    Runs :GoTest, but only on the tests in the current file using 'go test's
+    '-run' flag.
+
+    If [!] is not given the first error is jumped to.
+
                                                                  *:GoTestFunc*
 :GoTestFunc[!] [expand]
 
@@ -466,6 +474,11 @@ CTRL-t
     `-covermode set,count,atomic`. For a full list please see `go help test`.
 
     If [!] is not given the first error is jumped to.
+
+                                                          *:GoCoverageOverlay*
+:GoCoverageOverlay file
+
+    Overlay the coverage profile from file.
 
                                                                  *:GoErrCheck*
 :GoErrCheck! [options]
@@ -651,12 +664,10 @@ CTRL-t
                                                                *:GoMetaLinter*
 :GoMetaLinter! [path]
 
-    Calls the underlying `golangci-lint` tool and displays all warnings and
-    errors in the |quickfix| window. By default the following linters are
-    enabled: `vet`, `golint`, and `errcheck`. This can be changed with the
-    |'g:go_metalinter_enabled'| variable. To override the command completely
-    use the variable |'g:go_metalinter_command'|. To override the maximum
-    linters execution time use |'g:go_metalinter_deadline'| variable.
+    Calls a metalinter tool and displays all warnings and errors in the
+    |quickfix| window. The linters that are enabled by default vary depending
+    on the value of `g:go_metalinter_command` and can be changed with
+    `g:go_metalinter_enabled`.
 
     If [!] is not given the first error is jumped to.
 
@@ -762,12 +773,13 @@ CTRL-t
     :Denite decls:foo
 <
                                                                      *:GoImpl*
-:GoImpl [receiver] [interface]
+:GoImpl [receiver] [receiver type] [interface]
 
     Generates method stubs for implementing an interface. If no arguments is
     passed it takes the identifier under the cursor to be the receiver and
     asks for the interface type to be generated. If used with arguments, the
-    receiver and the interface needs to be specified. Example usages:
+    receiver name, its type, and the interface needs to be specified. Example
+    usages:
 >
       :GoImpl f *Foo io.Writer
       :GoImpl t Type io.ReadWriteCloser
@@ -929,6 +941,12 @@ CTRL-t
 :GoLSPDebugBrowser
 
     Open a browser to see gopls debugging information.
+                                                                 *:GoExtract*
+:GoExtract
+
+    Extract the code fragment in the selected range to a new function and
+    replace the fragment with call to the function.
+
 
 ==============================================================================
 MAPPINGS                                                        *go-mappings*
@@ -985,6 +1003,10 @@ Calls `go test` for the current package.
                                                               *(go-test-func)*
 
 Calls `go test -run '...'` for the test function immediate to cursor
+
+                                                              *(go-test-file)*
+
+Calls `go test -run '...'` for all the tests in the current file.
 
                                                            *(go-test-compile)*
 
@@ -1132,6 +1154,7 @@ Show path from callgraph root to selected function
 Show free variables of selection
 
                                                            *(go-channelpeers)*
+                                                          *(go-channel-peers)*
 
 Show send/receive corresponding to selected channel op
 
@@ -1164,6 +1187,7 @@ Alternates between the implementation and test code in a new vertical split
 Calls `:GoImport` for the current package
 
                                                                   *(go-iferr)*
+                                                                 *(go-if-err)*
 
 Generate if err != nil { return ... } automatically which infer the type of
 return values and the numbers.
@@ -1174,6 +1198,13 @@ Calls |:GoModFmt| for the current buffer
 
                                                             *(go-diagnostics)*
 Calls `:GoDiagnostics`
+
+                                                             *(go-fillstruct)*
+                                                            *(go-fill-struct)*
+Calls `:GoFillStruct`
+
+                                                                *(go-extract)*
+Calls `:GoExtract`
 
 ==============================================================================
 TEXT OBJECTS                                                 *go-text-objects*
@@ -1301,7 +1332,7 @@ By default it tries to find it automatically for the current OS. >
 <
                                                     *'g:go_play_open_browser'*
 
-Use this option to open browser after posting the snippet to play.golang.org
+Use this option to open browser after posting the snippet to `go.dev/play`.
 with |:GoPlay|. By default it's enabled. >
 
   let g:go_play_open_browser = 1
@@ -1522,9 +1553,10 @@ Valid options are `gopls` and `guru`. By default it's `gopls`.
                                                   *'g:go_def_mapping_enabled'*
 
 Use this option to enable/disable the default mapping of CTRL-],
-<C-LeftMouse>, g<C-LeftMouse> and (`gd`) for GoDef and CTRL-t for :GoDefPop.
-Disabling it allows you to map something else to these keys or mappings.
-Default is enabled. >
+<C-LeftMouse>, g<C-LeftMouse> and (`gd`) for GoDef, CTRL-t for :GoDefPop, and
+(`gD`) for :GoDefType. Disabling it allows you to map something else to these
+keys or mappings. Default is enabled.
+>
 
   let g:go_def_mapping_enabled = 1
 <
@@ -2705,7 +2737,7 @@ a reasonable amount of performance `guru` limits this analysis to a selected
 list of packages. This is known as the "guru scope".
 
 The default is to use the package the current buffer belongs to, but this may
-not always be correct. For example for the file `guthub.com/user/pkg/a/a.go`
+not always be correct. For example for the file `github.com/user/pkg/a/a.go`
 the scope will be set to `github.com/user/pkg/a`, but you probably want
 `github.com/user/pkg`
 

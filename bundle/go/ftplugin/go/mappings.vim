@@ -23,6 +23,7 @@ nnoremap <silent> <Plug>(go-install) :<C-u>call go#cmd#Install(!g:go_jump_to_err
 nnoremap <silent> <Plug>(go-test) :<C-u>call go#test#Test(!g:go_jump_to_error, 0)<CR>
 nnoremap <silent> <Plug>(go-test-func) :<C-u>call go#test#Func(!g:go_jump_to_error)<CR>
 nnoremap <silent> <Plug>(go-test-compile) :<C-u>call go#test#Test(!g:go_jump_to_error, 1)<CR>
+nnoremap <silent> <Plug>(go-test-file) :<C-u>call go#test#File(!g:go_jump_to_error)<CR>
 
 nnoremap <silent> <Plug>(go-coverage) :<C-u>call go#coverage#Buffer(!g:go_jump_to_error)<CR>
 nnoremap <silent> <Plug>(go-coverage-clear) :<C-u>call go#coverage#Clear()<CR>
@@ -42,12 +43,14 @@ nnoremap <silent> <Plug>(go-callers) :<C-u>call go#calls#Callers()<CR>
 nnoremap <silent> <Plug>(go-describe) :<C-u>call go#guru#Describe(-1)<CR>
 nnoremap <silent> <Plug>(go-callstack) :<C-u>call go#guru#Callstack(-1)<CR>
 xnoremap <silent> <Plug>(go-freevars) :<C-u>call go#guru#Freevars(0)<CR>
+" go-channelpeers is deprecated, but remains for backward compatibility
 nnoremap <silent> <Plug>(go-channelpeers) :<C-u>call go#guru#ChannelPeers(-1)<CR>
+nnoremap <silent> <Plug>(go-channel-peers) :<C-u>call go#guru#ChannelPeers(-1)<CR>
 nnoremap <silent> <Plug>(go-referrers) :<C-u>call go#referrers#Referrers(-1)<CR>
-nnoremap <silent> <Plug>(go-sameids) :<C-u>call go#guru#SameIds(1)<CR>
+nnoremap <silent> <Plug>(go-sameids) :<C-u>call go#sameids#SameIds(1)<CR>
 nnoremap <silent> <Plug>(go-pointsto) :<C-u>call go#guru#PointsTo(-1)<CR>
 nnoremap <silent> <Plug>(go-whicherrs) :<C-u>call go#guru#Whicherrs(-1)<CR>
-nnoremap <silent> <Plug>(go-sameids-toggle) :<C-u>call go#guru#ToggleSameIds()<CR>
+nnoremap <silent> <Plug>(go-sameids-toggle) :<C-u>call go#sameids#ToggleSameIds()<CR>
 
 nnoremap <silent> <Plug>(go-rename) :<C-u>call go#rename#Rename(!g:go_jump_to_error)<CR>
 
@@ -82,8 +85,14 @@ nnoremap <silent> <Plug>(go-alternate-edit) :<C-u>call go#alternate#Switch(0, "e
 nnoremap <silent> <Plug>(go-alternate-vertical) :<C-u>call go#alternate#Switch(0, "vsplit")<CR>
 nnoremap <silent> <Plug>(go-alternate-split) :<C-u>call go#alternate#Switch(0, "split")<CR>
 
+" go-iferr is deprecated, but remains for backward compatibility
 nnoremap <silent> <Plug>(go-iferr) :<C-u>call go#iferr#Generate()<CR>
+nnoremap <silent> <Plug>(go-if-err) :<C-u>call go#iferr#Generate()<CR>
 
 nnoremap <silent> <Plug>(go-diagnostics) :<C-u>call go#lint#Diagnostics(!g:go_jump_to_error)<CR>
+
+nnoremap <silent> <Plug>(go-fill-struct) :<C-u>call go#fillstruct#FillStruct()<CR>
+
+xnoremap <silent> <Plug>(go-extract) :<C-u>call go#extract#Extract(0)<CR>
 
 " vim: sw=2 ts=2 et
