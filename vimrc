@@ -678,8 +678,9 @@ nnoremap <Leader>/      :Ack!<Space>
 " Plugin: Sparkup
 let g:sparkupNextMapping = '<C-F>'
 
-""" Сравнение двух блоков в одном файле                         :Linediff 
+""" Сравнение двух блоков в одном файле                         :Linediff, q 
 " Plugin: linediff
+au BufEnter * if exists('b:differ') | nnoremap <buffer> q :tabclose<CR> | endif
 
 """ Вертикальное выравнивание по разделителю                    :Tabularize 
 " Plugin: tabular
