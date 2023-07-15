@@ -26,12 +26,21 @@ IMPROVEMENTS:
 * Add commands and mappings related to godoc to the godoc preview window.
   [[GH-3527]](https://github.com/fatih/vim-go/pull/3527)
   [[GH-3532]](https://github.com/fatih/vim-go/pull/3532)
+  [[GH-3559]](https://github.com/fatih/vim-go/pull/3559)
 * Link goPredefinedIdentifiers to Constant instead of goBoolean by default.
   [[GH-3528]](https://github.com/fatih/vim-go/pull/3528)
 * Add `gD` mapping for `:GoDefType`.
   [[GH-3531]](https://github.com/fatih/vim-go/pull/3531)
 * Use Vim's native tag stack when possible.
   [[GH-3548]](https://github.com/fatih/vim-go/pull/3548)
+  [[GH-3554]](https://github.com/fatih/vim-go/pull/3554)
+  [[GH-3556]](https://github.com/fatih/vim-go/pull/3556)
+  [[GH-3557]](https://github.com/fatih/vim-go/pull/3557)
+  [[GH-3558]](https://github.com/fatih/vim-go/pull/3558)
+* Update codeAction response handling to work with gopls v0.12.0.
+  [[GH-3555]](https://github.com/fatih/vim-go/pull/3555)
+* Drop support for Vim 8.0.
+  [[GH-3538]](https://github.com/fatih/vim-go/pull/3538)
 
 BUG FIXES:
 * Update [impl](https://github.com/josharian/impl) source path after its default branch was changed from master to main.
