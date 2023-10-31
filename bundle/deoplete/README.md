@@ -2,7 +2,11 @@
 
 > Dark powered asynchronous completion framework for neovim/Vim8
 
-[![Build Status](https://travis-ci.org/Shougo/deoplete.nvim.svg?branch=master)](https://travis-ci.org/Shougo/deoplete.nvim)
+**Note**: The development of this plugin is finished. Accepts minor patches and
+issues but no new features.
+[ddc.vim](https://github.com/Shougo/ddc.vim) is the next generation auto
+completion plugin. Consider migrating to it.
+
 [![Join the chat at https://gitter.im/Shougo/deoplete.nvim](https://badges.gitter.im/Shougo/deoplete.nvim.svg)](https://gitter.im/Shougo/deoplete.nvim?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Doc](https://img.shields.io/badge/doc-%3Ah%20deoplete-orange.svg)](doc/deoplete.txt)
 
@@ -28,10 +32,11 @@ Here are some [completion sources](https://github.com/Shougo/deoplete.nvim/wiki/
 
 <!-- vim-markdown-toc -->
 
+
 ## Install
 
 **Note:** deoplete requires Neovim (0.3.0+ and of course, **latest** is
-recommended) or Vim8.1 with Python 3.6.1+ and timers enabled.  See
+recommended) or Vim8.2.1978+ with Python 3.6.1+ and timers enabled.  See
 [requirements](#requirements) if you aren't sure whether you have this.
 
 Note: deoplete requires msgpack package 1.0.0+.
@@ -46,7 +51,7 @@ https://github.com/Shougo/deoplete.nvim/releases/tag/5.2
 
 For vim-plug
 
-```viml
+```vim
 if has('nvim')
   Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 else
@@ -59,7 +64,7 @@ let g:deoplete#enable_at_startup = 1
 
 For dein.vim
 
-```viml
+```vim
 call dein#add('Shougo/deoplete.nvim')
 if !has('nvim')
   call dein#add('roxma/nvim-yarp')
@@ -68,13 +73,16 @@ endif
 let g:deoplete#enable_at_startup = 1
 ```
 
-For manual installation(not recommended)
+Vim >= 8 built-in package manager (not recommended)
 
-1. Extract the files and put them in your Neovim or .vim directory
-   (usually `$XDG_CONFIG_HOME/nvim/`).
+1. Clone the repo in a package (e.g. `$XDG_CONFIG_HOME/nvim/pack/dist/start`,
+   where `dist` is the name of the package)
 
 2. Write `call deoplete#enable()` or `let g:deoplete#enable_at_startup = 1` in
    your `init.vim`
+
+3. Inside NeoVim, call `:UpdateRemotePlugins`
+
 
 ### Requirements
 
@@ -108,6 +116,7 @@ If you want to read the Neovim-python/python3 interface install documentation,
 you should read `:help provider-python` and the Wiki.
 <https://github.com/deoplete-plugins/deoplete-jedi/wiki/Setting-up-Python-for-Neovim>
 
+
 ## Configuration
 
 ```vim
@@ -116,6 +125,7 @@ let g:deoplete#enable_at_startup = 1
 ```
 
 See `:help deoplete-options` for a complete list of options.
+
 
 ## Screenshots
 

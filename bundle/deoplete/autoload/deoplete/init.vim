@@ -49,8 +49,8 @@ function! deoplete#init#_channel() abort
     call deoplete#util#print_error('deoplete requires nvim 0.3.0+.')
     return 1
   endif
-  if !has('nvim') && v:version < 801
-    call deoplete#util#print_error('deoplete requires Vim 8.1+.')
+  if !has('nvim') && !has('patch-8.2.1978')
+    call deoplete#util#print_error('deoplete requires Vim 8.2.1978+.')
     return 1
   endif
 
@@ -137,7 +137,7 @@ function! s:init_internal_variables() abort
 
     if deoplete#util#has_yarp()
       " Dummy call is needed to check exists()
-      call neovim_rpc#serveraddr()
+      silent! call neovim_rpc#serveraddr()
       if !exists('*neovim_rpc#serveraddr')
         call deoplete#util#print_error(
               \ 'deoplete requires vim-hug-neovim-rpc plugin in Vim.')
@@ -221,7 +221,8 @@ function! s:check_custom_var(source_name, old_var, new_var) abort
 
   call deoplete#util#print_error(
         \ printf('%s is deprecated variable.  '.
-        \ 'Please use deoplete#custom#var() instead.', a:old_var))
+        \ 'Please use deoplete#custom#var("%s", "%s", {value}) instead.',
+        \ a:old_var, a:source_name, a:new_var))
   call deoplete#custom#var(a:source_name, a:new_var, eval(a:old_var))
 endfunction
 function! s:check_custom_option(old_var, new_var) abort
@@ -231,7 +232,8 @@ function! s:check_custom_option(old_var, new_var) abort
 
   call deoplete#util#print_error(
         \ printf('%s is deprecated variable.  '.
-        \ 'Please use deoplete#custom#option() instead.', a:old_var))
+        \ 'Please use deoplete#custom#option("%s", {value}) instead.',
+        \ a:old_var, a:new_var))
   call deoplete#custom#option(a:new_var, eval(a:old_var))
 endfunction
 
@@ -241,11 +243,10 @@ function! deoplete#init#_option() abort
         \ 'auto_complete_delay': 0,
         \ 'auto_complete_popup': 'auto',
         \ 'auto_refresh_delay': 20,
-        \ 'camel_case': v:false,
         \ 'candidate_marks': [],
+        \ 'overwrite_completeopt': v:true,
         \ 'check_stderr': v:true,
         \ 'complete_suffix': v:true,
-        \ 'ignore_case': &ignorecase,
         \ 'ignore_sources': {},
         \ 'keyword_patterns': {'_': '[a-zA-Z_]\k*'},
         \ 'max_list': 500,
@@ -261,7 +262,6 @@ function! deoplete#init#_option() abort
         \ 'refresh_backspace': v:true,
         \ 'skip_chars': ['(', ')'],
         \ 'skip_multibyte': v:false,
-        \ 'smart_case': &smartcase,
         \ 'sources': {},
         \ 'trigger_key': v:char,
         \ 'yarp': v:false,

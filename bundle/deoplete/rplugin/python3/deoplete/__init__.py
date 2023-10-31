@@ -10,10 +10,12 @@ import typing
 
 from deoplete.deoplete import Deoplete
 
-
-if find_spec('yarp'):
+try:
+    # For Vim8
     import vim
-else:
+except ModuleNotFoundError:
+    # For neovim
+    # Note: neovim cannot import vim module
     import pynvim as vim
 
 Context = typing.Dict[str, typing.Any]
@@ -24,8 +26,8 @@ if hasattr(vim, 'plugin'):
     @vim.plugin
     class DeopleteHandlers(object):
 
-        def __init__(self, vim: Nvim):
-            self._vim = vim
+        def __init__(self, _vim: Nvim):
+            self._vim = _vim
 
         @vim.function('_deoplete_init', sync=False)  # type: ignore
         def init_channel(self,

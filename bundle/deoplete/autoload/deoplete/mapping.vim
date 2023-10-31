@@ -18,7 +18,9 @@ function! deoplete#mapping#_init() abort
   noremap  <silent> <Plug>+  <Nop>
 endfunction
 function! deoplete#mapping#_dummy(func) abort
-  return "\<C-r>=".a:func."()\<CR>"
+  " NOTE: silent call is needed for `set noshowcmd`
+  " https://github.com/Shougo/deoplete.nvim/pull/1199
+  return "\<Cmd>silent call ".a:func."()\<CR>"
 endfunction
 function! s:check_completion_info(candidates) abort
   if !exists('*complete_info')
@@ -41,12 +43,15 @@ function! s:check_completion_info(candidates) abort
   endif
   return 0
 
-  let old_candidates = sort(map(copy(info.items), 'v:val.word'))
-  return sort(map(copy(a:candidates), 'v:val.word')) ==# old_candidates
+  let old_candidates = sort(map(copy(info.items), { _, val -> val.word }))
+  return sort(map(copy(a:candidates),
+        \ { _, val -> val.word })) ==# old_candidates
 endfunction
 function! deoplete#mapping#_can_complete() abort
-  return has_key(get(g:, 'deoplete#_context', {}), 'candidates')
-        \ && !s:check_completion_info(g:deoplete#_context.candidates)
+  let context = get(g:, 'deoplete#_context', {})
+  return has_key(context, 'candidates') && has_key(context, 'event')
+        \ && has_key(context, 'input')
+        \ && !s:check_completion_info(context.candidates)
         \ && &modifiable
 endfunction
 function! deoplete#mapping#_complete() abort
@@ -104,6 +109,10 @@ function! deoplete#mapping#_prev_complete() abort
   return ''
 endfunction
 function! deoplete#mapping#_set_completeopt(is_async) abort
+  if !deoplete#custom#_get_option('overwrite_completeopt')
+    return
+  endif
+
   if !exists('g:deoplete#_saved_completeopt')
     let g:deoplete#_saved_completeopt = &completeopt
   endif
@@ -155,16 +164,9 @@ function! deoplete#mapping#_complete_common_string() abort
     return ''
   endif
 
-  let complete_str = prev.input[prev.complete_position :]
-  let candidates = filter(copy(prev.candidates),
-        \ 'stridx(tolower(v:val.word), tolower(complete_str)) == 0')
-
-  if empty(candidates) || complete_str ==# ''
-    return ''
-  endif
-
-  let common_str = candidates[0].word
-  for candidate in candidates[1:]
+  let complete_str = deoplete#util#get_input('')[prev.complete_position :]
+  let common_str = prev.candidates[0].word
+  for candidate in prev.candidates[1:]
     while stridx(tolower(candidate.word), tolower(common_str)) != 0
       let common_str = common_str[: -2]
     endwhile

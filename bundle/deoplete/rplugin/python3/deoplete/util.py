@@ -61,6 +61,8 @@ def import_plugin(path: str, source: str,
     module_name = 'deoplete.%s.%s' % (source, name)
 
     spec = importlib.util.spec_from_file_location(module_name, path)
+    if not spec:
+        return None
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)  # type: ignore
     cls = getattr(module, classname, None)
@@ -92,7 +94,7 @@ def error_tb(vim: Nvim, msg: str) -> None:
     t, v, tb = sys.exc_info()
     if t and v and tb:
         lines += traceback.format_exc().splitlines()
-    lines += ['%s.  Use :messages / see above for error details.' % msg]
+    lines += ['%s  Use :messages / see above for error details.' % msg]
     if hasattr(vim, 'err_write'):
         vim.err_write('[deoplete] %s\n' % '\n'.join(lines))
     else:
@@ -239,7 +241,9 @@ def getlines(vim: Nvim, start: int = 1,
     lines: typing.List[str] = []
     current = start
     while current <= int(end):
-        lines += vim.call('getline', current, current + max_len)
+        # Skip very long lines
+        lines += [x for x in vim.call('getline', current, current + max_len)
+                  if len(x) < 300]
         current += max_len + 1
     return lines
 

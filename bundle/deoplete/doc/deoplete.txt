@@ -1,6 +1,6 @@
 *deoplete.txt*	Dark powered asynchronous completion framework for Neovim/Vim8
 
-Version: 6.1
+Version: 6.2
 Author: Shougo <Shougo.Matsu at gmail.com>
 License: MIT license
 
@@ -35,9 +35,9 @@ current buffer.
 
 Note: deoplete may consume more memory than other plugins do.
 
-Improvements in deoplete in comparison to |neocomplete|:
+Improvements in deoplete in comparison to neocomplete:
 
-1. Real asynchronous completion behavior like |YouCompleteMe| by default.
+1. Real asynchronous completion behavior like YouCompleteMe by default.
 2. Uses Python3 to implement sources.
 3. Removes legacy interface.
 4. Requires |+python3|.
@@ -45,8 +45,8 @@ Improvements in deoplete in comparison to |neocomplete|:
 ==============================================================================
 INSTALL							*deoplete-install*
 
-Note: deoplete requires Neovim (0.3.0+) or Vim8.1+ (latest is recommended)
-with Python 3.6.1+ and |+timers| enabled.
+Note: deoplete requires Neovim (0.3.0+) or Vim8.2.1978+ (latest is
+recommended) with Python 3.6.1+ and |+timers| enabled.
 
 Please install/upgrade msgpack package (1.0.0+).
 https://github.com/msgpack/msgpack-python
@@ -131,17 +131,6 @@ auto_refresh_delay
 
 		Default value: 100 (milliseconds)
 
-						*deoplete-options-camel_case*
-camel_case
-		If it is True, lowercase letters are also matched with the
-		corresponding uppercase ones.
-		Ex: "foB" is matched with "FooBar" but not with "foobar".
-		Note: This feature is only available in
-		|deoplete-filter-matcher_fuzzy| or
-		|deoplete-filter-matcher_full_fuzzy|.
-
-		Default value: v:false
-
 					*deoplete-options-candidate_marks*
 candidate_marks
 		The candidate additional marks.
@@ -182,12 +171,6 @@ complete_suffix
 		for supported sources.  It is useful for deoplete-tabnine.
 
 		Default value: v:true
-
-						*deoplete-options-ignore_case*
-ignore_case
-		If it is True, deoplete ignores case.
-
-		Default value: same with your 'ignorecase' value
 
 					*deoplete-options-ignore_sources*
 ignore_sources
@@ -282,6 +265,14 @@ on_text_changed_i
 
 		Default value: v:true
 
+				*deoplete-options-overwrite_completeopt*
+overwrite_completeopt
+		Deoplete overwrites 'completeopt' option.
+		You can disable the feature but if you change it, deoplete may
+		not work.
+
+		Default value: v:true
+
 						*deoplete-options-profile*
 profile
 		If it is True, deoplete will print the time information to
@@ -334,13 +325,6 @@ skip_chars
 		The list of skip characters in the auto completion.
 
 		Default value: ['(', ')']
-
-						*deoplete-options-smart_case*
-smart_case
-		When a capital letter is included in input, deoplete does
-		not ignore the upper- and lowercase.
-
-		Default value: same with your 'smartcase' value
 
 					*deoplete-options-sources*
 sources
@@ -587,8 +571,8 @@ deoplete#manual_complete([{sources}])
 		\ <SID>check_back_space() ? "\<TAB>" :
 		\ deoplete#manual_complete()
 		function! s:check_back_space() abort "{{{
-		let col = col('.') - 1
-		return !col || getline('.')[col - 1]  =~ '\s'
+		  let col = col('.') - 1
+		  return !col || getline('.')[col - 1]  =~ '\s'
 		endfunction"}}}
 <
 				*deoplete#smart_close_popup()*
@@ -601,8 +585,7 @@ deoplete#smart_close_popup()
 		inoremap <expr><BS>
 		\ deoplete#smart_close_popup()."\<C-h>"
 <
-		Note: This mapping conflicts with |SuperTab| or |endwise|
-		plugins.
+		Note: This mapping conflicts with SuperTab or endwise plugins.
 		Note: This key mapping is for <C-h> or <BS> keymappings.
 
 					*deoplete#undo_completion()*
@@ -618,10 +601,10 @@ EXAMPLES						*deoplete-examples*
 	" Use deoplete.
 	let g:deoplete#enable_at_startup = 1
 	" Use smartcase.
-	call deoplete#custom#option('smart_case', v:true)
+	call deoplete#custom#source('_', 'smart_case', v:true)
 
 	" <CR>: close popup and save indent.
-	inoremap <silent> <CR> <C-r>=<SID>my_cr_function()<CR>
+	inoremap <silent> <CR> <Cmd>call <SID>my_cr_function()<CR>
 	function! s:my_cr_function() abort
 	  return deoplete#close_popup() . "\<CR>"
 	endfunction
@@ -747,7 +730,7 @@ omni							*deoplete-source-omni*
 				setting.
 				(default: {})
 >
-		call deoplete#custom#source('omni', 'functions', {
+		call deoplete#custom#var('omni', 'functions', {
 		    \ 'javascript': ['tern#Complete', 'jspc#omni']
 		    \})
 <
@@ -938,8 +921,7 @@ converter_reorder_attr
 				*deoplete-filter-converter_auto_paren*
 converter_auto_paren
 		It adds parentheses character in a candidate's word.
-		It is useful if you use |neopairs| or |neosnippet|
-		plugins.
+		It is useful if you use neopairs or neosnippet plugins.
 
 				*deoplete-filter-converter_case*
 converter_case
@@ -972,6 +954,7 @@ converter_truncate_menu
 				*deoplete-filter-converter_word_abbr*
 converter_word_abbr
 		Convert candidate word to abbr.
+
 CREATE SOURCE					*deoplete-create-source*
 
 To create source, you should read default sources implementation in
@@ -999,6 +982,17 @@ __{name}	(Unspecified)			(Optional)
 		Additional source information.
 		Note: Sources should save variables instead of
 		global variables.
+
+					*deoplete-source-attribute-camel_case*
+camel_case
+		If it is True, lowercase letters are also matched with the
+		corresponding uppercase ones.
+		Ex: "foB" is matched with "FooBar" but not with "foobar".
+		Note: This feature is only available in
+		|deoplete-filter-matcher_fuzzy| or
+		|deoplete-filter-matcher_full_fuzzy|.
+
+		Default value: v:false
 
 					*deoplete-source-attribute-converters*
 converters	(List[str])			(Optional)
@@ -1064,6 +1058,7 @@ gather_candidates
 		candidates, the user cannot then filter the candidates by
 		fuzzy match.
 
+			*deoplete-source-attribute-get_complete_position*
 get_complete_position
 		(Function)			(Optional)
 		It is called to get the position of the current completion.
@@ -1079,7 +1074,14 @@ get_complete_position
 		Note: If |deoplete-source-attribute-is_bytepos| is True, it
 		must return byte position.
 
-		This is useful if you want to complete terms that are more
+		This is useful if you want to complete terms that are more.
+
+				*deoplete-source-attribute-ignore_case*
+ignore_case
+		If it is True, deoplete ignores case.
+
+		Default value: v:false
+
 				*deoplete-source-attribute-input_pattern*
 input_pattern
 		(String)			(Optional)
@@ -1148,6 +1150,11 @@ is_volatile
 					*deoplete-source-attribute-mark*
 mark		(String)			(Optional)
 		The mark of a source.
+		Note: If the source set candidate menu, the source must set
+		it.  If the attribute is empty string, the candidate menu will
+		be disabled.
+
+		Default: ''
 
 					*deoplete-source-attribute-matchers*
 matchers	(List[str])			(Optional)
@@ -1258,6 +1265,13 @@ rank		(Integer)			(Optional)
 		Note: It is high priority than match position.
 
 		Default: 100
+
+					*deoplete-source-attribute-smart_case*
+smart_case
+		When a capital letter is included in input, deoplete does
+		not ignore the upper- and lowercase.
+
+		Default value: v:false
 
 					*deoplete-source-attribute-sorters*
 sorters		(List[str])			(Optional)
@@ -1424,6 +1438,8 @@ filter
 ==============================================================================
 EXTERNAL SOURCES				*deoplete-external-sources*
 
+Please see https://github.com/Shougo/deoplete.nvim/wiki/Completion-Sources
+
 neco-vim: "vim" source for Vim script
 https://github.com/Shougo/neco-vim
 
@@ -1436,124 +1452,11 @@ https://github.com/Shougo/neoinclude.vim
 neco-syntax: "syntax" source
 https://github.com/Shougo/neco-syntax
 
-vimshell: "vimshell" source for vimshell
-https://github.com/Shougo/vimshell.vim
-
-neco-ghc: "ghc" source for Haskell
-https://github.com/eagletmt/neco-ghc
-
-neco-look: "look" source to suggest words from sorted dictionary
-https://github.com/ujihisa/neco-look
-
-vim-racer: "racer" source for Rust
-https://github.com/racer-rust/vim-racer
-
-UltiSnips source: "ultisnips" source for UltiSnips
-https://github.com/SirVer/ultisnips
-
-clang-complete: "clang_complete" source for C/C++/Objective-C
-https://github.com/Rip-Rip/clang_complete
-
-deoplete-go: "go" source for Go
-https://github.com/deoplete-plugins/deoplete-go
-
-elixir.nvim: "elixir" source for Elixir
-https://github.com/awetzel/elixir.nvim
-
-deoplete-jedi: "jedi" source for Python
-https://github.com/deoplete-plugins/deoplete-jedi
-
-perlomni.vim: "PerlOmni" source for Perl
-https://github.com/c9s/perlomni.vim
-
-nvim-typescript: "typescript" source for typescript
-https://github.com/mhartington/nvim-typescript
-
-async-clj-omni: "async_clj" source for Clojure
-https://github.com/SevereOverfl0w/async-clj-omni
-
-deoplete-ternjs: "ternjs" source for JavaScript
-https://github.com/carlitux/deoplete-ternjs
-
-deoplete-swift: "swift" source for Swift
-https://github.com/landaire/deoplete-swift
-
-neovim-intellij-complete-deoplete: "intellij" source for Intellij IDE
-https://github.com/vhakulinen/neovim-intellij-complete-deoplete
-
-tmux-complete: "tmuxcomplete" source for tmux panes
-https://github.com/wellle/tmux-complete.vim
-
-deoplete-github: "github" source for "gitcommit" filetype
-https://github.com/SevereOverfl0w/deoplete-github
-
-deoplete-flow: "flow" source for JavaScript
-https://github.com/steelsojka/deoplete-flow
-
-deoplete-d: "d" source for D language
-https://github.com/landaire/deoplete-d
-
-deoplete-rtags: "rtags" source for "c", "cpp", "objc" and "objcpp" filetypes
-https://github.com/LuXuryPro/deoplete-rtags
-
-deoplete-solargraph "solargraph" source for Ruby language
-https://github.com/uplus/deoplete-solargraph
-
-deoplete-padawan: "padawan" source for padawan.php
-https://github.com/pbogut/deoplete-padawan
-
-webcomplete.vim: "webcomplete" source for browser opened pages
-https://github.com/thalesmello/webcomplete.vim
-
-deoplete-julia: "julia" source for Julia
-https://github.com/JuliaEditorSupport/deoplete-julia
-
-acid.nvim: "acid" source for Clojure
-https://github.com/hkupty/acid.nvim
-
-deoplete-omnisharp: "cs" source for C#
-https://github.com/Robzz/deoplete-omnisharp/
-
-deoplete-omnisharp: Improved version of deoplete-omnisharp
-https://github.com/dimixar/deoplete-omnisharp/
-
-deoplete-omnisharp: Embedded omnisharp server version of deoplete-omnisharp
-https://github.com/cyansprite/deoplete-omnisharp
-
-deoplete-hack: "hack" source for Hack and PHP
-https://github.com/zefei/deoplete-hack
-
-deoplete-laravel-plugin: "laravel-plugin" source for "php" and "blade"
-filetypes
-https://github.com/rafaelndev/deoplete-laravel-plugin
-
 deoplete-zsh: "zsh" source for Zsh
 https://github.com/deoplete-plugins/deoplete-zsh
 
-deoplete-fish: "fish" source for fish shell
-https://github.com/ponko2/deoplete-fish
-
-deoplete-fsharp: "fsharp" source for F#
-https://github.com/callmekohei/deoplete-fsharp
-
-autocomplete-flow: "flow" source for JavaScript
-https://github.com/wokalski/autocomplete-flow
-
-deoplete-asm: "asm" source for Assembly Language
-https://github.com/deoplete-plugins/deoplete-asm
-
-deoplete-abook: "abook" source for abook contacts
-https://github.com/fszymanski/deoplete-abook
-
-deoplete-emoji: "emoji" source for emoji codes
-https://github.com/fszymanski/deoplete-emoji
-
-LanguageClient-neovim: "LanguageClient" source for Language Server
-Protocol(LSP)
-https://github.com/autozimu/LanguageClient-neovim
-
-deoplete-vim-lsp: "lsp" source for vim-lsp
-https://github.com/lighttiger2505/deoplete-vim-lsp
+deoplete-lsp source for neovim builtin LSP features
+https://github.com/deoplete-plugins/deoplete-lsp
 
 deoplete-tags: "tag" source for tag files
 https://github.com/deoplete-plugins/deoplete-tag
@@ -1735,6 +1638,17 @@ A: It is the feature of deoplete.  The default insertion is disabled to enable
 completion asynchronously.  If you don't like the behavior, you should use
 other auto completion plugin.
 
+Q: deoplete does not work on macVim environment.
+
+A:
+https://github.com/Shougo/deoplete.nvim/issues/1196
+
+The homebrew version of macVim is distributed with python included. Thus, when
+you try to install "pynvim" from the command line it will likely be installed
+in the wrong library location. This results in the headline error. The
+solution is to set the python path in the .vimrc file and use homebrew to link
+to the python version installed by macVim.
+
 							*deoplete-faq-config*
 2. Configuration~
 
@@ -1746,7 +1660,7 @@ A: You can disable the messages through the 'shortmess' option. >
 
 	set shortmess+=c
 
-Q: I want to use the auto select feature like |neocomplete|.
+Q: I want to use the auto select feature like neocomplete.
 
 A: You can use it by the 'completeopt' option. >
 
@@ -1787,7 +1701,7 @@ Q: When I press enter, neovim closes the popup instead of inserting new line.
 A: It is Vim/neovim's default behavior (feature.)  If you want to insert the
    new line, you should map <CR>. >
 
-	inoremap <silent> <CR> <C-r>=<SID>my_cr_function()<CR>
+	inoremap <silent> <CR> <Cmd>call <SID>my_cr_function()<CR>
 	function! s:my_cr_function() abort
 	  return deoplete#close_popup() . "\<CR>"
 	endfunction
@@ -1813,6 +1727,11 @@ Q: How can I sort all entries alphabetically?
 
 A: >
 	call deoplete#custom#source('_', 'sorters', ['sorter_word'])
+
+Q: I want to disable all sources marks.
+
+A: >
+	call deoplete#custom#source('_', 'mark', '')
 
 Q: I want to use head matcher instead of fuzzy matcher.
 
@@ -1886,6 +1805,20 @@ Q: I want to use floating preview window feature with deoplete.
 
 A: Please install float-preview.nvim plugin.
 https://github.com/ncm2/float-preview.nvim
+Note: You need to use sources with description like "deoplete-lsp".
+>
+	set runtimepath+=~/src/deoplete.nvim/
+	set runtimepath+=~/src/deoplete-lsp
+	set runtimepath+=~/src/nvim-lspconfig
+	set runtimepath+=~/src/float-preview.nvim
+	
+	let g:deoplete#enable_at_startup = 1
+	let g:float_preview#docked = 0
+	
+	lua <<END
+	  require'lspconfig'.gopls.setup{}
+	  require'lspconfig'.pylsp.setup{}
+	END
 
 Q: I want to complete from 'tags'.
 
@@ -1917,8 +1850,8 @@ A: >
 	    \ <SID>check_back_space() ? "\<Tab>" :
 	    \ deoplete#can_complete() ? deoplete#complete() : ''
 	function! s:check_back_space() abort
-	    let col = col('.') - 1
-	    return !col || getline('.')[col - 1]  =~# '\s'
+	  let col = col('.') - 1
+	  return !col || getline('.')[col - 1]  =~# '\s'
 	endfunction
 
 Q: Why I have to trigger |deoplete#complete()| at least twice for the popup to
@@ -1964,7 +1897,7 @@ A: Please use |deoplete-options-auto_complete|. >
 
 Q: I want to use C/C++ omni completion with deoplete.
 
-A: You should use |deoplete-clangx|.
+A: You should use deoplete-clangx.
 
    https://github.com/Shougo/deoplete-clangx
 
@@ -2039,10 +1972,10 @@ A: >
 
 Q: How to donate money to you?
 
-A: I don't get the donation, but if you want to donate, please support neovim
-project.  My plugins depends on neovim development.
+A: I have started github sponsorship to spend more time for Vim/neovim
+plugins.  You can donate money to help me!
 
-https://salt.bountysource.com/teams/neovim
+https://github.com/sponsors/Shougo
 
 Q: What means "dark powered"?
 
@@ -2102,8 +2035,21 @@ A: deoplete is:
    I don't think deoplete is the best for everyone.  Please choose auto
    completion plugin.
 
+Q: deoplete with coc.nvim does not work.
+https://github.com/Shougo/deoplete.nvim/issues/1192
+
+A: Unfortunately, both deoplete and coc.nvim provide auto completion feature.
+   So deoplete conflicts with coc.nvim.
+   You cannot use both. You need to choose coc.nvim or deoplete.
+   Note: But to change |deoplete-options-overwrite_completeopt| may work for
+   you.
+
 ==============================================================================
 COMPATIBILITY					*deoplete-compatibility*
+
+2021.05.30
+* "smart_case" and "ignore_case" and "camel_case" are source specific options
+  instead.
 
 2020.11.07
 * Disable nofile buffers completion except
