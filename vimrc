@@ -724,7 +724,6 @@ let g:go_highlight_variable_assignments = 0
 let g:go_build_tags = 'integration'
 let g:go_gopls_matcher = 'caseSensitive'
 let g:go_gopls_deep_completion = 0
-let g:go_gopls_temp_modfile = 1
 let g:go_gopls_use_placeholders = 0
 autocmd FileType go nmap <buffer> <nowait> <Leader>r     <Plug>(go-run)
 autocmd FileType go nmap <buffer> <nowait> <Leader>b     <Plug>(go-build)
