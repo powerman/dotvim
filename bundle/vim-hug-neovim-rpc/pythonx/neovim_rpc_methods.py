@@ -23,6 +23,10 @@ def nvim_buf_get_number(buf):
     return buf.number
 
 
+def nvim_buf_get_mark(buffer, name):
+    return buffer.mark(name)
+
+
 def nvim_buf_get_name(buffer):
     return buffer.name
 
@@ -109,6 +113,10 @@ def nvim_get_current_line():
 
 def nvim_get_current_win():
     return vim.current.window
+
+
+def nvim_list_wins():
+    return list(vim.windows)
 
 
 def nvim_win_get_cursor(window):

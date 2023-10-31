@@ -6,7 +6,7 @@
 [subrepo]
 	remote = https://github.com/roxma/vim-hug-neovim-rpc.git
 	branch = master
-	commit = 701ecbb0a1f904c0b44c6beaafef35e1de998a94
-	parent = 70b84634250d2e8fea3b22e2cdb1922314dd04a3
+	commit = 93ae38792bc197c3bdffa2716ae493c67a5e7957
+	parent = dca263856ba6e756ad5808f08fb14459ab3833e8
 	method = merge
 	cmdver = 0.4.1
