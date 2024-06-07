@@ -52,11 +52,11 @@ syn match   tmpljavaScriptNumber           "\<\d\+\(_\d\+\)*\.\(\d\+\(_\d\+\)*\(
 syn region  tmpljavaScriptRegexpString     start=+[,(=+]\s*/[^/*]+ms=e-1,me=e-1 skip=+\\\\\|\\/+ end=+/[gimuys]\{0,2\}\s*$+ end=+/[gimuys]\{0,2\}\s*[+;.,)\]}]+me=e-1 end=+/[gimuys]\{0,2\}\s\+\/+me=e-1 contains=@htmlPreproc,tmpljavaScriptComment oneline
 
 syn keyword tmpljavaScriptConditional	if else switch
-syn keyword tmpljavaScriptRepeat		while for do in
+syn keyword tmpljavaScriptRepeat		while for do in of
 syn keyword tmpljavaScriptBranch		break continue
 syn keyword tmpljavaScriptOperator		new delete instanceof typeof
 syn keyword tmpljavaScriptType		Array Boolean Date Function Number Object String RegExp
-syn keyword tmpljavaScriptStatement		return with await
+syn keyword tmpljavaScriptStatement		return with await yield
 syn keyword tmpljavaScriptBoolean		true false
 syn keyword tmpljavaScriptNull		null undefined
 syn keyword tmpljavaScriptIdentifier	arguments this var let
@@ -103,7 +103,7 @@ hi def link tmpljavaScriptStringD		String
 hi def link tmpljavaScriptStringT		String
 hi def link tmpljavaScriptCharacter		Character
 hi def link tmpljavaScriptSpecialCharacter	tmpljavaScriptSpecial
-hi def link tmpljavaScriptNumber		tmpljavaScriptValue
+hi def link tmpljavaScriptNumber		Number
 hi def link tmpljavaScriptConditional		Conditional
 hi def link tmpljavaScriptRepeat		Repeat
 hi def link tmpljavaScriptBranch		Conditional
