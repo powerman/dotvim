@@ -1,5 +1,5 @@
 " Add highlighting for TODO.
-syn keyword markdownToDo TODO TBD FIXME
+syn keyword markdownToDo TODO TBD FIXME XXX BUG
 hi def link markdownToDo Todo
 
 " Fix list continuation lines indented with 4+ spaces.
