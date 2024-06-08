@@ -188,6 +188,11 @@ set keymodel=startsel                   " Shift со стрелками начи
 vnoremap <S-Delete>     <Delete>
 "   ... выделенный текст копируется автоматически Ctrl+Insert просто снимает выделение
 vnoremap <C-Insert>     <Esc>
+" - PageUp/PageDown не перемещает курсор на последнюю/первую строку экрана
+noremap <silent> <PageUp> 1000<C-U>
+noremap <silent> <PageDown> 1000<C-D>
+inoremap <silent> <PageUp> <C-O>1000<C-U>
+inoremap <silent> <PageDown> <C-O>1000<C-D>
 " - подсветка синтаксиса
 set synmaxcol=1000                      " не подсвечивать слишком длинные строчки
 colorscheme powerman
