@@ -6,7 +6,7 @@
 [subrepo]
 	remote = https://github.com/majutsushi/tagbar
 	branch = master
-	commit = 679a9d9ac9579bd18225409d85ed4870fb6c9c62
-	parent = ff86c82d0fa959f2bdab8228bf4a09c9ec7d2f39
+	commit = 0815b5455c792a610d28ff3e7981642c9cf05d62
+	parent = c008437133b676971a8dca527c8518ff76a53741
 	method = merge
-	cmdver = 0.4.1
+	cmdver = 0.4.6
