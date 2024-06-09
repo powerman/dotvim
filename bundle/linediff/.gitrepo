@@ -6,7 +6,7 @@
 [subrepo]
 	remote = https://github.com/AndrewRadev/linediff.vim
 	branch = master
-	commit = 681a3bc2944059692c91c61fd5c6e01afba28e62
-	parent = 5e375a2d3c9fbf17222a4083bbe9539c61aef98c
+	commit = ddae71ef5f94775d101c1c70032ebe8799f32745
+	parent = 1fa0ab80ac6669a8396f1de0b61282aeea0fa87e
 	method = merge
 	cmdver = 0.4.1
