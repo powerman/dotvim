@@ -812,7 +812,7 @@ endfunction
 function! go#debug#TestFunc(...) abort
   let l:test = go#util#TestName()
   if l:test is ''
-    call go#util#Warn("vim-go: [debug] no test found immediate to cursor")
+    call go#util#EchoWarning("vim-go: [debug] no test found immediate to cursor")
     return
   endif
   call call('go#debug#Start', extend(['test', '.', '-test.run', printf('%s$', l:test)], a:000))
@@ -1567,6 +1567,11 @@ function! s:sign_unplace(id, file) abort
 endfunction
 
 function! s:sign_place(id, expr, lnum) abort
+  " Check if lnum is less than 1 or expr is empty or null
+  if a:lnum < 1 || empty(a:expr)
+    return
+  endif
+
   if !exists('*sign_place')
     exe 'sign place ' . a:id . ' line=' . a:lnum . ' name=godebugbreakpoint file=' . a:expr
     return

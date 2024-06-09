@@ -12,10 +12,9 @@ function! go#lsp#lsp#Position(...)
     let l:line = a:1
     let l:col = a:2
   endif
-  let l:content = getline(l:line)
 
   " LSP uses 0-based lines.
-  return [l:line - 1, s:character(l:line, l:col-1)]
+  return [l:line - 1, s:character(l:line, l:col)]
 endfunction
 
 function! s:strlen(str) abort
@@ -28,17 +27,17 @@ function! s:character(line, col) abort
 endfunction
 
 " go#lsp#PositionOf returns len(content[0:units]) where units is utf-16 code
-" units. This is mostly useful for converting LSP text position to vim
-" position.
+" units. This is mostly useful for converting zero-based LSP text position to
+" vim one-based position.
 function! go#lsp#lsp#PositionOf(content, units, ...) abort
-  if a:units == 0
-    return 1
+  if len(a:content) is 0
+    return 0
   endif
 
   let l:remaining = a:units
   let l:str = ''
   for l:rune in split(a:content, '\zs')
-    if l:remaining < 0
+    if l:remaining <= 0
       break
     endif
     let l:remaining -= 1
@@ -48,7 +47,7 @@ function! go#lsp#lsp#PositionOf(content, units, ...) abort
     let l:str = l:str . l:rune
   endfor
 
-  return len(l:str)
+  return len(l:str) + 1
 endfunction
 
 function! go#lsp#lsp#SeverityToErrorType(severity) abort

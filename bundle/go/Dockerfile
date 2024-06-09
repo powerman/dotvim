@@ -1,11 +1,11 @@
-FROM golang:1.21.0
+FROM --platform=linux/amd64 golang:1.22.3
 
 RUN apt-get update -y --allow-insecure-repositories && \
   apt-get install -y build-essential curl git libncurses5-dev python3-pip && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-RUN pip3 install vim-vint
+RUN pip3 install vim-vint --break-system-packages
 
 RUN useradd -ms /bin/bash -d /vim-go vim-go
 USER vim-go
