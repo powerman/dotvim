@@ -124,11 +124,13 @@ let attributes_value = {
     \ 'http-equiv': ['Text', ''],
     \ 'icon': ['URL', ''],
     \ 'id': ['Text', ''],
+    \ 'inert': ['Bool', ''],
     \ 'ismap': ['Bool', ''],
     \ 'keytype': ['Text', ''],
     \ 'label': ['Text', ''],
     \ 'lang': ['Lang Tag', ''],
     \ 'list': ['ID', ''],
+    \ 'loading': ['eager/lazy', ''],
     \ 'loop': ['Bool', ''],
     \ 'low': ['Number', ''],
     \ 'manifest': ['URL', ''],
@@ -189,7 +191,7 @@ let attributes_value = {
 \ }
 
 if g:html5_event_handler_attributes_complete == 1
-    let event_handler_attributes = {'onabort': [], 'onblur': [], 'oncanplay': [], 'oncanplaythrough': [], 'onchange': [], 'onclick': [], 'oncontextmenu': [], 'ondblclick': [], 'ondrag': [], 'ondragend': [], 'ondragenter': [], 'ondragleave': [], 'ondragover': [], 'ondragstart': [], 'ondrop': [], 'ondurationchange': [], 'onemptied': [], 'onended': [], 'onerror': [], 'onfocus': [], 'onformchange': [], 'onforminput': [], 'oninput': [], 'oninvalid': [], 'onkeydown': [], 'onkeypress': [], 'onkeyup': [], 'onload': [], 'onloadeddata': [], 'onloadedmetadata': [], 'onloadstart': [], 'onmousedown': [], 'onmousemove': [], 'onmouseout': [], 'onmouseover': [], 'onmouseup': [], 'onmousewheel': [], 'onpause': [], 'onplay': [], 'onplaying': [], 'onprogress': [], 'onratechange': [], 'onreadystatechange': [], 'onscroll': [], 'onseeked': [], 'onseeking': [], 'onselect': [], 'onshow': [], 'onstalled': [], 'onsubmit': [], 'onsuspend': [], 'ontimeupdate': [], 'onvolumechange': [], 'onwaiting': [], 'onselectstart': [], 'onselectchange': []}
+    let event_handler_attributes = {'onabort': [], 'onblur': [], 'oncancel': [], 'oncanplay': [], 'oncanplaythrough': [], 'onchange': [], 'onclick': [], 'oncontextmenu': [], 'ondblclick': [], 'ondrag': [], 'ondragend': [], 'ondragenter': [], 'ondragleave': [], 'ondragover': [], 'ondragstart': [], 'ondrop': [], 'ondurationchange': [], 'onemptied': [], 'onended': [], 'onerror': [], 'onfocus': [], 'onformchange': [], 'onforminput': [], 'oninput': [], 'oninvalid': [], 'onkeydown': [], 'onkeypress': [], 'onkeyup': [], 'onload': [], 'onloadeddata': [], 'onloadedmetadata': [], 'onloadstart': [], 'onmousedown': [], 'onmousemove': [], 'onmouseout': [], 'onmouseover': [], 'onmouseup': [], 'onmousewheel': [], 'onpause': [], 'onplay': [], 'onplaying': [], 'onprogress': [], 'onratechange': [], 'onreadystatechange': [], 'onscroll': [], 'onseeked': [], 'onseeking': [], 'onselect': [], 'onshow': [], 'onstalled': [], 'onsubmit': [], 'onsuspend': [], 'ontimeupdate': [], 'onvolumechange': [], 'onwaiting': [], 'onselectstart': [], 'onselectchange': []}
     let global_attributes = extend(global_attributes, event_handler_attributes)
     
     let body_attributes = {'onafterprint': [], 'onbeforeprint': [], 'onbeforeunload': [], 'onblur': [], 'onerror': [], 'onfocus': [], 'onhashchange': [], 'onload': [], 'onmessage': [], 'onoffline': [], 'ononline': [], 'onpopstate': [], 'onredo': [], 'onresize': [], 'onstorage': [], 'onundo': [], 'onunload': []}
@@ -200,6 +202,7 @@ if g:html5_event_handler_attributes_complete == 1
         \ 'onbeforeprint': ['Script', ''],
         \ 'onbeforeunload': ['Script', ''],
         \ 'onblur': ['Script', ''],
+        \ 'oncancel': ['Script', ''],
         \ 'oncanplay': ['Script', ''],
         \ 'oncanplaythrough': ['Script', ''],
         \ 'onchange': ['Script', ''],
@@ -586,11 +589,11 @@ let g:xmldata_html5 = {
 \ ],
 \ 'iframe': [
     \ [],
-    \ extend(copy(global_attributes), {'src': [], 'srcdoc': [], 'name': [], 'width': [], 'height': [], 'sandbox': ['allow-same-origin', 'allow-forms', 'allow-scripts'], 'seamless': ['seamless', ''], 'referrerpolicy': referrerpolicy, 'allowfullscreen': [], 'allowpaymentrequest': [], 'allowpresentation': [], 'allowusermedia': []})
+    \ extend(copy(global_attributes), {'src': [], 'srcdoc': [], 'name': [], 'width': [], 'height': [], 'sandbox': ['allow-same-origin', 'allow-forms', 'allow-scripts'], 'seamless': ['seamless', ''], 'referrerpolicy': referrerpolicy, 'allowfullscreen': [], 'allowpaymentrequest': [], 'allowpresentation': [], 'allowusermedia': [], 'loading': ['eager', 'lazy']})
 \ ],
 \ 'img': [
     \ [],
-    \ extend(copy(global_attributes), {'src': [], 'alt': [], 'height': [], 'width': [], 'decoding': ['async', 'sync', 'auto'], 'usemap': [], 'ismap': ['ismap', ''], 'referrerpolicy': referrerpolicy, 'crossorigin': ['anonymous', 'use-credentials']})
+    \ extend(copy(global_attributes), {'src': [], 'alt': [], 'height': [], 'width': [], 'decoding': ['async', 'sync', 'auto'], 'usemap': [], 'ismap': ['ismap', ''], 'referrerpolicy': referrerpolicy, 'crossorigin': ['anonymous', 'use-credentials'], 'loading': ['eager', 'lazy']})
 \ ],
 \ 'input': [
     \ [],

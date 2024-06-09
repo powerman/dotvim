@@ -6,7 +6,7 @@
 [subrepo]
 	remote = https://github.com/othree/html5.vim
 	branch = master
-	commit = ec1ec0701225e0d42fccc562444a355f4eb03dee
-	parent = 6fc6c9569b96866cdf91e67691251beb0ab64c0b
+	commit = 485f2cd62162c81e56d8604b4c630f0b5ef69d1f
+	parent = c1a08be0246faf7dd93b05db0c2b375475528308
 	method = merge
 	cmdver = 0.4.1
