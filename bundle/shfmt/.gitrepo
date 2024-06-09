@@ -6,7 +6,7 @@
 [subrepo]
 	remote = https://github.com/z0mbix/vim-shfmt.git
 	branch = master
-	commit = ab1d5ebdc43ae2ceaddf3dc7eb580ef1eea21c05
-	parent = 52359b1b43b02fa5e7ca5c92d6cde26d5084ca98
+	commit = 1f0e72322a8cb38805c276f7f3d10e21822b5376
+	parent = 38bb6d060eda9d79fb895a070afe2b2d643c8bd8
 	method = merge
 	cmdver = 0.4.1
