@@ -24,7 +24,7 @@ snippet rb
 snippet beg
 	begin
 		${0}
-	rescue ${1:Exception} => ${2:e}
+	rescue ${1:StandardError} => ${2:e}
 	end
 snippet req require
 	require '${1}'
@@ -34,15 +34,19 @@ snippet #
 	# =>
 snippet case
 	case ${1:object}
-	when ${2:condition}
+	when $2
 		${0}
 	end
 snippet when
-	when ${1:condition}
+	when $1
 		${0:${VISUAL}}
 snippet def
 	def ${1:method_name}
 		${0}
+	end
+snippet defm
+	def ${1:method}
+		@$1 ||= ${0}
 	end
 snippet deft
 	def test_${1:case_name}
@@ -55,46 +59,46 @@ snippet descendants
 		end
 	end
 snippet if
-	if ${1:condition}
+	if $1
 		${0:${VISUAL}}
 	end
 snippet ife
-	if ${1:condition}
+	if $1
 		${2:${VISUAL}}
 	else
 		${0}
 	end
 snippet eif
-	elsif ${1:condition}
+	elsif $1
 		${0:${VISUAL}}
 snippet ifee
-	if ${1:condition}
+	if $1
 		$2
-	elsif ${3:condition}
+	elsif $3
 		$4
 	else
 		$0
 	end
 snippet unless
-	unless ${1:condition}
+	unless $1
 		${0:${VISUAL}}
 	end
 snippet unlesse
-	unless ${1:condition}
+	unless $1
 		$2
 	else
 		$0
 	end
 snippet unlesee
-	unless ${1:condition}
+	unless $1
 		$2
-	elsif ${3:condition}
+	elsif $3
 		$4
 	else
 		$0
 	end
 snippet wh
-	while ${1:condition}
+	while $1
 		${0:${VISUAL}}
 	end
 snippet for
@@ -102,7 +106,7 @@ snippet for
 		${0}
 	end
 snippet until
-	until ${1:condition}
+	until $1
 		${0:${VISUAL}}
 	end
 snippet cla class .. end
@@ -199,18 +203,18 @@ snippet defds
 snippet am
 	alias_method :${1:new_name}, :${0:old_name}
 snippet app
-	if __FILE__ == $PROGRAM_NAME
+	if __FILE__ == \$PROGRAM_NAME
 		${0}
 	end
 # usage_if()
 snippet usai
 	if ARGV.${1}
-		abort "Usage: #{$PROGRAM_NAME} ${2:ARGS_GO_HERE}"${0}
+		abort "Usage: #{\$PROGRAM_NAME} ${2:ARGS_GO_HERE}"${0}
 	end
 # usage_unless()
 snippet usau
 	unless ARGV.${1}
-		abort "Usage: #{$PROGRAM_NAME} ${2:ARGS_GO_HERE}"${0}
+		abort "Usage: #{\$PROGRAM_NAME} ${2:ARGS_GO_HERE}"${0}
 	end
 snippet array
 	Array.new(${1:10}) { |${2:i}| ${0} }
@@ -372,6 +376,8 @@ snippet finad
 	end
 snippet gre
 	grep(${1:/pattern/}) { |${2:match}| ${0} }
+snippet grepv
+	select { |${1:line}| $1 !~ ${2:/pattern/} }${0}
 snippet sub
 	${1:g}sub(${2:/pattern/}) { |${3:match}| ${0} }
 snippet sca
@@ -439,7 +445,7 @@ snippet optp
 	options = { ${0:default: 'args'} }
 
 	ARGV.options do |opts|
-		opts.banner = "Usage: #{File.basename($PROGRAM_NAME)}"
+		opts.banner = "Usage: #{File.basename(\$PROGRAM_NAME)}"
 	end
 snippet opt
 	opts.on('-${1:o}', '--${2:long-option-name}', ${3:String}, '${4:Option description.}') do |${5:opt}|
@@ -485,22 +491,22 @@ snippet asnm
 snippet aso
 	assert_operator ${1:left}, :${2:operator}, ${3:right}
 snippet asr
-	assert_raise ${1:Exception} { ${0} }
+	assert_raises(${1:StandardError}) { ${0} }
 snippet asrd
-	assert_raise ${1:Exception} do
+	assert_raises ${1:StandardError} do
 		${0}
 	end
 snippet asnr
-	assert_nothing_raised ${1:Exception} { ${0} }
+	assert_nothing_raised(${1:StandardError}) { ${0} }
 snippet asnrd
-	assert_nothing_raised ${1:Exception} do
+	assert_nothing_raised ${1:StandardError} do
 		${0}
 	end
 snippet asrt
 	assert_respond_to ${1:object}, :${2:method}
 snippet ass assert_same(..)
 	assert_same ${1:expected}, ${2:actual}
-snippet ass assert_send(..)
+snippet asss assert_send(..)
 	assert_send [${1:object}, :${2:message}, ${3:args}]
 snippet asns
 	assert_not_same ${1:unexpected}, ${2:actual}
@@ -518,6 +524,24 @@ snippet asntd
 	end
 snippet fl
 	flunk '${1:Failure message.}'
+snippet rf
+	refute ${1:test}, '${2:Failure message.}'
+snippet rfe
+	refute_equal ${1:unexpected}, ${2:actual}
+snippet rfko
+	refute_kind_of ${1:UnexpectedKind}, ${2:actual_instance}
+snippet rfn
+	refute_nil ${1:instance}
+snippet rfo
+	refute_operator ${1:left}, :${2:operator}, ${3:right}
+snippet rfi
+	refute_includes ${1:collection}, ${2:object}
+snippet rfid
+	refute_in_delta ${1:unexpected_float}, ${2:actual_float}, ${3:2**-20}
+snippet rfio
+	refute_instance_of ${1:UnexpectedClass}, ${2:actual_instance}
+snippet rfs
+	refute_same ${1:unexpected}, ${2:actual}
 # Benchmark.bmbm do .. end
 snippet bm-
 	TESTS = ${1:10_000}
@@ -568,7 +592,7 @@ snippet b
 snippet begin
 	begin
 		fail 'A test exception.'
-	rescue Exception => e
+	rescue StandardError => e
 		puts e.message
 		puts e.backtrace.inspect
 	else
@@ -580,12 +604,16 @@ snippet begin
 #debugging
 snippet debug
 	require 'byebug'; byebug
+snippet dbg
+	require 'debug'; debugger
 snippet debug19
 	require 'debugger'; debugger
 snippet debug18
 	require 'ruby-debug'; debugger
 snippet pry
 	require 'pry'; binding.pry
+snippet irb
+	binding.irb
 snippet strf
 	strftime('${1:%Y-%m-%d %H:%M:%S %z}')${0}
 #
@@ -640,7 +668,7 @@ snippet wm
 snippet mout
 	-> { ${1} }.must_output '${0}'
 snippet mra
-	-> { ${1} }.must_raise ${0:Exception}
+	-> { ${1} }.must_raise ${0:StandardError}
 snippet mrt
 	must_respond_to :${0:method}
 snippet wrt

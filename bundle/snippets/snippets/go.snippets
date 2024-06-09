@@ -59,18 +59,18 @@ snippet in "interface"
 	interface{}
 
 snippet inf "full interface "
-	interface ${1:name} {
+	type ${1:name} interface {
 		${2:/* methods */}
 	}
 
 snippet if "if condition"
-	if ${1:/* condition */} {
+	if $1 {
 		${2:${VISUAL}}
 	}
 
 
 snippet ife "if else condition"
-	if ${1:/* condition */} {
+	if $1 {
 		${2:${VISUAL}}
 	} else {
 		${0}
@@ -129,7 +129,7 @@ snippet fum "method"
 	}
 	${0}
 
-snippet fumh "http handler function on reciever"
+snippet fumh "http handler function on receiver"
 	func (${1:receiver} ${2:type}) ${3:funcName}(${4:w} http.ResponseWriter, ${5:r} *http.Request) {
 		${0:${VISUAL}}
 	}
@@ -188,7 +188,7 @@ snippet sr "string"
 	string
 
 snippet st "struct"
-	struct ${1:name} {
+	type ${1:name} struct {
 		${2:/* data */}
 	}
 	${0}
@@ -274,7 +274,7 @@ snippet ja "Marshalable json alias"
 	}
 
 
-snippet errwr "Error handling with errors.Wrap"
+snippet errwr "Error handling with fmt.Errorf"
 	if ${1}err != nil {
-		return errors.Wrap(err, "${2}")
+		return fmt.Errorf("${2} %w", err)
 	}

@@ -1,5 +1,32 @@
 #version 1
 #PREAMBLE
+#documentclass without options
+snippet dcl \documentclass{}
+	\\documentclass{${1:class}} ${0}
+#documentclass with options
+snippet dclo \documentclass[]{}
+	\\documentclass[${1:options}]{${2:class}} ${0}
+
+snippet tmplt "Template"
+	\\documentclass{${1:article}}
+
+	\\usepackage{import}
+	\\usepackage{pdfpages}
+	\\usepackage{transparent}
+	\\usepackage{xcolor}
+	$2
+	
+	\\newcommand{\incfig}[2][1]{%
+		    \def\svgwidth{#1\columnwidth}
+		    \import{./figures/}{#2.pdf_tex}
+	}
+	$3
+	\\pdfsuppresswarningpagegroup=1
+	
+	\\begin{document}
+		    $0
+	\\end{document}
+
 #newcommand
 snippet nc \newcommand
 	\\newcommand{\\${1:cmd}}[${2:opt}]{${3:realcmd}} ${0}
@@ -19,6 +46,11 @@ snippet begin \begin{} ... \end{} block
 	\\begin{${1:env}}
 		${0:${VISUAL}}
 	\\end{$1}
+
+# Maketitle
+snippet mkt maketitle
+	\\maketitle
+	
 # Tabular
 snippet tab tabular (or arbitrary) environment
 	\\begin{${1:tabular}}{${2:c}}
@@ -52,7 +84,7 @@ snippet eq equation environment
 snippet eql Labeled equation environment
 	\\begin{equation}
 		\\label{eq:${2}}
-	${0:${VISUAL}}
+		${0:${VISUAL}}
 	\\end{equation}
 # Equation
 snippet eq* unnumbered equation environment
@@ -163,9 +195,19 @@ snippet par \paragraph
 	\\paragraph{${1:paragraph name}}%
 	\\label{par:${2:$1}}
 	${0}
+# Paragraph*
+snippet par* \paragraph*
+	\\paragraph*{${1:paragraph name}}%
+	\\label{par:${2:$1}}
+	${0}
 # Sub Paragraph
 snippet subp \subparagraph
 	\\subparagraph{${1:subparagraph name}}%
+	\\label{subp:${2:$1}}
+	${0}
+# Sub Paragraph*
+snippet subp* \subparagraph*
+	\\subparagraph*{${1:subparagraph name}}%
 	\\label{subp:${2:$1}}
 	${0}
 snippet ni \noindent
@@ -289,7 +331,9 @@ snippet sum \sum^{}_{}
 snippet lim \lim_{}
 	\\lim_{${1:n \\to \\infty}} ${0}
 snippet frame frame environment
-	\\begin{frame}[${1:t}]{${2:title}}
+	\\begin{frame}[${1:t}]
+		\frametitle{${2:title}}
+		\framesubtitle{${3:subtitle}}
 		${0:${VISUAL}}
 	\\end{frame}
 snippet block block environment
@@ -356,3 +400,48 @@ snippet hrefc
 # enquote from package csquotes
 snippet enq enquote
 	\\enquote{${1:${VISUAL:text}}} ${0}
+# Time derivative
+snippet ddt time derivative
+	\\frac{d}{dt} {$1} {$0}
+# Limit
+snippet lim limit
+	\\lim_{{$1}} {{$2}} {$0}
+# Partial derivative
+snippet pdv partial derivation
+	\\frac{\\partial {$1}}{\\partial {$2}} {$0}
+# Second order partial derivative
+snippet ppdv second partial derivation
+	\\frac{\\partial^2 {$1}}{\\partial {$2} \\partial {$3}} {$0}
+# Ordinary derivative
+snippet dv derivative
+	\\frac{d {$1}}{d {$2}} {$0}
+# Summation
+snippet summ summation
+	\\sum_{{$1}} {$0}
+# Shorthand for time derivative
+snippet dot dot
+	\\dot{{$1}} {$0}
+# Shorthand for second order time derivative
+snippet ddot ddot
+	\\ddot{{$1}} {$0}
+# Vector
+snippet vec vector
+	\\vec{{$1}} {$0}
+# Bar
+snippet bar bar
+	\\bar{{$1}} {$0}
+# Cross product
+snippet \x cross product
+	\\times {$0}
+# Dot product
+snippet . dot product
+	\\cdot {$0}
+# Integral
+snippet int integral
+	\\int_{{$1}}^{{$2}} {$3} \\: d{$4} {$0}
+# Right arrow
+snippet ra rightarrow
+	\\rightarrow {$0}
+# Long right arrow
+snippet lra longrightarrow
+	\\longrightarrow {$0}

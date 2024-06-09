@@ -1,3 +1,10 @@
+snippet af
+	(${1}) {${2}}${0}
+snippet pr
+	print(${1});
+snippet deb
+	debugger();
+	${0}
 snippet lib
 	library ${1};
 	${0}
@@ -61,15 +68,15 @@ snippet fore
 	  ${0}
 	}
 snippet wh
-	while (${1:/* condition */}) {
+	while ($1) {
 	  ${0}
 	}
 snippet dowh
 	do {
 	  ${0}
-	} while (${0:/* condition */});
+	} while ($0);
 snippet as
-	assert(${0:/* condition */});
+	assert($0);
 snippet try
 	try {
 	  ${0:${VISUAL}}

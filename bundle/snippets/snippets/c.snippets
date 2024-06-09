@@ -1,17 +1,15 @@
 ## Main
 # main
 snippet main
-	int main(int argc, const char *argv[])
+	int main(int argc, char *argv[])
 	{
 		${0}
-		return 0;
 	}
 # main(void)
 snippet mainn
 	int main(void)
 	{
 		${0}
-		return 0;
 	}
 ##
 ## Preprocessor
@@ -86,8 +84,8 @@ snippet elif
 snippet ifi
 	if (${1:true}) ${0};
 # ternary
-snippet t
-	${1:/* condition */} ? ${2:a} : ${3:b}
+snippet t Ternary: `condition ? true : false`
+	$1 ? $2 : $0
 # switch
 snippet switch
 	switch (${1:/* variable */}) {
@@ -111,6 +109,8 @@ snippet case
 		${3:break;}
 snippet ret
 	return ${0};
+snippet ex
+	exit($0);
 ##
 ## Loops
 # for
@@ -125,14 +125,18 @@ snippet forr
 	}
 # while
 snippet wh
-	while (${1:/* condition */}) {
+	while (${1:1}) {
+		${0:${VISUAL}}
+	}
+snippet wht
+	while (true) {
 		${0:${VISUAL}}
 	}
 # do... while
 snippet do
 	do {
 		${0:${VISUAL}}
-	} while (${1:/* condition */});
+	} while ($1);
 ##
 ## Functions
 # function definition
@@ -277,6 +281,14 @@ snippet prf
 	printf("${1:} = %f\n", $1);
 snippet prx
 	printf("${1:} = %${2}\n", $1);
+snippet warn
+	warn("${1:%s}"$0);
+snippet warnx
+	warnx("${1:%s}"$0);
+snippet err
+	err(${1:1}, "${2:%s}"$0);
+snippet errx
+	errx(${1:1}, "${2:%s}"$0);
 # getopt
 snippet getopt
 	int choice;
@@ -334,6 +346,33 @@ snippet getopt
 			${0}
 		}
 	}
+
+## Assertions
+snippet asr
+	assert($1);
+
+snippet anl
+	assert(${1:ptr} != NULL);
+
+## Dynamic Allocation
+snippet mlc
+	${1:ptr} = (${2:type}*) malloc(sizeof($2));
+
+snippet clc
+	${1:ptr} = (${2:type}*) calloc(${3:size}, sizeof($2));
+
+snippet rlc
+	${1:ptr} = realloc($1, ${2:size} * sizeof(${3:type}));
+
+snippet mlcd
+	${1:type} ${2:ptr} = ($1*) malloc(sizeof($1));
+
+snippet clcd
+	${1:type} ${2:ptr} = ($1*) calloc(${3:size}, sizeof($1));
+
+snippet fre
+	free(${1:ptr});
+
 ##
 # TODO section
 snippet todo
@@ -344,3 +383,10 @@ snippet todo
 # This is kind of convenient
 snippet .
 	[${1}]
+
+snippet asm
+	__asm__ __volatile__(
+	"${0}\n\t"
+	:
+	:
+	);
