@@ -1,6 +1,8 @@
 # vim-toml
 
-Vim syntax for [TOML](https://github.com/toml-lang/toml).
+Vim syntax for [TOML](https://github.com/toml-lang/toml). As of Neovim 0.6 and
+Vim 8.2.3519, these runtime files are included in the main (Neo)Vim
+distribution.
 
 ## Installation
 
@@ -9,9 +11,7 @@ Vim syntax for [TOML](https://github.com/toml-lang/toml).
 Clone or submodule this repo into your Vim packages location. Example:
 
 ```
-mkdir -p ~/.vim/pack/plugins/start
-cd ~/.vim/pack/plugins/start
-git clone https://github.com/cespare/vim-toml.git
+git clone https://github.com/cespare/vim-toml.git ~/.vim/pack/plugins/start/vim-toml
 ```
 
 ### Pathogen
@@ -28,7 +28,7 @@ Set up [Vundle](https://github.com/VundleVim/Vundle.vim) then add `Plugin
 
 Set up [vim-plug](https://github.com/junegunn/vim-plug). In your .vimrc, between
 the lines for `call plug#begin()` and `call plug#end()`, add the line `Plug
-'cespare/vim-toml'`. Reload your .vimrc and then run `:PlugInstall`.
+'cespare/vim-toml', { 'branch': 'main' }`. Reload your .vimrc and then run `:PlugInstall`.
 
 ### Janus
 
