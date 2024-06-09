@@ -3,31 +3,23 @@ require 'spec_helper'
 describe "go" do
   let(:filename) { 'test.go' }
 
-  # Go is not built-in, so let's set it up manually
-  def setup_go_filetype
-    vim.set(:filetype, 'go')
-  end
-
-  def deindent_everything
-    vim.command '%s/^\s*//g'
-    vim.write
-    vim.normal 'gg'
+  before :each do
+    vim.set(:expandtab)
+    vim.set(:shiftwidth, 2)
   end
 
   specify "imports" do
     set_file_contents <<~EOF
       import "fmt"
     EOF
-    setup_go_filetype
 
     vim.search('import')
     split
-    deindent_everything
 
     assert_file_contents <<~EOF
-    import (
-    "fmt"
-    )
+      import (
+        "fmt"
+      )
     EOF
 
     vim.search('import')
@@ -38,110 +30,136 @@ describe "go" do
     EOF
   end
 
-  specify "var/const modifiers" do
+  specify "imports with names" do
     set_file_contents <<~EOF
-      var foo string
-      const bar string
-      type ChanDir int
+      import _ "fmt"
     EOF
-    setup_go_filetype
 
-    vim.search('var')
+    vim.search('import')
     split
-    vim.search('const')
-    split
-    vim.search('type')
-    split
-
-    deindent_everything
 
     assert_file_contents <<~EOF
-    var (
-    foo string
-    )
-    const (
-    bar string
-    )
-    type (
-    ChanDir int
-    )
+      import (
+        _ "fmt"
+      )
     EOF
 
-    vim.search('var')
-    join
-    vim.search('const')
-    join
-    vim.search('type')
+    vim.search('import')
     join
 
     assert_file_contents <<~EOF
-      var foo string
-      const bar string
-      type ChanDir int
+      import _ "fmt"
     EOF
   end
 
-  specify "structs" do
-    set_file_contents <<~EOF
-      StructType{one: 1, two: "asdf", three: []int{1, 2, 3}}
-    EOF
-    setup_go_filetype
+  describe "structs" do
+    specify "instantiation" do
+      set_file_contents <<~EOF
+        StructType{one: 1, two: "asdf", three: []int{1, 2, 3}}
+      EOF
 
-    vim.search 'one:'
-    split
+      vim.search 'one:'
+      split
 
-    deindent_everything
+      assert_file_contents <<~EOF
+        StructType{
+          one: 1,
+          two: "asdf",
+          three: []int{1, 2, 3},
+        }
+      EOF
 
-    assert_file_contents <<~EOF
-      StructType{
-      one: 1,
-      two: "asdf",
-      three: []int{1, 2, 3},
-      }
-    EOF
+      join
 
-    join
+      assert_file_contents <<~EOF
+        StructType{one: 1, two: "asdf", three: []int{1, 2, 3}}
+      EOF
+    end
 
-    assert_file_contents <<~EOF
-      StructType{ one: 1, two: "asdf", three: []int{1, 2, 3} }
-    EOF
-  end
+    specify "instantiation without padding" do
+      set_file_contents <<~EOF
+        StructType{one: 1, two: "asdf", three: []int{1, 2, 3}}
+      EOF
+      vim.command('let b:splitjoin_curly_brace_padding = 0')
 
-  specify "structs without padding" do
-    set_file_contents <<~EOF
-      StructType{one: 1, two: "asdf", three: []int{1, 2, 3}}
-    EOF
-    setup_go_filetype
-    vim.command('let b:splitjoin_curly_brace_padding = 0')
+      vim.search 'one:'
+      split
 
-    vim.search 'one:'
-    split
+      assert_file_contents <<~EOF
+        StructType{
+          one: 1,
+          two: "asdf",
+          three: []int{1, 2, 3},
+        }
+      EOF
 
-    deindent_everything
+      join
 
-    assert_file_contents <<~EOF
-      StructType{
-      one: 1,
-      two: "asdf",
-      three: []int{1, 2, 3},
-      }
-    EOF
+      assert_file_contents <<~EOF
+        StructType{one: 1, two: "asdf", three: []int{1, 2, 3}}
+      EOF
+    end
 
-    join
+    specify "definition" do
+      set_file_contents <<~EOF
+        type str struct{ A, B int }
+      EOF
 
-    assert_file_contents <<~EOF
-      StructType{one: 1, two: "asdf", three: []int{1, 2, 3}}
-    EOF
+      vim.search 'A'
+      split
+
+      assert_file_contents <<~EOF
+        type str struct {
+          A, B int
+        }
+      EOF
+
+      vim.search 'struct'
+      join
+
+      assert_file_contents <<~EOF
+        type str struct{ A, B int }
+      EOF
+    end
+
+    specify "empty definition" do
+      set_file_contents <<~EOF
+        type empty struct{}
+      EOF
+
+      vim.search '{'
+      split
+
+      assert_file_contents <<~EOF
+        type empty struct {
+
+        }
+      EOF
+
+      vim.search 'struct'
+      join
+
+      assert_file_contents <<~EOF
+        type empty struct{}
+      EOF
+
+      vim.search 'type'
+      split
+
+      assert_file_contents <<~EOF
+        type (
+          empty struct{}
+        )
+      EOF
+    end
   end
 
   describe "funcs" do
     def assert_split_join(initial, split_expected, join_expected)
       set_file_contents initial
-      setup_go_filetype
       vim.search 'Func(\zs\k'
 
       split
-      deindent_everything
 
       assert_file_contents split_expected
 
@@ -157,11 +175,11 @@ describe "go" do
       EOF
       split = <<~EOF
         func Func(
-        a, b int,
-        c time.Time,
-        d func(int) error,
-        e func(int, int) (int, error),
-        f ...time.Time,
+          a, b int,
+          c time.Time,
+          d func(int) error,
+          e func(int, int) (int, error),
+          f ...time.Time,
         ) {
         }
       EOF
@@ -179,11 +197,11 @@ describe "go" do
       EOF
       split = <<~EOF
         func Func(
-        a, b int,
-        c time.Time,
-        d func(int) error,
-        e func(int, int) (int, error),
-        f ...time.Time,
+          a, b int,
+          c time.Time,
+          d func(int) error,
+          e func(int, int) (int, error),
+          f ...time.Time,
         ) (r string, err error) {
         }
       EOF
@@ -201,11 +219,11 @@ describe "go" do
       EOF
       split = <<~EOF
         func (r Receiver) Func(
-        a, b int,
-        c time.Time,
-        d func(int) error,
-        e func(int, int) (int, error),
-        f ...time.Time,
+          a, b int,
+          c time.Time,
+          d func(int) error,
+          e func(int, int) (int, error),
+          f ...time.Time,
         ) {
         }
       EOF
@@ -223,11 +241,11 @@ describe "go" do
       EOF
       split = <<~EOF
         func (r Receiver) Func(
-        a, b int,
-        c time.Time,
-        d func(int) error,
-        e func(int, int) (int, error),
-        f ...time.Time,
+          a, b int,
+          c time.Time,
+          d func(int) error,
+          e func(int, int) (int, error),
+          f ...time.Time,
         ) (r string, err error) {
         }
       EOF
@@ -243,18 +261,16 @@ describe "go" do
     set_file_contents <<~EOF
       err := Func(a, b, c, d)
     EOF
-    setup_go_filetype
 
     vim.search 'a,'
     split
-    deindent_everything
 
     assert_file_contents <<~EOF
       err := Func(
-      a,
-      b,
-      c,
-      d,
+        a,
+        b,
+        c,
+        d,
       )
     EOF
 
@@ -269,15 +285,13 @@ describe "go" do
     set_file_contents <<~EOF
       func foo(x, y int) bool { return x+y == 5 }
     EOF
-    setup_go_filetype
 
     vim.search 'return'
     split
-    deindent_everything
 
     assert_file_contents <<~EOF
       func foo(x, y int) bool {
-      return x+y == 5
+        return x+y == 5
       }
     EOF
 
@@ -286,5 +300,163 @@ describe "go" do
     assert_file_contents <<~EOF
       func foo(x, y int) bool { return x+y == 5 }
     EOF
+  end
+
+  describe "variable declarations" do
+    specify "one per line" do
+      set_file_contents <<~EOF
+        type ChanDir int
+
+        func Func() {
+          var foo string
+          const bar string
+        }
+      EOF
+
+      vim.search('var')
+      split
+      vim.search('const')
+      split
+      vim.search('type')
+      split
+
+      assert_file_contents <<~EOF
+        type (
+          ChanDir int
+        )
+
+        func Func() {
+          var (
+            foo string
+          )
+          const (
+            bar string
+          )
+        }
+      EOF
+
+      vim.search('var')
+      join
+      vim.search('const')
+      join
+      vim.search('type')
+      join
+
+      assert_file_contents <<~EOF
+        type ChanDir int
+
+        func Func() {
+          var foo string
+          const bar string
+        }
+      EOF
+    end
+
+    specify "comma-separated without type" do
+      set_file_contents <<~EOF
+        const (
+          const4 = "4"
+          const5 = "5",
+        )
+      EOF
+
+      join
+
+      assert_file_contents <<~EOF
+        const const4, const5 = "4", "5"
+      EOF
+
+      split
+
+      assert_file_contents <<~EOF
+        const (
+          const4 = "4"
+          const5 = "5"
+        )
+      EOF
+    end
+
+    specify "comma-separated with type, without values" do
+      set_file_contents <<~EOF
+        const (
+          const4 string
+          const5 string
+        )
+      EOF
+
+      join
+
+      assert_file_contents <<~EOF
+        const const4, const5 string
+      EOF
+
+      split
+
+      assert_file_contents <<~EOF
+        const (
+          const4 string
+          const5 string
+        )
+      EOF
+    end
+
+    specify "different types don't get joined" do
+      set_file_contents <<~EOF
+        const (
+          const4 string
+          const5 int
+        )
+      EOF
+
+      join
+
+      # Triggers the built-in gJ
+      assert_file_contents <<~EOF
+        const (  const4 string
+          const5 int
+        )
+      EOF
+    end
+
+    specify "join single line as a special case" do
+      set_file_contents <<~EOF
+        const (
+          const4, const5 = "4", "5"
+        )
+      EOF
+
+      join
+
+      assert_file_contents <<~EOF
+        const const4, const5 = "4", "5"
+      EOF
+    end
+
+    specify "doesn't split multiline declarations" do
+      set_file_contents <<~EOF
+        var first = map[string]any{
+          "k": "v",
+        }
+      EOF
+
+      split
+
+      assert_file_contents <<~EOF
+        var first = map[string]any{
+          "k": "v",
+        }
+      EOF
+
+      vim.normal 'f{'
+      join
+      vim.search('var first')
+      split
+
+      assert_file_contents <<~EOF
+        var (
+          first = map[string]any{ "k": "v", }
+        )
+      EOF
+    end
   end
 end

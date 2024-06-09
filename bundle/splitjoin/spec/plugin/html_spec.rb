@@ -22,6 +22,25 @@ describe "html" do
     assert_file_contents joined_html
   end
 
+  specify "tags in other content" do
+    set_file_contents 'One <div class="foo">Two</div> Three'
+    vim.search 'div'
+    split
+    remove_indentation
+
+    assert_file_contents <<~EOF
+      One <div class="foo">
+      Two
+      </div> Three
+    EOF
+
+    vim.search 'div'
+    join
+    remove_indentation
+
+    assert_file_contents 'One <div class="foo">Two</div> Three'
+  end
+
   specify "tags" do
     joined_html = '<div class="foo">bar</div>'
 
@@ -101,6 +120,19 @@ describe "html" do
       v-if="admin">
       Save
       </button>
+    EOF
+
+    simple_test(joined_html, split_html)
+  end
+
+  specify "brackets within strings" do
+    joined_html = <<~EOF
+      <label for="{{ $input->id }}" class="mt-2">
+    EOF
+    split_html = <<~EOF
+      <label
+      for="{{ $input->id }}"
+      class="mt-2">
     EOF
 
     simple_test(joined_html, split_html)

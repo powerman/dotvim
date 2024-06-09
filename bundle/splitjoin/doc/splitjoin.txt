@@ -7,19 +7,25 @@ CONTENTS                                          *splitjoin* *splitjoin-content
     Usage..................................: |splitjoin-usage|
 
     C......................................: |splitjoin-c|
-    CSS....................................: |splitjoin-css|
+    Clojure................................: |splitjoin-clojure|
     Coffeescript...........................: |splitjoin-coffee|
+    CSS....................................: |splitjoin-css|
+    CUE....................................: |splitjoin-cue|
     Elixir.................................: |splitjoin-elixir|
+    Elm....................................: |splitjoin-elm|
     Eruby..................................: |splitjoin-eruby|
     Go.....................................: |splitjoin-go|
     HAML...................................: |splitjoin-haml|
-    HTML...................................: |splitjoin-html|
     Handlebars.............................: |splitjoin-handlebars|
+    HTML...................................: |splitjoin-html|
+    Java...................................: |splitjoin-java|
     Javascript.............................: |splitjoin-javascript| |splitjoin-json|
+    JSX/TSX................................: |splitjoin-jsx| |splitjoin-tsx|
     Lua....................................: |splitjoin-lua|
-    PHP....................................: |splitjoin-php|
     Perl...................................: |splitjoin-perl|
+    PHP....................................: |splitjoin-php|
     Python.................................: |splitjoin-python|
+    R......................................: |splitjoin-r|
     Ruby...................................: |splitjoin-ruby|
     Rust...................................: |splitjoin-rust|
     SCSS/Less..............................: |splitjoin-scss| |splitjoin-less|
@@ -221,34 +227,27 @@ Function calls ~
             arg3,
             arg4);
 <
-
 ==============================================================================
-CSS                                                              *splitjoin-css*
+CLOJURE                                                      *splitjoin-clojure*
 
-These also work for SCSS and LESS -- see |splitjoin-scss|, |splitjoin-less|.
-
-Style definitions ~
+Lists ~
 >
-    a { color: #0000FF; text-decoration: underline; }
+    (map (fn [x] (.toUpperCase x)) (.split "one two three" " "))
+    (map
+      (fn [x] (.toUpperCase x))
+      (.split "one two three" " "))
 
-    a {
-      color: #0000FF;
-      text-decoration: underline;
-    }
+    [::namespace/function one two three]
+    [::namespace/function
+     one
+     two
+     three]
 
-Multiline selectors ~
->
-    h1,
-    h2,
-    h3 {
-      font-size: 18px;
-      font-weight: bold;
-    }
-
-    h1, h2, h3 {
-      font-size: 18px;
-      font-weight: bold;
-    }
+    #{:a :b :c :d}
+    #{:a
+      :b
+      :c
+      :d}
 <
 
 ==============================================================================
@@ -330,15 +329,148 @@ splitting.
 <
 
 ==============================================================================
+CSS                                                              *splitjoin-css*
+
+These also work for SCSS and LESS -- see |splitjoin-scss|, |splitjoin-less|.
+
+Style definitions ~
+>
+    a { color: #0000FF; text-decoration: underline; }
+
+    a {
+      color: #0000FF;
+      text-decoration: underline;
+    }
+
+Multiline selectors ~
+>
+    h1,
+    h2,
+    h3 {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    h1, h2, h3 {
+      font-size: 18px;
+      font-weight: bold;
+    }
+<
+
+==============================================================================
+CUE                                                              *splitjoin-cue*
+
+CUE Structs are JSON objects but with a cleaner syntax. Lists and Function
+arguments behave like JSON's.
+See |splitjoin-json|.
+
+Structs ~
+
+Structs are first class, so the cursor can precede the first curly brace.
+>
+    a: foo: { x: bar: baz: bool, y: bar: baz: int, z: bar: baz: string }
+
+    a: foo: {
+        x: bar: baz: bool
+        y: bar: baz: int
+        z: bar: baz: string
+    }
+<
+Lists ~
+
+The same applies to lists.
+>
+    foo: [ 'x:y:z', "\xFFFF0000", a.foo.y ]
+
+    foo: [
+        'x:y:z',
+        "\xFFFF0000",
+        a.foo.y
+    ]
+<
+Function Arguments ~
+
+Function splitting requires the cursor to be positioned inside the
+parenthesis, preferably near the closing one.
+>
+    bar: m.Baz(foo[2].bar.baz, 42, true)
+
+    bar: m.Baz(
+        foo[2].bar.baz,
+        42,
+        true
+    )
+<
+
+
+==============================================================================
 ELIXIR                                                        *splitjoin-elixir*
 
 Do-blocks ~
 >
     def function(arguments) when condition, do: body
-
     def function(arguments) when condition do
       body
     end
+
+    let :one, do: two() |> three(four())
+    let :one do
+      two() |> three(four())
+    end
+
+    if(foo, do: bar, else: baz)
+    if foo do
+      bar
+    else
+      baz
+    end
+<
+Comma-separated method calls (join only): ~
+>
+    for a <- 1..10,
+      Integer.is_odd(a) do
+      a
+    end
+
+    for a <- 1..10, Integer.is_odd(a) do
+      a
+    end
+<
+Pipelines: ~
+>
+    String.length("splitjoin")
+
+    "splitjoin"
+    |> String.length()
+<
+This doesn't currently work properly for multi-line arguments:
+>
+    String.length(
+      Enum.join([
+        "split",
+        "join"
+      ])
+    )
+
+    if true do
+      "splitjoin"
+    end
+    |> String.length()
+<
+
+==============================================================================
+ELM                                                              *splitjoin-elm*
+
+Lists, tuples, records ~
+>
+    myUpdatedRecord =
+        {myPreviousRecord | firstName = "John", lastName = "Doe"}
+
+    myUpdatedRecord =
+        { myPreviousRecord
+        | firstName = "John"
+        , lastName = "Doe"
+        }
 <
 
 ==============================================================================
@@ -422,10 +554,31 @@ Evaluated ruby ~
 <
 
 ==============================================================================
+HANDLEBARS                                                *splitjoin-handlebars*
+
+Components ~
+>
+    {{some/component-name foo=bar bar=baz}}
+
+    {{some/component-name
+      foo=bar
+      bar=baz
+    }}
+<
+Block components ~
+>
+    {{#component-name foo=bar}}Some content{{/component-name}}
+
+    {{#component-name foo=bar}}
+      Some contents
+    {{/component-name}}
+<
+
+==============================================================================
 HTML                                                            *splitjoin-html*
 
 This works for other HTML-like languages as well: XML, Eruby, JSX, TSX, Vue
-templates, Django templates.
+templates, Svelte.js, Django templates.
 
 Tags ~
 >
@@ -450,29 +603,52 @@ Attributes ~
 <
 
 ==============================================================================
-HANDLEBARS                                                *splitjoin-handlebars*
+JAVA                                                            *splitjoin-java*
 
-Components ~
+If-clause bodies ~
 >
-    {{some/component-name foo=bar bar=baz}}
+    if (isTrue())
+      doSomething();
 
-    {{some/component-name
-      foo=bar
-      bar=baz
-    }}
+    if (isTrue()) doSomething();
+
+    if (isTrue()) {
+      doSomething();
+    }
+
+    if (isTrue()) { doSomething(); }
 <
-Block components ~
+If-clause conditions ~
 >
-    {{#component-name foo=bar}}Some content{{/component-name}}
+    if (val1 && val2 || val3)
+        body();
 
-    {{#component-name foo=bar}}
-      Some contents
-    {{/component-name}}
+    if (val1
+            && val2
+            || val3)
+        body();
+<
+Function calls ~
+>
+    myfunction(arg1, arg2, arg3, arg4);
+
+    myfunction(arg1,
+            arg2,
+            arg3,
+            arg4);
+<
+Lambda functions ~
+>
+    some_function(foo -> "bar");
+
+    some_function(foo -> {
+      return "bar";
+    });
 <
 
 ==============================================================================
 JAVASCRIPT                                                *splitjoin-javascript*
-                                                          *splitjoin-json*
+                                                            *splitjoin-json*
 
 Object and Array splitting also work for JSON, if it's set as a separate
 filetype. (If it's just set to "javascript", it'll just apply javascript
@@ -529,7 +705,7 @@ One-line if conditionals ~
       doSomething();
     }
 
-    if (isTrue()) doSomething;
+    if (isTrue()) doSomething();
 <
 Fat-arrow functions ~
 >
@@ -539,6 +715,25 @@ Fat-arrow functions ~
       return "bar";
     });
 <
+
+==============================================================================
+JSX                                                              *splitjoin-jsx*
+                                                                 *splitjoin-tsx*
+
+Both HTML and Javascript splitters and joiners work for JSX and TSX. There's
+also one additional transformation:
+
+Self-closing tags ~
+>
+    let button = <Button />;
+
+    let button = <Button>
+        </Button>;
+
+
+Note that, in Vim, these languages are supported within the  `javascrptreact`
+and `typescriptreact` filetypes, so if callbacks don't work right,
+double-check the detected filetype of the buffer.
 
 ==============================================================================
 LUA                                                              *splitjoin-lua*
@@ -563,6 +758,72 @@ Functions ~
     end)
 
     local something = other(function (one, two) print("foo") end)
+<
+
+==============================================================================
+PERL                                                            *splitjoin-perl*
+
+If/unless/while/until clauses ~
+
+The variable |splitjoin_perl_brace_on_same_line| controls the format of the
+curly braces when joining. If it's set to 0, the opening curly brace will be
+on its own line. Otherwise, it'll be placed on the same line as the if-clause
+(the default behaviour).
+>
+    print "a = $a\n" if $debug;
+
+    if ($debug) {
+      print "a = $a\n";
+    }
+<
+And/or clauses ~
+
+It only makes sense to split these -- joining results in joining an if/unless
+clause. The variable |splitjoin_perl_brace_on_same_line| affects the results
+as explained above.
+>
+    open PID, ">", $pidfile or die;
+
+    unless (open PID, ">", $pidfile) {
+      die;
+    }
+<
+Hashes ~
+>
+    my $info = {name => $name, age => $age};
+
+    my $info = {
+      name => $name,
+      age => $age,
+    };
+<
+Lists ~
+>
+    my $var = ['one', 'two', 'three'];
+
+    my $var = [
+      'one',
+      'two',
+      'three'
+    ];
+
+    my @var = ('one', 'two', 'three');
+
+    my @var = (
+      'one',
+      'two',
+      'three'
+    );
+<
+Word lists ~
+>
+    my @var = qw(one two three);
+
+    my @var = qw(
+      one
+      two
+      three
+    );
 <
 
 ==============================================================================
@@ -623,72 +884,6 @@ behaviour).
 
 
 ==============================================================================
-PERL                                                            *splitjoin-perl*
-
-If/unless/while/until clauses ~
-
-The variable |splitjoin_perl_brace_on_same_line| controls the format of the
-curly braces when joining. If it's set to 0, the opening curly brace will be
-on its own line. Otherwise, it'll be placed on the same line as the if-clause
-(the default behaviour).
->
-    print "a = $a\n" if $debug;
-
-    if ($debug) {
-      print "a = $a\n";
-    }
-<
-And/or clauses ~
-
-It only makes sense to split these -- joining results in joining an if/unless
-clause. The variable |splitjoin_perl_brace_on_same_line| affects the results
-as explained above.
->
-    open PID, ">", $pidfile or die;
-
-    unless (open PID, ">", $pidfile) {
-      die;
-    }
-<
-Hashes ~
->
-    my $info = {name => $name, age => $age};
-
-    my $info = {
-      name => $name,
-      age => $age,
-    };
-<
-Lists ~
->
-    my @var = ['one', 'two', 'three'];
-
-    my @var = [
-      'one',
-      'two',
-      'three'
-    ];
-
-    my @var = ('one', 'two', 'three');
-
-    my @var = (
-      'one',
-      'two',
-      'three'
-    );
-<
-Word lists ~
->
-    my @var = qw(one two three);
-
-    my @var = qw(
-      one
-      two
-      three
-    );
-<
-
-==============================================================================
 PYTHON                                                        *splitjoin-python*
 
 Just like in ruby, the cursor needs to be inside the dict in order to split it
@@ -720,6 +915,15 @@ Tuples ~
             2,
             3)
 <
+List comprehensions ~
+>
+    result = [x * y for x in range(1, 10) for y in range(10, 20) if x != y]
+
+    result = [x * y
+              for x in range(1, 10)
+              for y in range(10, 20)
+              if x != y]
+<
 Statements ~
 >
     if foo: bar()
@@ -734,7 +938,16 @@ Imports ~
     from foo import bar,\
             baz
 <
-Assignment ~
+Ternary assignment ~
+>
+    max_x = x1 if x1 > x2 else x2
+
+    if x1 > x2:
+        max_x = x1
+    else:
+        max_x = x2
+<
+Multiple assignment ~
 >
     a, b = foo("bar"), [one, two, three]
 
@@ -750,6 +963,25 @@ Note that splitting `a, b = b, a` would not result in an expression that works
 the same way, due to the special handling by python of this case to swap two
 values.
 
+==============================================================================
+R                                                                  *splitjoin-r*
+
+Function calls ~
+>
+    print(1, 2, 3)
+
+    # with g:r_indent_align_args = 0
+    print(
+      1,
+      2,
+      3
+    )
+
+    # with g:r_indent_align_args = 1
+    print(1,
+          2,
+          3)
+<
 
 ==============================================================================
 RUBY                                                            *splitjoin-ruby*
@@ -957,6 +1189,14 @@ function's arguments?).
 
     one.two.three(foo, bar)
 
+Ruby 3.0 endless def ~
+>
+    def foo(one, two)
+      bar
+    end
+
+    def foo(one, two) = bar
+<
 
 ==============================================================================
 RUST                                                          *splitjoin-rust*
@@ -969,6 +1209,27 @@ Structs ~
         source: String::new(),
         line: 1
     }
+<
+Function definitions, calls, and arrays ~
+>
+    fn function_call<T>(values: Vec<T>, s: &'static str) -> ();
+    fn function_call<T>(
+        values: Vec<T>,
+        s: &'static str,
+    ) -> ();
+
+    function_call(Vec::<u32>::new(), &ref);
+    function_call(
+        Vec::<u32>::new(),
+        &ref,
+    );
+
+    vec![one, two, three];
+    vec![
+        one,
+        two,
+        three,
+    ];
 <
 Match clauses ~
 >
@@ -1038,6 +1299,29 @@ Empty matches and if-let ~
         _ => (),
     }
 <
+Import lists ~
+
+With the cursor on the pre-curly bracket part of an import:
+>
+    use std::io::{Read, Write, Process};
+
+    use std::io::Read;
+    use std::io::Write;
+    use std::io::Process;
+<
+Joining works downwards -- attempting to join the current line with as many as
+possible below. It will look for the common part between the first two imports
+and try to apply it on any later ones that match.
+
+With the cursor in the curly brackets:
+>
+    use std::io::{Read, Write};
+
+    use std::io::{
+        Read,
+        Write
+    };
+<
 
 ==============================================================================
 SCSS                                                            *splitjoin-scss*
@@ -1074,6 +1358,17 @@ for the `sh` and `zsh` filetypes.
     echo "one"
     echo "two"
 <
+If the line is not made up of semicolon-separated commands, it gets broken up
+with a backslash at the cursor position, for example with the cursor on the
+pipe:
+>
+    echo "one" | wc -c
+
+    echo "one" \
+        | wc -l
+<
+If there is a broken line like that, joining should always join it first,
+before trying anything else.
 
 ==============================================================================
 TEX                                                              *splitjoin-tex*
@@ -1230,6 +1525,44 @@ particular scenario.
 In order to silence these messages, if you find them annoying, set this
 variable to 1.
 
+                                                    *splitjoin_mapping_fallback*
+>
+    let g:splitjoin_mapping_fallback = 0
+<
+Default value: 1
+
+If the plugin doesn't split or join something, it'll execute the sequence of
+keys normally. So, if joining is mapped to its default of `gJ` and there's
+nothing valid to join, it'll execute the built-in |gJ|.
+
+Setting this value to 0 will disable this behaviour.
+
+
+                                            *splitjoin_disabled_split_callbacks*
+>
+    let g:splitjoin_disabled_split_callbacks = ['sj#html#SplitAttributes']
+<
+Default value: []
+
+This setting allows you to disable a particular split type by adding its
+function callback to the list. To find the specific name to disable, you'd
+need to dig into the source code of the plugin in
+`ftplugin/<filetype-name>/splitjoin.vim`. If you're not sure which callback
+performs which split, try disabling them one by one until you've got the
+behaviour you're looking for.
+
+                                             *splitjoin_disabled_join_callbacks*
+>
+    let g:splitjoin_disabled_join_callbacks = ['sj#html#JoinAttributes']
+<
+Default value: []
+
+This setting allows you to disable a particular join type by adding its
+function callback to the list. To find the specific name to disable, you'd
+need to dig into the source code of the plugin in
+`ftplugin/<filetype-name>/splitjoin.vim`. If you're not sure which callback
+performs which join, try disabling them one by one until you've got the
+behaviour you're looking for.
 
                                                 *splitjoin_normalize_whitespace*
 >
@@ -1462,6 +1795,24 @@ But with the cursor on "first_name", you'll still get:
 The output varies according to other settings as well, like curly brackets.
 
 
+                                       *splitjoin_ruby_expand_options_in_arrays*
+>
+    let g:splitjoin_ruby_expand_options_in_arrays = 1
+<
+Default value: 0
+
+If set to 1, then the last hash of an array will be expanded to "options". For
+example:
+>
+    array = [one, two, { three: four, five: six }]
+    array = [
+      one,
+      two,
+      three: four,
+      five: six,
+    ]
+<
+
                                              *splitjoin_coffee_suffix_if_clause*
 >
     let g:splitjoin_coffee_suffix_if_clause = 0
@@ -1670,6 +2021,55 @@ If set to 1:
         ->three();
 
 Joining a chain will also join all the methods calls.
+
+                                   *splitjoin_java_argument_split_first_newline*
+                                    *splitjoin_java_argument_split_last_newline*
+>
+    let g:splitjoin_java_argument_split_first_newline = 1
+    let g:splitjoin_java_argument_split_last_newline  = 1
+<
+Default value: 0
+
+These variables control whether a newline will be placed between the bracket
+and the first or last item of a java argument list when splitting. With the
+default, both set to 0, a split might look like this:
+>
+    functionCall(one,
+            two,
+            three)
+<
+With both values set to 1, a space will be left before the first item and
+after the last one:
+>
+    functionCall(
+            one,
+            two,
+            three
+            )
+<
+This is a setting that might be generalized for other languages and constructs
+at a later time.
+
+                                   *splitjoin_c_argument_split_first_newline*
+                                    *splitjoin_c_argument_split_last_newline*
+>
+    let g:splitjoin_c_argument_split_first_newline = 1
+    let g:splitjoin_c_argument_split_last_newline  = 1
+<
+Default value: 0
+
+Same like the arguments for java.
+
+                                *splitjoin_vim_split_whitespace_after_backslash*
+>
+    let g:splitjoin_vim_split_whitespace_after_backslash = 0
+<
+Default value: 1
+
+Whether to leave a single space after the `\` of a line break. In many cases,
+when breaking a line, one space is left between the backslash and the line
+part. However, if it's broken at a `.`, it could cause parsing problems. Not
+leaving a space might be safer, set to 0 to do that.
 
 
 ==============================================================================

@@ -1,7 +1,7 @@
-let s:skip = sj#SkipSyntax(['pythonString', 'pythonComment'])
+let s:skip = sj#SkipSyntax(['pythonString', 'pythonComment', 'pythonStrInterpRegion'])
 
 function! sj#python#SplitStatement()
-  if sj#SearchSkip('^[^:]*\zs:\s*\S', s:skip, '', line('.'))
+  if sj#SearchSkip('^[^:]*\zs:\s*\S', s:skip, 'c', line('.'))
     call sj#Keeppatterns('s/\%#:\s*/:\r/')
     normal! ==
     return 1
@@ -11,7 +11,7 @@ function! sj#python#SplitStatement()
 endfunction
 
 function! sj#python#JoinStatement()
-  if sj#SearchSkip(':\s*$', s:skip, '', line('.')) > 0
+  if sj#SearchSkip(':\s*$', s:skip, 'c', line('.')) > 0
     join
     return 1
   else
@@ -20,7 +20,7 @@ function! sj#python#JoinStatement()
 endfunction
 
 function! sj#python#SplitDict()
-  let [from, to] = sj#LocateBracesOnLine('{', '}', ['pythonString'])
+  let [from, to] = sj#LocateBracesAroundCursor('{', '}', ['pythonString'])
 
   if from < 0 && to < 0
     return 0
@@ -230,20 +230,106 @@ function! sj#python#JoinAssignment()
   return 1
 endfunction
 
+function! sj#python#SplitTernaryAssignment()
+  if getline('.') !~ '^\s*\%(\k\|\.\)\+\s*=\s*\S'
+    return 0
+  endif
+
+  normal! 0
+  let include_syntax = sj#IncludeSyntax(['pythonConditional'])
+
+  if sj#SearchSkip('\<if\>', include_syntax, 'W', line('.')) <= 0
+    return 0
+  endif
+  let if_col = col('.')
+
+  if sj#SearchSkip('\<else\>', include_syntax, 'W', line('.')) <= 0
+    return 0
+  endif
+
+  let else_col = col('.')
+  let line     = getline('.')
+
+  let assignment_if_true = trim(strpart(line, 0, if_col - 1))
+  let if_clause          = trim(strpart(line, if_col - 1, else_col - if_col))
+  let body_if_false      = trim(strpart(line, else_col + len('else')))
+
+  let assignment_prefix   = matchstr(assignment_if_true, '\%(\k\|\.\)\+\s*=')
+  let assignment_if_false = assignment_prefix . ' ' . body_if_false
+
+  let indent      = repeat(' ', shiftwidth())
+  let base_indent = repeat(' ', indent(line('.')))
+
+  let body = join([
+        \   base_indent . if_clause . ':',
+        \   base_indent . indent . assignment_if_true,
+        \   base_indent . 'else:',
+        \   base_indent . indent . assignment_if_false,
+        \ ], "\n")
+  call sj#ReplaceMotion('V', body)
+
+  return 1
+endfunction
+
+function! sj#python#JoinTernaryAssignment()
+  let include_syntax = sj#IncludeSyntax(['pythonConditional'])
+  let start_lineno = line('.')
+  normal! 0
+
+  if sj#SearchSkip('^\s*\zsif\>', include_syntax, 'Wc', line('.')) <= 0
+    return 0
+  endif
+  let if_line = trim(getline('.'))
+  if if_line !~ ':$'
+    return 0
+  endif
+  let if_clause = strpart(if_line, 0, len(if_line) - 1)
+
+  if search('^\s*\zs\%(\k\|\.\)\+\s*=\s*\S', 'Wc', line('.') + 1) <= 0
+    return 0
+  endif
+  let assignment_if_true = trim(getline('.'))
+  let lhs_if_true = matchstr(assignment_if_true, '^\s*\zs\%(\k\|\.\)\+\s*=')
+  let body_if_true = trim(strpart(assignment_if_true, len(lhs_if_true)))
+
+  if sj#SearchSkip('^\s*\zselse:', include_syntax, 'Wc', line('.') + 2) <= 0
+    return 0
+  endif
+  let else_line = trim(getline('.'))
+  if else_line !~ ':$'
+    return 0
+  endif
+
+  if search('^\s*\zs\%(\k\|\.\)\+\s*=\s*\S', 'Wc', line('.') + 3) <= 0
+    return 0
+  endif
+  let assignment_if_false = trim(getline('.'))
+  let lhs_if_false = matchstr(assignment_if_false, '^\s*\zs\%(\k\|\.\)\+\s*=')
+  let body_if_false = trim(strpart(assignment_if_false, len(lhs_if_false)))
+
+  if lhs_if_true != lhs_if_false
+    return 0
+  endif
+
+  let body = lhs_if_true . ' ' . body_if_true . ' ' . if_clause . ' else ' . body_if_false
+  call sj#ReplaceLines(start_lineno, start_lineno + 3, body)
+
+  return 1
+endfunction
+
 function! s:SplitList(regex, opening_char, closing_char)
-  if sj#SearchUnderCursor(a:regex) <= 0
+  let [from, to] = sj#LocateBracesAroundCursor(a:opening_char, a:closing_char, ['pythonString'])
+  if from < 0 && to < 0
     return 0
   endif
 
   call sj#PushCursor()
 
-  " TODO (2012-10-24) connect sj#SearchUnderCursor and sj#LocateBracesOnLine
-  normal! l
-  let start = col('.')
-  normal! h%h
-  let end = col('.')
-
-  let items = sj#ParseJsonObjectBody(start, end)
+  let items = sj#ParseJsonObjectBody(from + 1, to - 1)
+  if len(items) <= 1
+    call sj#PopCursor()
+    return 0
+  endif
 
   if sj#settings#Read('python_brackets_on_separate_lines')
     if sj#settings#Read('trailing_comma')
@@ -256,7 +342,6 @@ function! s:SplitList(regex, opening_char, closing_char)
   endif
 
   call sj#PopCursor()
-
   call sj#ReplaceMotion('va'.a:opening_char, body)
   return 1
 endfunction
@@ -277,5 +362,61 @@ function! s:JoinList(regex, opening_char, closing_char)
 
   call sj#ReplaceMotion('va'.a:opening_char, body)
 
+  return 1
+endfunction
+
+function! sj#python#SplitListComprehension()
+  for [opening_char, closing_char] in [['(', ')'], ['[', ']'], ['{', '}']]
+    let [from, to] = sj#LocateBracesAroundCursor(opening_char, closing_char, ['pythonString'])
+    if from > 0 && to > 0
+      break
+    endif
+  endfor
+
+  if from < 0 && to < 0
+    return 0
+  endif
+
+  if to - from < 2
+    " empty list
+    return 0
+  endif
+
+  " Start after the opening bracket
+  let pos = getpos('.')
+  let pos[2] = from + 1
+  call setpos('.', pos)
+
+  let break_columns = []
+  let include_syntax = sj#IncludeSyntax(['pythonRepeat', 'pythonConditional'])
+
+  while sj#SearchSkip('\<\%(for\|if\)\>', include_syntax, 'W', line('.')) > 0
+    call add(break_columns, col('.') - from)
+  endwhile
+
+  if len(break_columns) <= 0
+    return 0
+  endif
+
+  let body = sj#GetMotion('vi' .. opening_char)
+  let parts = []
+  let last_break = 0
+
+  for break_column in break_columns
+    let part = strpart(body, last_break, break_column - last_break - 1)
+    call add(parts, sj#Trim(part))
+    let last_break = break_column - 1
+  endfor
+
+  let part = strpart(body, last_break, to - last_break - 1)
+  call add(parts, sj#Trim(part))
+
+  if sj#settings#Read('python_brackets_on_separate_lines')
+    let body = opening_char .. "\n" .. join(parts, "\n") .. "\n" .. closing_char
+  else
+    let body = opening_char .. join(parts, "\n") .. closing_char
+  endif
+
+  call sj#ReplaceMotion('va' .. opening_char, body)
   return 1
 endfunction

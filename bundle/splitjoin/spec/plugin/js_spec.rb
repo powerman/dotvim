@@ -60,6 +60,23 @@ describe "javascript" do
       assert_file_contents 'let foo = (one, two) => "bar";'
     end
 
+    specify "arguments, no curly braces, no semicolon at the end" do
+      set_file_contents 'let foo = arg => foo(arg)'
+
+      vim.search 'arg'
+      split
+
+      assert_file_contents <<~EOF
+        let foo = arg => {
+          return foo(arg)
+        }
+      EOF
+
+      join
+
+      assert_file_contents 'let foo = arg => foo(arg)'
+    end
+
     specify "one argument, curly braces, no semicolon at the end" do
       set_file_contents 'let foo = arg => { return "bar" }'
 
@@ -112,8 +129,6 @@ describe "javascript" do
     end
 
     specify "in an object" do
-      pending "Broken on TravisCI due to old Vim version" if ENV['TRAVIS_CI']
-
       set_file_contents 'let foo = {"key": bar => "baz"};'
 
       vim.search 'bar'
@@ -131,8 +146,6 @@ describe "javascript" do
     end
 
     specify "gives priority to objects in argument list" do
-      pending "Broken on TravisCI due to old Vim version" if ENV['TRAVIS_CI']
-
       set_file_contents 'const func = ({ a, b, c }) => a + b'
 
       vim.search 'b,'
@@ -158,6 +171,24 @@ describe "javascript" do
           return callback(one, two)
         }, three]
       EOF
+    end
+
+    specify "object body in round brackets" do
+      set_file_contents '[1, 2, 3].map(n => ({ square: n * n }));'
+
+      vim.search 'n =>'
+      split
+
+      assert_file_contents <<~EOF
+        [1, 2, 3].map(n => {
+          return { square: n * n };
+        });
+      EOF
+
+      vim.search 'n =>'
+      join
+
+      assert_file_contents '[1, 2, 3].map(n => ({ square: n * n }));'
     end
   end
 

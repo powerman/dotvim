@@ -16,6 +16,7 @@ describe "ruby" do
     vim.command('silent! unlet g:splitjoin_trailing_comma')
     vim.command('silent! unlet g:splitjoin_ruby_options_as_arguments')
     vim.command('silent! unlet g:splitjoin_ruby_curly_braces')
+    vim.command('silent! unlet g:splitjoin_ruby_expand_options_in_arrays')
   end
 
   specify "if-clauses" do
@@ -39,10 +40,10 @@ describe "ruby" do
     EOF
   end
 
-  specify "if-clauses with comments" do
+  specify "if-clauses with comments and interpolation" do
     set_file_contents <<~EOF
       if 6 * 9 == 42
-        return "the answer" # comment
+        return "the \#{right} answer" # comment
       end
     EOF
 
@@ -51,7 +52,7 @@ describe "ruby" do
 
     assert_file_contents <<~EOF
       # comment
-      return "the answer" if 6 * 9 == 42
+      return "the \#{right} answer" if 6 * 9 == 42
     EOF
   end
 
@@ -122,6 +123,33 @@ describe "ruby" do
           module Bar
             class Baz < Quux
             end
+          end
+        end
+      EOF
+    end
+
+    specify "with one-letter names" do
+      set_file_contents <<~EOF
+        module A
+          module B
+          end
+        end
+      EOF
+
+      vim.search 'A'
+      join
+
+      assert_file_contents <<~EOF
+        module A::B
+        end
+      EOF
+
+      vim.search 'A::B'
+      split
+
+      assert_file_contents <<~EOF
+        module A
+          module B
           end
         end
       EOF
@@ -378,7 +406,8 @@ describe "ruby" do
           do_something_else
       EOF
 
-      join
+      # Call command instead of mapping to avoid default mapping
+      vim.command 'SplitjoinJoin'
 
       assert_file_contents <<~EOF
         when condition
@@ -388,7 +417,7 @@ describe "ruby" do
     end
   end
 
-  describe 'cases' do
+  describe "cases" do
     it "joins cases with well formed when-thens" do
       set_file_contents <<~EOF
         case
@@ -459,8 +488,6 @@ describe "ruby" do
     end
 
     it "aligns thens in supercompact cases" do
-      skip 'we need to add an alignment tool to the spec configuration'
-
       set_file_contents <<~EOF
         case
         when cond1
@@ -472,6 +499,7 @@ describe "ruby" do
         end
       EOF
 
+      vim.command('let b:splitjoin_align = 1')
       join
 
       assert_file_contents <<~EOF
@@ -578,7 +606,30 @@ describe "ruby" do
       join
 
       assert_file_contents <<~EOF
-      foo = { bar: 1, one: 2 }
+        foo = { bar: 1, one: 2 }
+      EOF
+    end
+
+    specify "with string syntax and ':'" do
+      set_file_contents <<~EOF
+        foo = { 'bar baz ': 1, "one two ": 2 }
+      EOF
+
+      vim.search 'bar'
+      split
+
+      assert_file_contents <<~EOF
+        foo = {
+          'bar baz ': 1,
+          "one two ": 2
+        }
+      EOF
+
+      vim.search 'foo'
+      join
+
+      assert_file_contents <<~EOF
+        foo = { 'bar baz ': 1, "one two ": 2 }
       EOF
     end
 
@@ -900,6 +951,86 @@ describe "ruby" do
       assert_file_contents <<~EOF
         foo("\#{one}") do
           two
+        end
+      EOF
+    end
+
+    it "doesn't get confused by ; when joining" do
+      set_file_contents <<~EOF
+        foo do
+          example1
+          example2
+        end
+      EOF
+
+      vim.search 'do'
+      join
+
+      assert_file_contents <<~EOF
+        foo { example1; example2 }
+      EOF
+    end
+
+    it "doesn't get confused by ; when splitting" do
+      set_file_contents <<~EOF
+        foo { example1; example2 }
+      EOF
+
+      vim.search 'example1;'
+      split
+
+      assert_file_contents <<~EOF
+        foo do
+          example1
+          example2
+        end
+      EOF
+    end
+
+    it "doesn't get confused when ; is in a string literal(single quotes) when splitting" do
+      set_file_contents <<~EOF
+        foo { example1; 'some string ; literal' }
+      EOF
+
+      vim.search 'example1;'
+      split
+
+      assert_file_contents <<~EOF
+        foo do
+          example1
+          'some string ; literal'
+        end
+      EOF
+    end
+
+    it "doesn't get confused when ; is in a string literal(double quotes) when splitting" do
+      set_file_contents <<~EOF
+        foo { example1; "some string ; literal" }
+      EOF
+
+      vim.search 'example1;'
+      split
+
+      assert_file_contents <<~EOF
+        foo do
+          example1
+          "some string ; literal"
+        end
+      EOF
+    end
+
+    it "doesn't get confused when ; is in a string literal(percent strings) when splitting" do
+      set_file_contents <<~EOF
+        foo { example1; %(some string ; literal) }
+      EOF
+
+      vim.search 'example1;'
+      split
+
+      assert_file_contents <<~EOF
+        foo do
+          example1
+          %(some string ; literal)
         end
       EOF
     end
@@ -1399,6 +1530,35 @@ describe "ruby" do
         }
       EOF
     end
+
+    specify "[edge case] finds a function around the cursor, not after" do
+      set_file_contents <<~EOF
+        foo :one, :two => (true || false || foo(bar, baz))
+      EOF
+
+      vim.search ':one'
+      split
+
+      assert_file_contents <<~EOF
+        foo :one, {
+          :two => (true || false || foo(bar, baz))
+        }
+      EOF
+    end
+
+    specify "[edge case] block after a list of arguments" do
+      set_file_contents <<~EOF
+        function_call(one, two) { bar }
+      EOF
+
+      vim.search 'function_call'
+      split
+
+      # Unchanged
+      assert_file_contents <<~EOF
+        function_call(one, two) { bar }
+      EOF
+    end
   end
 
   describe "arrays" do
@@ -1466,6 +1626,26 @@ describe "ruby" do
     end
 
     specify "last hash inside array doesn't disappear" do
+      set_file_contents "array = [0, { a: 1 }]"
+
+      vim.search '0'
+      split
+
+      assert_file_contents <<~EOF
+        array = [
+          0,
+          { a: 1 }
+        ]
+      EOF
+
+      vim.search 'array ='
+      join
+
+      assert_file_contents "array = [0, { a: 1 }]"
+    end
+
+    specify "last hash inside array can be expanded" do
+      vim.command('let g:splitjoin_ruby_expand_options_in_arrays = 1')
       set_file_contents "array = [0, { a: 1 }]"
 
       vim.search '0'
@@ -1696,6 +1876,29 @@ describe "ruby" do
 
       assert_file_contents <<~EOF
         one.two.three
+      EOF
+    end
+  end
+
+  describe "oneline method definitions" do
+    specify "with the cursor on the definition" do
+      set_file_contents <<~EOF
+        def foo(one, two) = bar
+      EOF
+
+      vim.search 'def'
+      split
+
+      assert_file_contents <<~EOF
+        def foo(one, two)
+          bar
+        end
+      EOF
+
+      join
+
+      assert_file_contents <<~EOF
+        def foo(one, two) = bar
       EOF
     end
   end

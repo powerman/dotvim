@@ -3,23 +3,28 @@ function! sj#js#SplitObjectLiteral()
 
   if from < 0 && to < 0
     return 0
-  else
-    let pairs = sj#ParseJsonObjectBody(from + 1, to - 1)
-    let body = join(pairs, ",\n")
-    if sj#settings#Read('trailing_comma')
-      let body .= ','
-    endif
-    let body  = "{\n".body."\n}"
-    call sj#ReplaceMotion('Va{', body)
-
-    if sj#settings#Read('align')
-      let body_start = line('.') + 1
-      let body_end   = body_start + len(pairs) - 1
-      call sj#Align(body_start, body_end, 'json_object')
-    endif
-
-    return 1
   endif
+
+  if synIDattr(synID(line('.'), from, 1), "name") == 'jsxBraces'
+    " from jsx-pretty
+    return 0
+  endif
+
+  let pairs = sj#ParseJsonObjectBody(from + 1, to - 1)
+  let body = join(pairs, ",\n")
+  if sj#settings#Read('trailing_comma')
+    let body .= ','
+  endif
+  let body  = "{\n".body."\n}"
+  call sj#ReplaceMotion('Va{', body)
+
+  if sj#settings#Read('align')
+    let body_start = line('.') + 1
+    let body_end   = body_start + len(pairs) - 1
+    call sj#Align(body_start, body_end, 'json_object')
+  endif
+
+  return 1
 endfunction
 
 function! sj#js#SplitFunction()
@@ -90,11 +95,11 @@ function! sj#js#JoinFunction()
 endfunction
 
 function! sj#js#SplitArray()
-  return s:SplitList(['[', ']'])
+  return s:SplitList(['[', ']'], 'cursor_inside')
 endfunction
 
 function! sj#js#SplitArgs()
-  return s:SplitList(['(', ')'])
+  return s:SplitList(['(', ')'], 'cursor_on_line')
 endfunction
 
 function! sj#js#JoinArray()
@@ -141,25 +146,35 @@ function! sj#js#JoinOneLineIf()
   return 1
 endfunction
 
-function! s:SplitList(delimiter)
+function! s:SplitList(delimiter, cursor_position)
   let start = a:delimiter[0]
   let end   = a:delimiter[1]
 
   let lineno = line('.')
   let indent = indent('.')
 
-  let [from, to] = sj#LocateBracesOnLine(start, end)
+  if a:cursor_position == 'cursor_inside'
+    let [from, to] = sj#LocateBracesAroundCursor(start, end)
+  elseif a:cursor_position == 'cursor_on_line'
+    let [from, to] = sj#LocateBracesOnLine(start, end)
+  else
+    echoerr "Invalid value for a:cursor_position: ".a:cursor_position
+    return
+  endif
 
   if from < 0 && to < 0
     return 0
   endif
 
   let items = sj#ParseJsonObjectBody(from + 1, to - 1)
+  if empty(items)
+    return 0
+  endif
 
   if sj#settings#Read('trailing_comma')
-    let body  = start."\n".join(items, ",\n").",\n".end
+    let body = start."\n".join(items, ",\n").",\n".end
   else
-    let body  = start."\n".join(items, ",\n")."\n".end
+    let body = start."\n".join(items, ",\n")."\n".end
   endif
 
   call sj#ReplaceMotion('Va'.start, body)
@@ -213,10 +228,14 @@ function! sj#js#SplitFatArrowFunction()
   endif
 
   let start_col = col('.')
-  call s:JumpBracketsTill('[\])};,]')
-  let end_col = col('.') - 1
+  let end_col = sj#JumpBracketsTill('[\])};,]', {'opening': '([{"''', 'closing': ')]}"'''})
 
-  let body = sj#GetCols(start_col, end_col)
+  let body = sj#Trim(sj#GetCols(start_col, end_col))
+  if body =~ '^({.*})$'
+    " then we have ({ <object> }) to avoid ambiguity, not needed anymore:
+    let body = substitute(body, '^(\({.*}\))$', '\1', '')
+  endif
+
   if getline('.') =~ ';\s*\%(//.*\)\=$'
     let replacement = "{\nreturn ".body.";\n}"
   else
@@ -236,83 +255,13 @@ function! sj#js#JoinFatArrowFunction()
 
   let body = sj#Trim(sj#GetMotion('vi{'))
   let body = substitute(body, '^return\s*', '', '')
-  let body = substitute(body, ';$', '', '')
+  let body = substitute(body, '\s*;$', '', '')
+
+  if body =~ '^{.*}$'
+    " ({ <object> }), because otherwise it's ambiguous
+    let body = '('.body.')'
+  endif
+
   call sj#ReplaceMotion('va{', body)
   return 1
-endfunction
-
-function! s:SearchOpeningBracketOnLine(closing_bracket)
-  let skip_expr =
-        \ "synIDattr(synID(line('.'),col('.'),1),'name') =~ 'string\\|comment'"
-  let bracket_pair = strpart('(){}[]', stridx(')}]', a:closing_bracket) * 2, 2)
-  let [lineno, col] = searchpairpos(
-        \   escape(bracket_pair[0], '\['), '', bracket_pair[1],
-        \   'bWn', skip_expr, line('.')
-        \ )
-  return col
-endfunction
-
-" Note: Duplicated in rust.vim, with some differences
-"
-function! s:JumpBracketsTill(end_pattern)
-  let opening_brackets = '([{"'''
-  let closing_brackets = ')]}"'''
-
-  let original_whichwrap = &whichwrap
-  set whichwrap+=l
-
-  let remainder_of_line = s:RemainderOfLine()
-  while remainder_of_line !~ '^'.a:end_pattern
-    let [opening_bracket_match, offset] = s:BracketMatch(remainder_of_line, opening_brackets)
-    let [closing_bracket_match, _]      = s:BracketMatch(remainder_of_line, closing_brackets)
-
-    if opening_bracket_match < 0 && closing_bracket_match >= 0
-      let closing_bracket = closing_brackets[closing_bracket_match]
-      " there's an extra closing bracket from outside the list, bail out
-      break
-    elseif opening_bracket_match >= 0
-      " then try to jump to the closing bracket
-      let opening_bracket = opening_brackets[opening_bracket_match]
-      let closing_bracket = closing_brackets[opening_bracket_match]
-
-      " first, go to the opening bracket
-      if offset > 0
-        exe "normal! ".offset."l"
-      end
-
-      if opening_bracket == closing_bracket
-        " same bracket (quote), search for it, unless it's escaped
-        call search('\\\@<!\V'.closing_bracket, 'W', line('.'))
-      else
-        " different closing, use searchpair
-        call searchpair('\V'.opening_bracket, '', '\V'.closing_bracket, 'W', '', line('.'))
-        let rem = s:RemainderOfLine()
-      endif
-    endif
-
-    normal! l
-    let remainder_of_line = s:RemainderOfLine()
-  endwhile
-
-  let &whichwrap = original_whichwrap
-endfunction
-
-function! s:RemainderOfLine()
-  return strpart(getline('.'), col('.') - 1)
-endfunction
-
-function! s:BracketMatch(text, brackets)
-  let index  = 0
-  let offset = match(a:text, '^\s*\zs')
-  let text   = strpart(a:text, offset)
-
-  for char in split(a:brackets, '\zs')
-    if text[0] ==# char
-      return [index, offset]
-    else
-      let index += 1
-    endif
-  endfor
-
-  return [-1, 0]
 endfunction

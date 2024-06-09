@@ -41,14 +41,16 @@ endfunction
 function! sj#html#SplitAttributes()
   let lineno = line('.')
   let line = getline('.')
+  let skip = sj#SkipSyntax(['htmlString'])
 
   " Check if we are really on a single tag line
-  if search('^\s*<', 'bcWe', line('.')) <= 0
+  if sj#SearchSkip('<', skip, 'bcWe', line('.')) <= 0
     return 0
   endif
   let start = col('.')
 
-  if search('>\s*$', 'W', line('.')) <= 0
+  " Avoid matching =>
+  if sj#SearchSkip('\%(^\|[^=]\)\zs>', skip, 'W', line('.')) <= 0
     return 0
   endif
   let end = col('.')
@@ -83,7 +85,7 @@ function! sj#html#SplitAttributes()
     let body = join(args, "\n")
   endif
 
-  call sj#ReplaceMotion('V', body)
+  call sj#ReplaceCols(start, end, sj#Trim(body))
 
   if sj#settings#Read('html_attributes_hanging')
     " For some strange reason, built-in HTML indenting fails here.
@@ -103,20 +105,32 @@ function! sj#html#JoinAttributes()
   let line = getline('.')
   let indent = repeat(' ', indent('.'))
 
-  " Check if we are on a tag of splitted attributes
-  if !(line =~ '^\s*<' && line !~ '>\s*$')
+  if s:noTagUnderCursor()
     return 0
   endif
 
-  let start = line('.')
-  let end   = search('>\s*$', 'W')
+  let skip = sj#SkipSyntax(['htmlString'])
 
-  let lines = sj#GetLines(start, end)
+  if sj#SearchSkip('<', skip, 'bcW') <= 0
+    return 0
+  endif
+  let start_pos = getpos('.')
+
+  if sj#SearchSkip('\%(^\|[^=]\)\zs>', skip, 'Wc') <= 0
+    return 0
+  endif
+  let end_pos = getpos('.')
+
+  if start_pos[1] == end_pos[1]
+    " tag is single-line, nothing to join
+    return 0
+  endif
+
+  let lines = split(sj#GetByPosition(start_pos, end_pos), "\n")
   let joined = join(sj#TrimList(lines), ' ')
   let joined = substitute(joined, '\s*>$', '>', '')
 
-  call sj#ReplaceLines(start, end, indent . joined)
-
+  call sj#ReplaceByPosition(start_pos, end_pos, joined)
   return 1
 endfunction
 

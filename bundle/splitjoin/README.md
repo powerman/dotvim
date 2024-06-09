@@ -1,5 +1,5 @@
 [![GitHub version](https://badge.fury.io/gh/andrewradev%2Fsplitjoin.vim.svg)](https://badge.fury.io/gh/andrewradev%2Fsplitjoin.vim)
-[![Build Status](https://secure.travis-ci.org/AndrewRadev/splitjoin.vim.svg?branch=master)](http://travis-ci.org/AndrewRadev/splitjoin.vim)
+[![Build Status](https://circleci.com/gh/AndrewRadev/splitjoin.vim/tree/main.svg?style=shield)](https://circleci.com/gh/AndrewRadev/splitjoin.vim?branch=main)
 
 ## Usage
 
@@ -45,18 +45,23 @@ This currently works for various constructs in the following languages:
 
 - C
 - CSS
+- Clojure
 - Coffeescript
 - Elixir
+- Elm
 - Eruby
 - Go
 - HAML
 - HTML (and HTML-like markup)
 - Handlebars
+- JSON
+- Java
 - Javascript (within JSX, TSX, Vue.js templates as well)
 - Lua
 - PHP
 - Perl
 - Python
+- R
 - Ruby
 - Rust
 - SCSS and Less

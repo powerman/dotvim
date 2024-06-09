@@ -6,15 +6,23 @@ let s:invalid_function_names = [
       \ ]
 
 function! sj#ruby#SplitIfClause()
-  let line    = getline('.')
-  let pattern = '\v(.*\S.*) (if|unless|while|until) (.*)'
+  let pattern = '\v(.*\S.*) \zs(if|unless|while|until) (.*)'
+  let skip = sj#SkipSyntax(['rubyString', 'rubyComment'])
 
-  if line =~ pattern
-    call sj#ReplaceMotion('V', substitute(line, pattern, '\2 \3\n\1\nend', ''))
-    return 1
-  else
+  normal! 0
+
+  if sj#SearchSkip(pattern, skip, 'W', line('.')) <= 0
     return 0
   endif
+
+  let line = getline('.')
+  let body = trim(strpart(line, 0, col('.') - 1))
+  let if_clause = trim(strpart(line, col('.') - 1))
+
+  let replacement = if_clause . "\n" . body . "\nend"
+  call sj#ReplaceMotion('V', replacement)
+
+  return 1
 endfunction
 
 function! sj#ruby#JoinIfClause()
@@ -359,12 +367,17 @@ function! sj#ruby#SplitBlock()
     let multiline_block = ' '.multiline_block
   endif
 
-  let body = join(split(body, '\s*;\s*'), "\n")
   let replacement = substitute(body, '^'.pattern.'$', multiline_block, '')
+
   " remove leftover whitespace
   let replacement = substitute(replacement, '\s*\n', '\n', 'g')
 
   call sj#ReplaceMotion('Va{', replacement)
+
+  normal! j0
+  while sj#SearchSkip(';', sj#SkipSyntax(['rubyString']), 'W', line('.')) > 0
+    call execute("normal! r\<cr>")
+  endwhile
 
   return 1
 endfunction
@@ -518,7 +531,12 @@ function! sj#ruby#SplitOptions()
 
   let start_lineno = line('.')
   let [from, to, args, opts, hash_type, cursor_arg] =
-        \ sj#argparser#ruby#ParseArguments(from, to, getline('.'))
+        \ sj#argparser#ruby#ParseArguments(from, to, getline('.'), { 'expand_options': 1 })
+
+  if !(from <= col('.') && col('.') <= to)
+    " then this is not around the cursor, bail out
+    return 0
+  endif
 
   let no_options = len(opts) < 1 && len(args) > 0 && option_type == 'option'
   let both_args_and_opts = sj#settings#Read('ruby_options_as_arguments') && cursor_arg < len(args)
@@ -664,7 +682,10 @@ function! sj#ruby#SplitArray()
     return 0
   endif
 
-  let [from, to, args, opts; _rest] = sj#argparser#ruby#ParseArguments(from + 1, to - 1, getline('.'))
+  let [from, to, args, opts; _rest] = sj#argparser#ruby#ParseArguments(from + 1, to - 1, getline('.'), {
+        \ 'expand_options': sj#settings#Read('ruby_expand_options_in_arrays')
+        \ })
+
   if from < 0
     return 0
   endif
@@ -718,7 +739,7 @@ function! sj#ruby#JoinContinuedMethodCall()
 
   let end_lineno = line('.') - 1
 
-  exe start_lineno.','.end_lineno.'s/\n\_s*//'
+  call sj#Keeppatterns(start_lineno.','.end_lineno.'s/\n\_s*//')
   return 1
 endfunction
 
@@ -843,7 +864,7 @@ function! sj#ruby#SplitArrayLiteral()
 
   let closing_bracket = s:ArrayLiteralClosingBracket(opening_bracket)
 
-  let array_pattern = '\%(\k\|\s\)*\ze\V'.closing_bracket
+  let array_pattern = '\V'.opening_bracket.'\m\zs.*\ze\V'.closing_bracket
   let [start_col, end_col] = sj#SearchColsUnderCursor(array_pattern)
   if start_col <= 0
     return 0
@@ -927,9 +948,9 @@ function! sj#ruby#JoinModuleNamespace()
     return 0
   endif
 
-  let namespace_pattern = '^\s*module\s\+\zs[A-Z]\(\k\|::\)\+\s*$'
-  let class_pattern = '^\s*class\s\+\zs[A-Z]\k\+\s*\(\k\|::\)\+\s*\%(<\s\+\S\+\)\=$'
-  let describe_pattern = '^\s*\%(RSpec\.\)\=describe\s\+\zs[A-Z]\(\k\|::\)\+\s*do'
+  let namespace_pattern = '^\s*module\s\+\zs[A-Z]\(\k\|::\)*\s*$'
+  let class_pattern = '^\s*class\s\+\zs[A-Z]\k*\s*\(\k\|::\)\+\s*\%(<\s\+\S\+\)\=$'
+  let describe_pattern = '^\s*\%(RSpec\.\)\=describe\s\+\zs[A-Z]\(\k\|::\)*\s*do'
 
   if search(namespace_pattern, 'Wbc', line('.')) <= 0
     return 0
@@ -1008,7 +1029,7 @@ function! sj#ruby#JoinModuleNamespace()
 endfunction
 
 function! sj#ruby#SplitModuleNamespace()
-  let namespace_pattern = '^\s*\%(module\|class\|\%\(RSpec\.\)\=describe\)\s\+[A-Z]\k\+::'
+  let namespace_pattern = '^\s*\%(module\|class\|\%\(RSpec\.\)\=describe\)\s\+[A-Z]\k*::'
 
   if search(namespace_pattern, 'Wbc', line('.')) <= 0
     return 0
@@ -1027,7 +1048,7 @@ function! sj#ruby#SplitModuleNamespace()
   endif
 
   " get the module path
-  if search('\V'.keyword.'\m\s\+\zs[A-Z]\k\+', 'W', line('.')) <= 0
+  if search('\V'.keyword.'\m\s\+\zs[A-Z]\k*', 'W', line('.')) <= 0
     return 0
   endif
   let module_path = expand('<cWORD>')
@@ -1070,6 +1091,66 @@ function! sj#ruby#SplitModuleNamespace()
   let ends = split(repeat("end\n", len(modules)), "\n")
   call sj#ReplaceMotion('V', join(ends, "\n"))
 
+  return 1
+endfunction
+
+function! sj#ruby#SplitEndlessDef()
+  " taken from vim-ruby
+  let endless_def_pattern = '\<def\s\+\%(\k\+\.\)\=\k\+[!?]\=\%((.*)\|\s\)\zs\s*\zs='
+  if search(endless_def_pattern, 'Wce', line('.')) <= 0
+        \ && search(endless_def_pattern, 'Wcbe', line('.')) <= 0
+    return 0
+  endif
+
+  let line             = getline('.')
+  let equal_sign_index = col('.') - 1
+  let definition       = sj#Rtrim(strpart(line, 0, equal_sign_index))
+  let body             = sj#Ltrim(strpart(line, equal_sign_index + 1))
+
+  call sj#ReplaceLines(line('.'), line('.'), definition."\n".body."\nend")
+  return 1
+endfunction
+
+function! sj#ruby#JoinOnelineDef()
+  " adapted from vim-ruby
+  if search('\<def\s\+\%(\k\+\.\)\=\k\+[!?]\=\%((.*)\)\s*\%(#.*\)\=$', 'Wbc', line('.')) <= 0
+    return 0
+  endif
+
+  let def_line_no = line('.')
+  normal %
+  let end_line_no = line('.')
+
+  if def_line_no == end_line_no
+        \ || getline(end_line_no) !~ '\<end\>'
+    " then the cursor hasn't moved
+    return 0
+  endif
+
+  if end_line_no - def_line_no != 2
+    " then it's not a one-line method
+    return 0
+  endif
+
+  let [result, offset] = s:HandleComments(def_line_no, end_line_no)
+  if !result
+    return 1
+  endif
+  let def_line_no += offset
+  let end_line_no += offset
+
+  let lines = sj#GetLines(def_line_no, end_line_no)
+
+  let def_line = lines[0]
+  let end_line = lines[-1]
+  let body     = join(lines[1:-2], "\n")
+
+  let def_line = sj#Trim(def_line)
+  let body     = sj#Trim(body)
+
+  let replacement = def_line.' = '.body
+
+  call sj#ReplaceLines(def_line_no, end_line_no, replacement)
   return 1
 endfunction
 
@@ -1134,6 +1215,7 @@ function! s:JoinHashWithoutBraces()
 
   call cursor(start_lineno, 0)
   exe "normal! V".(end_lineno - start_lineno)."jJ"
+  return 1
 endfunction
 
 function! s:HandleComments(start_line_no, end_line_no)
@@ -1169,14 +1251,15 @@ function! s:FindComments(start_line_no, end_line_no)
     exe lineno
     normal! 0
 
-    while search('\s*#.*$', 'Wc', lineno) > 0
+    while search('#', 'Wc', lineno) > 0
       let col = col('.')
 
-      normal! f#
-      if synIDattr(synID(lineno, col('.'), 1), "name") == 'rubyComment'
+      if synIDattr(synID(lineno, col, 1), "name") == 'rubyComment'
         let comment = sj#GetCols(col, col('$'))
         call add(comments, [lineno, col, comment])
         break
+      else
+        normal! l
       endif
     endwhile
   endfor

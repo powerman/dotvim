@@ -91,8 +91,33 @@ describe "python" do
     assert_file_contents 'while True: loop()'
   end
 
+  specify "ternary clauses" do
+    set_file_contents <<~EOF
+      with indent as _:
+          max_x = x1 if x1 > x2 else x2
+    EOF
+
+    vim.search('max_x')
+    split
+
+    assert_file_contents <<~EOF
+      with indent as _:
+          if x1 > x2:
+              max_x = x1
+          else:
+              max_x = x2
+    EOF
+
+    join
+
+    assert_file_contents <<~EOF
+      with indent as _:
+          max_x = x1 if x1 > x2 else x2
+    EOF
+  end
+
   specify "splitting within a string" do
-    pending "Broken on TravisCI due to old Vim version" if ENV['TRAVIS_CI']
+    pending "Old version on CI" if ENV['CI']
 
     set_file_contents <<~EOF
       run("one", "two", "three {}".format(four))
@@ -103,12 +128,14 @@ describe "python" do
 
     assert_file_contents <<~EOF
       run("one",
-              "two",
-              "three {}".format(four))
+          "two",
+          "three {}".format(four))
     EOF
   end
 
   specify "chained method calls" do
+    pending "Old version on CI" if ENV['CI']
+
     set_file_contents <<~EOF
       SomeModel.objects.filter(asdf=1, qwer=2).exclude(zxcv=2, tyui=3)
     EOF
@@ -118,7 +145,7 @@ describe "python" do
 
     assert_file_contents <<~EOF
       SomeModel.objects.filter(asdf=1, qwer=2).exclude(zxcv=2,
-              tyui=3)
+                                                       tyui=3)
     EOF
   end
 
@@ -174,7 +201,7 @@ describe "python" do
   end
 
   specify "dictionary within tuple" do
-    pending "Broken on TravisCI due to old Vim version" if ENV['TRAVIS_CI']
+    pending "Old version on CI" if ENV['CI']
 
     set_file_contents <<~EOF
       out = ("one", {"two": "three"}, "four")
@@ -185,8 +212,8 @@ describe "python" do
 
     assert_file_contents <<~EOF
       out = ("one",
-              {"two": "three"},
-              "four")
+             {"two": "three"},
+             "four")
     EOF
 
     vim.search('one')
@@ -217,6 +244,31 @@ describe "python" do
 
     assert_file_contents <<~EOF
       out = {"one": "two", "key": ("three", "four")}
+    EOF
+  end
+
+  specify "list comprehensions" do
+    pending "Old version on CI" if ENV['CI']
+
+    set_file_contents <<~EOF
+      result = [x * y for x in range(1, 10) for y in range(10, 20) if x != y]
+    EOF
+
+    vim.search('x')
+    split
+
+    assert_file_contents <<~EOF
+      result = [x * y
+                for x in range(1, 10)
+                for y in range(10, 20)
+                if x != y]
+    EOF
+
+    vim.search('[')
+    join
+
+    assert_file_contents <<~EOF
+      result = [x * y for x in range(1, 10) for y in range(10, 20) if x != y]
     EOF
   end
 end

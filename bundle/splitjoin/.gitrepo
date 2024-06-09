@@ -6,7 +6,7 @@
 [subrepo]
 	remote = https://github.com/AndrewRadev/splitjoin.vim
 	branch = master
-	commit = 6bfdc927f858a514d7b9802dffe56be90d06ac10
-	parent = 4415919f840e11389d427312972aa8ea857f9310
+	commit = 9b0c30f61f13ba4800a11107648bdd748ad511ba
+	parent = d5c448ae32ac9a5fc71a54841ff12a391baec5c4
 	method = merge
-	cmdver = 0.4.1
+	cmdver = 0.4.6
