@@ -6,7 +6,7 @@
 [subrepo]
 	remote = https://github.com/tpope/vim-pathogen
 	branch = master
-	commit = c6bc42404597c718e4a032a98e21e63321cbb05a
-	parent = 0beb0551ac79d9b79926bfacaf3d833d25243d5f
+	commit = ac4dd9494fa9008754e49dff85bff1b5746c89b4
+	parent = 46243dbdd0bb895fb3f02aafa4b2c75c3f261779
 	method = merge
 	cmdver = 0.4.1
