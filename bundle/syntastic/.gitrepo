@@ -6,7 +6,7 @@
 [subrepo]
 	remote = https://github.com/scrooloose/syntastic
 	branch = master
-	commit = dd226673063b189683b98133d7a2243c1316e71e
-	parent = 917dbf6755ff5d3c626aefd0a6903ca1843d8ea6
+	commit = 8d5e37c29cf5952fbf300b9230bffe424c61a488
+	parent = 688a1deb6a59186223570b1b31c30dbd17da0c5b
 	method = merge
-	cmdver = 0.4.1
+	cmdver = 0.4.6
