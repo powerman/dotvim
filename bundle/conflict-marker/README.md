@@ -1,31 +1,28 @@
-Highlight, Jump and Resolve Conflict Markers Quickly in Vim
-===============================================
-[![Build Status](https://travis-ci.org/rhysd/conflict-marker.vim.png)](https://travis-ci.org/rhysd/conflict-marker.vim)
+conflict-marker.vim
+===================
+[![CI](https://github.com/rhysd/conflict-marker.vim/actions/workflows/ci.yml/badge.svg)](https://github.com/rhysd/conflict-marker.vim/actions/workflows/ci.yml)
+[![Coverage](https://codecov.io/gh/rhysd/conflict-marker.vim/branch/master/graph/badge.svg)](https://codecov.io/gh/rhysd/conflict-marker.vim)
 
-conflict-marker.vim is Vim plugin for developers fighting against conflicts.
+Highlight, jump and resolve conflict markers quickly.
+
+[conflict-marker.vim](https://github.com/rhysd/conflict-marker.vim) is Vim plugin for developers fighting against conflicts.
 All features are available if and only if an opened buffer contains a conflict marker.
 
 conflict-marker.vim does:
 - highlight conflict markers.
 - jump among conflict markers.
 - jump within conflict block; beginning, separator and end of the block.
-- resolve conflict with various strategies; themselves, ourselves, none and both strategies.
+- resolve conflict with various strategies; theirs, ours, none and both strategies.
+- support both `diff2` (Git default) and [`diff3`](https://git-scm.com/book/en/v2/Git-Tools-Advanced-Merging) conflict styles.
 
-This plugin tries to define some mappings if a conflict marker is detected. If you don't want to use default mappings, set `g:conflict_marker_enable_mappings` to `0`.
+This plugin tries to define some mappings if a conflict marker is detected.
+If you don't want to use default mappings, set `g:conflict_marker_enable_mappings` to `0`.
 
 ## Installation
 
-Please copy below files to corresponding directories in your "~/.vim" directory.
+Please follow the instruction in `:help add-package`.
 
-- plugin/conflict_marker.vim
-- autoload/conflict_marker.vim
-- autoload/conflict_marker/detect.vim
-- autoload/unite/sources/conflict.vim (if you use unite.vim)
-- doc/conflict-marker.txt
-
-Please do `:helptags ~/.vim/doc` to generate help tags.
-
-If you use a plugin manager, please follow its instruction and documentation to install.
+If you use some plugin manager, please follow its instruction and documentation to install.
 For example, you can install this plugin with [neobundle.vim](https://github.com/Shougo/neobundle.vim).
 
 ```vim
@@ -39,6 +36,7 @@ Conflict markers can be customized using the following options:
 ```vim
 " Default values
 let g:conflict_marker_begin = '^<<<<<<< \@='
+let g:conflict_marker_common_ancestors = '^||||||| .*$'
 let g:conflict_marker_separator = '^=======$'
 let g:conflict_marker_end   = '^>>>>>>> \@='
 ```
@@ -58,21 +56,25 @@ Each conflict marker and conflict part is associated to a specific syntax group:
 |------|--------------|
 | begin conflict marker (`<<<<<<<`) | `ConflictMarkerBegin` |
 | *ours* part of the conflict | `ConflictMarkerOurs` |
+| common ancestors marker (`\|\|\|\|\|\|\|`) | `ConflictMarkerCommonAncestors` |
+| common ancestors part of the conflict | `ConflictMarkerCommonAncestorsHunk` |
 | separator conflict marker (`=======`) | `ConflictMarkerSeparator` |
 | *theirs* part of the conflict | `ConflictMarkerTheirs` |
 | end conflict marker (`>>>>>>>`) | `ConflictMarkerEnd` |
 
-By default, `ConflictMarkerBegin`, `ConflictMarkerSeparator` and
-`ConflictMarkerEnd` are linked to the `Error` syntax group. To link them to
-another syntax group, use the following option:
+By default, `ConflictMarkerBegin`, `ConflictMarkerSeparator`,
+`ConflictMarkerCommonAncestors` and `ConflictMarkerEnd` are
+linked to the `Error` syntax group.
+To link them to another syntax group, use the following option:
 
 ```vim
 " Default value
 let g:conflict_marker_highlight_group = 'Error'
 ```
 
-`ConflictMarkerOurs` and `ConflictMarkerTheirs` are not linked to any syntax
-group by default, and can be used to customize the highlight of the *ours* and *theirs*
+`ConflictMarkerOurs`, `ConflictMarkerTheirs`, and
+`ConflictMarkerCommonAncestors` are not linked to any syntax group by default,
+and can be used to customize the highlight of the *ours* and *theirs*
 parts of the conflict.
 
 To use a specific highlight for each marker, disable the default highlight
@@ -85,13 +87,15 @@ group, and define your own highlights for each syntax group.
 let g:conflict_marker_highlight_group = ''
 
 " Include text after begin and end markers
-let g:conflict_marker_begin = '^<<<<<<< .*$'
-let g:conflict_marker_end   = '^>>>>>>> .*$'
+let g:conflict_marker_begin = '^<<<<<<<\+ .*$'
+let g:conflict_marker_common_ancestors = '^|||||||\+ .*$'
+let g:conflict_marker_end   = '^>>>>>>>\+ .*$'
 
 highlight ConflictMarkerBegin guibg=#2f7366
 highlight ConflictMarkerOurs guibg=#2e5049
 highlight ConflictMarkerTheirs guibg=#344f69
 highlight ConflictMarkerEnd guibg=#2f628e
+highlight ConflictMarkerCommonAncestorsHunk guibg=#754a81
 ```
 
 ![Screenshot_20190911_212653](https://user-images.githubusercontent.com/454315/64728297-f8953d80-d4da-11e9-9033-df5bfdee2f7a.png)
@@ -117,70 +121,86 @@ let g:conflict_marker_enable_matchit = 0
 
 ## Resolve a Conflict with Various Strategies
 
-This plugin defines mappings as default: `ct` for themselves, `co` for
-ourselves, `cn` for none and `cb` for both.  Use the following option to disable
-mappings:
+This plugin defines mappings as default: `ct` for theirs, `co` for ours, `cn` for
+none and `cb` for both.  Use the following option to disable mappings:
 
 ```vim
 let g:conflict_marker_enable_mappings = 0
 ```
 
-### Themselves
+### Theirs
 
 ```
 <<<<<<< HEAD
-ourselves
+ours
 =======
-themselves
+theirs
 >>>>>>> deadbeef0123
 ```
 
 ↓`ct` or `:ConflictMarkerThemselves`
 
 ```
-themselves
+theirs
 ```
 
-### Ourselves
+### Ours
 
 ```
 <<<<<<< HEAD
-ourselves
+ours
 =======
-themselves
+theirs
 >>>>>>> deadbeef0123
 ```
 
 ↓`co` or `:ConflictMarkerOurselves`
 
 ```
-ourselves
+ours
 ```
 
-### Adopt Both
+### Apply Both
 
 ```
 <<<<<<< HEAD
-ourselves
+ours
 =======
-themselves
+theirs
 >>>>>>> deadbeef0123
 ```
 
 ↓`cb` or `:ConflictMarkerBoth`
 
 ```
-ourselves
-themselves
+ours
+theirs
 ```
 
-### Adopt None
+### Apply Both in Reverse Order
 
 ```
 <<<<<<< HEAD
-ourselves
+ours
 =======
-themselves
+theirs
+>>>>>>> deadbeef0123
+```
+
+↓`cB` or `:ConflictMarkerBoth!`
+
+```
+theirs
+ours
+```
+
+### Apply None
+
+```
+<<<<<<< HEAD
+ours
+=======
+theirs
 >>>>>>> deadbeef0123
 ```
 
@@ -191,12 +211,14 @@ themselves
 
 ## Customize
 
+TODO
+
 ## License
 
 This plugin is distributed under MIT license.
 
 ```
-Copyright (c) 2013,2015 rhysd
+Copyright (c) 2013 rhysd
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the

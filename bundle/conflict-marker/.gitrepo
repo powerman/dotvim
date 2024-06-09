@@ -6,7 +6,7 @@
 [subrepo]
 	remote = https://github.com/rhysd/conflict-marker.vim
 	branch = master
-	commit = 495f700bd73d45e5b92f7b5839604556e40b7ae8
-	parent = e634e9aaaf25f4f96122adccd973279b48afbcdb
+	commit = 62742b2ffe7a433988759c67b5c5a22eff74a14b
+	parent = ba0c234918c2c57e18807b7a0695314f87a02497
 	method = merge
 	cmdver = 0.4.1

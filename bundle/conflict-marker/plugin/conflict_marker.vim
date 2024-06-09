@@ -10,17 +10,19 @@ function! s:var(name, default)
 endfunction
 
 call s:var('highlight_group', 'Error')
-call s:var('begin', '^<<<<<<< \@=')
-call s:var('separator', '^=======$')
-call s:var('end', '^>>>>>>> \@=')
+call s:var('begin', '^<<<<<<<\+')
+call s:var('common_ancestors', '^|||||||\+')
+call s:var('separator', '^=======\+$')
+call s:var('end', '^>>>>>>>\+')
 call s:var('enable_mappings', 1)
 call s:var('enable_hooks', 1)
 call s:var('enable_highlight', 1)
 call s:var('enable_matchit', 1)
+call s:var('enable_detect', 1)
 
 command! -nargs=0 ConflictMarkerThemselves     call conflict_marker#themselves()
 command! -nargs=0 ConflictMarkerOurselves      call conflict_marker#ourselves()
-command! -nargs=0 ConflictMarkerBoth           call conflict_marker#compromise()
+command! -nargs=0 -bang ConflictMarkerBoth     call conflict_marker#compromise(<bang>0)
 command! -nargs=0 ConflictMarkerNone           call conflict_marker#down_together()
 command! -nargs=0 -bang ConflictMarkerNextHunk call conflict_marker#next_conflict(<bang>0)
 command! -nargs=0 -bang ConflictMarkerPrevHunk call conflict_marker#previous_conflict(<bang>0)
@@ -28,6 +30,7 @@ command! -nargs=0 -bang ConflictMarkerPrevHunk call conflict_marker#previous_con
 nnoremap <silent><Plug>(conflict-marker-themselves) :<C-u>ConflictMarkerThemselves<CR>
 nnoremap <silent><Plug>(conflict-marker-ourselves)  :<C-u>ConflictMarkerOurselves<CR>
 nnoremap <silent><Plug>(conflict-marker-both)       :<C-u>ConflictMarkerBoth<CR>
+nnoremap <silent><Plug>(conflict-marker-both-rev)   :<C-u>ConflictMarkerBoth!<CR>
 nnoremap <silent><Plug>(conflict-marker-none)       :<C-u>ConflictMarkerNone<CR>
 nnoremap <silent><Plug>(conflict-marker-next-hunk)  :<C-u>ConflictMarkerNextHunk<CR>
 nnoremap <silent><Plug>(conflict-marker-prev-hunk)  :<C-u>ConflictMarkerPrevHunk<CR>
@@ -40,6 +43,7 @@ function! s:execute_hooks()
         nmap <buffer>co <Plug>(conflict-marker-ourselves)
         nmap <buffer>cn <Plug>(conflict-marker-none)
         nmap <buffer>cb <Plug>(conflict-marker-both)
+        nmap <buffer>cB <Plug>(conflict-marker-both-rev)
     endif
 
     if exists('g:conflict_marker_hooks') && has_key(g:conflict_marker_hooks, 'on_detected')
@@ -64,19 +68,22 @@ function! s:set_conflict_marker_to_match_words()
         return
     endif
 
-    let b:match_words = get(b:, 'match_words', '')
-                \       . printf(',%s:%s:%s',
-                \                g:conflict_marker_begin,
-                \                g:conflict_marker_separator,
-                \                g:conflict_marker_end)
+    let group = printf('%s:%s:%s:%s',
+                        \ g:conflict_marker_begin,
+                        \ g:conflict_marker_common_ancestors,
+                        \ g:conflict_marker_separator,
+                        \ g:conflict_marker_end)
+
+    let b:match_words = exists('b:match_words') ? b:match_words . ',' . group : group
     let b:conflict_marker_match_words_loaded = 1
 endfunction
 
 function! s:create_highlight_links()
     if exists('g:conflict_marker_highlight_group') && strlen(g:conflict_marker_highlight_group)
-        execute 'highlight link ConflictMarkerBegin '.g:conflict_marker_highlight_group
-        execute 'highlight link ConflictMarkerSeparator '.g:conflict_marker_highlight_group
-        execute 'highlight link ConflictMarkerEnd '.g:conflict_marker_highlight_group
+        execute 'highlight default link ConflictMarkerBegin '.g:conflict_marker_highlight_group
+        execute 'highlight default link ConflictMarkerCommonAncestors '.g:conflict_marker_highlight_group
+        execute 'highlight default link ConflictMarkerSeparator '.g:conflict_marker_highlight_group
+        execute 'highlight default link ConflictMarkerEnd '.g:conflict_marker_highlight_group
     endif
 endfunction
 
@@ -90,6 +97,11 @@ function! s:on_detected()
                 \      g:conflict_marker_begin)
         execute printf('syntax region ConflictMarkerOurs containedin=ALL start=/%s/hs=e+1 end=/%s\&/',
                 \      g:conflict_marker_begin,
+                \      g:conflict_marker_separator)
+        execute printf('syntax match ConflictMarkerCommonAncestors containedin=ALL /%s/',
+                \      g:conflict_marker_common_ancestors)
+        execute printf('syntax region ConflictMarkerCommonAncestorsHunk containedin=ALL start=/%s/hs=e+1 end=/%s\&/',
+                \      g:conflict_marker_common_ancestors,
                 \      g:conflict_marker_separator)
         execute printf('syntax match ConflictMarkerSeparator containedin=ALL /%s/',
                 \      g:conflict_marker_separator)
@@ -109,7 +121,9 @@ endfunction
 
 augroup ConflictMarkerDetect
     autocmd!
-    autocmd BufReadPost * if conflict_marker#detect#markers() | call s:on_detected() | endif
+    autocmd BufReadPost,FileChangedShellPost,ShellFilterPost,StdinReadPost * if conflict_marker#detect#markers()
+                \ | call s:on_detected()
+                \ | endif
 augroup END
 
 if g:conflict_marker_enable_highlight
