@@ -42,6 +42,18 @@ if !exists("g:vmt_include_headings_before")
     let g:vmt_include_headings_before = 0
 endif
 
+if !exists("g:vmt_link")
+    let g:vmt_link = 1
+endif
+
+if !exists("g:vmt_min_level")
+    let g:vmt_min_level = 1
+endif
+
+if !exists("g:vmt_max_level")
+    let g:vmt_max_level = 6
+endif
+
 let g:GFMHeadingIds = {}
 
 let s:supportMarkdownStyles = ['GFM', 'Redcarpet', 'GitLab', 'Marked']
@@ -85,6 +97,7 @@ function! s:GetCodeSections()
     let l:codeSections = {}
 
     call extend(l:codeSections, <SID>GetSections("^```", "^```"))
+    call extend(l:codeSections, <SID>GetSections("^\\~\\~\\~", "^\\~\\~\\~"))
     call extend(l:codeSections, <SID>GetSections("^{% highlight", "^{% endhighlight"))
 
     return l:codeSections
@@ -142,33 +155,38 @@ function! s:GetHeadingLevel(headingLine)
     return match(a:headingLine, '[^#]')
 endfunction
 
+function! s:AppendNumberTrickery(headingLink)
+    let l:currentNum = 1
+    let l:newKey = a:headingLink . "-" . l:currentNum
+    while has_key(g:GFMHeadingIds, l:newKey)
+        let l:currentNum += 1
+        let l:newKey = a:headingLink . "-" . l:currentNum
+    endwhile
+    return l:newKey
+endfunction
+
 function! s:GetHeadingLinkGFM(headingName)
     let l:headingLink = tr(a:headingName, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz")
 
-    " \_^ : start of line
-    " _\+ : one of more underscore _
-    " \| : OR
-    " _\+ : one of more underscore _
-    " \_$ : end of line
-    let l:headingLink = substitute(l:headingLink, "\\_^_\\+\\|_\\+\\_$", "", "g")
     " Characters that are not alphanumeric, latin1 extended (for accents) and
-    " chinese chars are removed.
+    " Chinese/Japanese/Korean/Arabic chars are removed.
+    " unicode scope can ref https://fuhaoku.net/blocks
     " \\%#=0: allow this pattern to use the regexp engine he wants. Having
     " `set re=1` in the vimrc could break this behavior. cf. issue #19
-    let l:headingLink = substitute(l:headingLink, "\\%#=0[^[:alnum:]\u00C0-\u00FF\u0400-\u04ff\u4e00-\u9fbf _-]", "", "g")
+    let l:headingLink = substitute(l:headingLink, "\\%#=0[^[:alnum:]\u00C0-\u00FF\u0400-\u04ff\u0600-\u06ff\u4e00-\u9fbf\u3040-\u309F\u30A0-\u30FF\uAC00-\uD7AF _-]", "", "g")
     let l:headingLink = substitute(l:headingLink, " ", "-", "g")
 
     if l:headingLink ==# ""
         let l:nullKey = "<null>"
         if has_key(g:GFMHeadingIds, l:nullKey)
-            let g:GFMHeadingIds[l:nullKey] += 1
-            let l:headingLink = l:headingLink . "-" . g:GFMHeadingIds[l:nullKey]
+            let l:headingLink = <SID>AppendNumberTrickery(l:headingLink)
+            let g:GFMHeadingIds[l:headingLink] = 0
         else
             let g:GFMHeadingIds[l:nullKey] = 0
         endif
     elseif has_key(g:GFMHeadingIds, l:headingLink)
-        let g:GFMHeadingIds[l:headingLink] += 1
-        let l:headingLink = l:headingLink . "-" . g:GFMHeadingIds[l:headingLink]
+        let l:headingLink = <SID>AppendNumberTrickery(l:headingLink)
+        let g:GFMHeadingIds[l:headingLink] = 0
     else
         let g:GFMHeadingIds[l:headingLink] = 0
     endif
@@ -179,8 +197,8 @@ endfunction
 " suppport for GitLab, fork of GetHeadingLinkGFM
 " it's dirty to copy & paste code but more clear for maintain
 function! s:GetHeadingLinkGitLab(headingName)
-    let l:headingLink = tr(a:headingName, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz")
-
+    let l:headingLink = tolower(a:headingName)
+  
     let l:headingLink = substitute(l:headingLink, "\\_^_\\+\\|_\\+\\_$", "", "g")
     let l:headingLink = substitute(l:headingLink, "\\%#=0[^[:alnum:]\u00C0-\u00FF\u0400-\u04ff\u4e00-\u9fbf _-]", "", "g")
     let l:headingLink = substitute(l:headingLink, " ", "-", "g")
@@ -227,12 +245,24 @@ function! s:GetHeadingLinkMarked(headingName)
     return l:headingLink
 endfunction
 
-function! s:GetHeadingName(headingLine)
+function! s:GetHeadingName(headingLine, markdownStyle)
+    if a:markdownStyle ==# s:supportMarkdownStyles[s:MARKED_STYLE_INDEX]
+        return <SID>GetHeadingNameMarked(a:headingLine)
+    endif
+
     let l:headingName = substitute(a:headingLine, '^#*\s*', "", "")
     let l:headingName = substitute(l:headingName, '\s*#*$', "", "")
 
     let l:headingName = substitute(l:headingName, '\[\([^\[\]]*\)\]([^()]*)', '\1', "g")
     let l:headingName = substitute(l:headingName, '\[\([^\[\]]*\)\]\[[^\[\]]*\]', '\1', "g")
+
+    return l:headingName
+endfunction
+
+function! s:GetHeadingNameMarked(headingLine)
+    let l:headingName = substitute(a:headingLine, '^#*\s*', "", "")
+    let l:headingName = substitute(l:headingName, '\s\+$', "", "g")
+    let l:headingName = substitute(l:headingName, '\s*#*$', "", "")
 
     return l:headingName
 endfunction
@@ -250,7 +280,7 @@ function! s:GetHeadingLink(headingName, markdownStyle)
 endfunction
 
 function! GetHeadingLinkTest(headingLine, markdownStyle)
-    let l:headingName = <SID>GetHeadingName(a:headingLine)
+    let l:headingName = <SID>GetHeadingName(a:headingLine, a:markdownStyle)
     return <SID>GetHeadingLink(l:headingName, a:markdownStyle)
 endfunction
 
@@ -274,7 +304,7 @@ function! s:GenTocInner(markdownStyle, isModeline)
         call add(l:levels, <SID>GetHeadingLevel(headingLine))
     endfor
 
-    let l:minLevel = min(l:levels)
+    let l:minLevel = max([min(l:levels),g:vmt_min_level])
 
     if g:vmt_dont_insert_fence == 0
         silent put =<SID>GetBeginFence(a:markdownStyle, a:isModeline)
@@ -289,19 +319,27 @@ function! s:GenTocInner(markdownStyle, isModeline)
     if !empty(l:headingLines)
         silent put =''
     endif
+
     for headingLine in l:headingLines
-        let l:headingName = <SID>GetHeadingName(headingLine)
-        let l:headingIndents = l:levels[i] - l:minLevel
-        let l:listItemChar = l:listItemChars[(l:levels[i] + 1) % len(l:listItemChars)]
-        let l:headingLink = <SID>GetHeadingLink(l:headingName, a:markdownStyle)
-
-        let l:heading = repeat(s:GetIndentText(), l:headingIndents)
-        let l:heading = l:heading . l:listItemChar
-        let l:heading = l:heading . " [" . l:headingName . "]"
-        let l:heading = l:heading . "(#" . l:headingLink . ")"
-
-        silent put =l:heading
-
+        let l:headingName = <SID>GetHeadingName(headingLine, a:markdownStyle)
+        " only add line if less than max level and greater than min level
+        if l:levels[i] <= g:vmt_max_level && l:levels[i] >= g:vmt_min_level
+            let l:headingIndents = l:levels[i] - l:minLevel
+            let l:listItemChar = l:listItemChars[(l:levels[i] + 1) % len(l:listItemChars)]
+            " make link if desired, otherwise just bullets
+            if g:vmt_link
+                let l:headingLink = <SID>GetHeadingLink(l:headingName, a:markdownStyle)
+                let l:heading = repeat(s:GetIndentText(), l:headingIndents)
+                let l:heading = l:heading . l:listItemChar
+                let l:heading = l:heading . " [" . l:headingName . "]"
+                let l:heading = l:heading . "(#" . l:headingLink . ")"
+            else
+                let l:heading = repeat(s:GetIndentText(), l:headingIndents)
+                let l:heading = l:heading . l:listItemChar
+                let l:heading = l:heading . " " . l:headingName
+            endif
+            silent put =l:heading
+        endif
         let l:i += 1
     endfor
 
@@ -318,7 +356,13 @@ function! s:GetIndentText()
         return g:vmt_list_indent_text
     endif
     if &expandtab
-        return repeat(" ", &shiftwidth)
+        if &shiftwidth > 5
+            return repeat(" ", 5)
+        elseif &shiftwidth < 2
+            return repeat(" ", 2)
+        else
+            return repeat(" ", &shiftwidth)
+        endif
     else
         return "\t"
     endif
@@ -469,3 +513,4 @@ command! RemoveToc :call <SID>DeleteExistingToc()
 if g:vmt_auto_update_on_save == 1
     autocmd BufWritePre *.{md,mdown,mkd,mkdn,markdown,mdwn} if !&diff | exe ':silent! UpdateToc' | endif
 endif
+
