@@ -2,8 +2,8 @@
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2007-09-17.
-" @Last Change: 2019-03-17.
-" @Revision:    2036
+" @Last Change: 2022-04-24.
+" @Revision:    2047
 
 scriptencoding utf-8
 
@@ -149,7 +149,8 @@ if !exists('g:tcomment#replacements_xml')
     " Replacements for xml filetype.
     " :read: let g:tcomment#replacements_xml = {...}   "{{{2
     let g:tcomment#replacements_xml = {
-                \     '-': '&#45;',
+                \     '<!--': '&#60;&#33;&#45;&#45;',
+                \     '-->': '&#45;&#45;&#62;',
                 \     '&': '&#38;',
                 \ }
 endif
@@ -236,8 +237,10 @@ function! tcomment#GuessCommentType(...) abort "{{{3
     let comment_mode = get(options, 'comment_mode', '')
     let filetype = get(options, 'filetype', &filetype)
     let fallbackFiletype = get(options, 'filetype', '')
-    return tcomment#filetype#Guess(beg, end,
+    let ct = tcomment#filetype#Guess(beg, end,
           \ comment_mode, filetype, fallbackFiletype)
+    call extend(ct, {'_args': {'beg': beg, 'end': end, 'comment_mode': comment_mode, 'filetype': filetype, 'fallbackFiletype': fallbackFiletype}})
+    return ct
 endf
 
 
@@ -279,6 +282,16 @@ endf
 "         postprocess_uncomment .. Run a |printf()| expression with 2 
 "                              placeholders on uncommented lines, e.g. 
 "                              'norm! %sgg=%sgg'.
+"         choose           ... A list of comment definitions (a 
+"                              dictionary as defined above) that may 
+"                              contain an `if` key referring to an 
+"                              expression; if this condition evaluates 
+"                              to true, the item will be selected; the 
+"                              last item in the list will be selected 
+"                              anyway (see the bib definition for an 
+"                              example)
+"         if               ... an |eval()|able expression (only valid 
+"                              within a choose list, see above)
 "   2. 1-2 values for: ?commentPrefix, ?commentPostfix
 "   3. a dictionary (internal use only)
 "

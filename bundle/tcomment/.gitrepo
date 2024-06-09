@@ -6,7 +6,7 @@
 [subrepo]
 	remote = https://github.com/tomtom/tcomment_vim
 	branch = master
-	commit = 239c0c08d3e691a2c447278b88de91b602fa50bd
-	parent = c8a8eae6a06f26b47b052c299d57a17c9f58822b
+	commit = 48ab639a461d9b8344f7fee06cb69b4374863b13
+	parent = f365d0160ce36f212c114bb658ddb908f19c5162
 	method = merge
-	cmdver = 0.4.1
+	cmdver = 0.4.6
