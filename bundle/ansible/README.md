@@ -49,7 +49,11 @@ Use your favorite plugin manager, or try [vim-plug](https://github.com/junegunn/
 
 **pathogen:** `git clone https://github.com/pearofducks/ansible-vim ~/.vim/bundle/ansible-vim`
 
-**Arch Linux:** Package [ansible-vim-git](https://aur.archlinux.org/packages/ansible-vim-git/) available on AUR
+**Arch Linux:** Package [vim-ansible](https://www.archlinux.org/packages/community/any/vim-ansible/) is available in the *community* repository.
+
+**Fedora:** The [vim-ansible](https://src.fedoraproject.org/rpms/vim-ansible) package is available in the default repository.
+
+**RHEL/CentOS:** The [vim-ansible](https://src.fedoraproject.org/rpms/vim-ansible) package is available in the [EPEL](https://fedoraproject.org/wiki/EPEL) repository.
 
 ## options
 
@@ -93,27 +97,43 @@ Available flags (this feature is off by default):
 
 *Note:* This option is enabled when set, and disabled when not set.
 
-Highlight the following additional keywords in playbooks: `register always_run changed_when failed_when no_log args vars delegate_to ignore_errors`
+Highlight the following additional keywords: `become become_exe become_flags become_method become_user become_pass prompt_l10n debugger always_run check_mode diff no_log args tags force_handlers vars vars_files vars_prompt delegate_facts delegate_to any_errors_fatal ignore_errors ignore_unreachable max_fail_percentage connection hosts port remote_user module_defaults environment fact_path gather_facts gather_subset gather_timeout async poll throttle timeout order run_once serial strategy`.
 
-By default we only highlight: `include until retries delay when only_if become become_user block rescue always notify`
+By default we only highlight: `include include_role include_tasks include_vars import_role import_playbook import_tasks when changed_when failed_when block rescue always notify listen register action local_action post_tasks pre_tasks tasks handlers roles collections` and loop keywords `with_.+`, `loop`, `loop_control`, `until`, `retries`, `delay`.
+
+##### g:ansible_extra_keywords_highlight_group
+`let g:ansible_extra_keywords_highlight_group = 'Statement'`
+
+Accepts any syntax group name from `:help E669` - e.g. _Comment_, _Constant_, _Identifier_
+
+*Note:* Defaults to 'Structure' when not set.
+
+##### g:ansible_fqcn_highlight
+`let g:ansible_fqcn_highlight = 'Constant'`
+
+Accepts any syntax group name from `:help E669` - e.g. _Comment_, _Constant_, _Identifier_
+
+*Note:* Defaults to 'Statement' when not set.
+
+*Note:* The `.` in the FCQN can also be highlighted via a modification to a [Vim syntax internal](https://stackoverflow.com/questions/69781626/how-to-do-syntax-highlighting-for-a-keyword-containing-a-period). This plugin will not do this automatically.
 
 ##### g:ansible_normal_keywords_highlight
 `let g:ansible_normal_keywords_highlight = 'Constant'`
 
-Accepts any syntax group name from `:help E669` - e.g. _Comment_, _Constant_, and _Identifier_
+Accepts any syntax group name from `:help E669` - e.g. _Comment_, _Constant_, _Identifier_
 
 *Note:* Defaults to 'Statement' when not set.
 
-This option change the highlight of the following common keywords in playbooks: `include until retries delay when only_if become become_user block rescue always notify`
+This option change the highlight of the following common keywords: `include include_role include_tasks include_vars import_role import_playbook import_tasks when changed_when failed_when block rescue always notify listen register action local_action post_tasks pre_tasks tasks handlers roles collections`.
 
-##### g:ansible_with_keywords_highlight
-`let g:ansible_with_keywords_highlight = 'Constant'`
+##### g:ansible_loop_keywords_highlight
+`let g:ansible_loop_keywords_highlight = 'Constant'`
 
-Accepts any syntax group-name from `:help E669` - e.g. _Comment_, _Constant_, and _Identifier_
+Accepts any syntax group-name from `:help E669` - e.g. _Comment_, _Constant_, _Identifier_
 
 *Note:* Defaults to 'Statement' when not set.
 
-This option changes the highlight of all `with_.+` keywords in playbooks.
+This option changes the highlight of all `with_.+`, `loop`, `loop_control`, `until`, `retries` and `delay` keywords.
 
 ##### g:ansible_template_syntaxes
 `let g:ansible_template_syntaxes = { '*.rb.j2': 'ruby' }`
@@ -123,6 +143,19 @@ Accepts a dictionary in the form of `'regex-for-file': 'filetype'`.
 - _filetype_ is the root filetype to be applied, `jinja2` will be automatically appended
 
 All files ending in `*.j2` that aren't matched will simply get the `jinja2` filetype.
+
+##### g:ansible_ftdetect_filename_regex
+`let g:ansible_ftdetect_filename_regex = '\v(playbook|site|main|local|requirements)\.ya?ml$'`
+
+Accepts a regex string that is used to match the filename to determine if the file should use the Ansible filetype
+
+Can be used to avoid clashes with other files that are named the same - e.g. main.yaml used in github workflows by removing `main` from the regex
+
+## goto role under cursor (similar to gf)
+
+This behavior is not supported out of the box, but you can use [this snippet](https://gist.github.com/mtyurt/3529a999af675a0aff00eb14ab1fdde3) in your vimrc.
+
+You'll then be able to go to a role's definition with `<leader>gr`.
 
 ## bugs, suggestions/requests, & contributions
 

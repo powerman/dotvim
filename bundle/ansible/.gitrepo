@@ -6,7 +6,7 @@
 [subrepo]
 	remote = https://github.com/pearofducks/ansible-vim
 	branch = master
-	commit = 8da127b946b519a271a73dc6f337e97190a958c9
-	parent = cfd7d9e763abf85f91daa79062f7849de12ef936
+	commit = 3329367d2e5f90d203c8d340c53fa83c60a1ad41
+	parent = fba11b082605cf8e44a9948feb4db477a4ee4e5f
 	method = merge
 	cmdver = 0.4.1
