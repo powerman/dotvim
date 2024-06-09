@@ -6,7 +6,7 @@
 [subrepo]
 	remote = https://github.com/Shougo/context_filetype.vim.git
 	branch = master
-	commit = cbe3c0069e6a13bd9bfcd9739c0770f7fd4b4ef4
-	parent = bccf4904506f05a6fa40d58a257888f9f6383a26
+	commit = 7ff5b43fc8d5b274aa19ade5af11e9fa57577ed6
+	parent = f5071ec6d495b19a37e17d342fc8c53e5b858e7f
 	method = merge
 	cmdver = 0.4.1
