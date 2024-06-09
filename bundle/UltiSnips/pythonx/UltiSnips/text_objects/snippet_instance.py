@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # encoding: utf-8
 
 """A Snippet instance is an instance of a Snippet Definition.
@@ -10,6 +10,7 @@ also a TextObject.
 """
 
 from UltiSnips import vim_helper
+from UltiSnips.error import PebkacError
 from UltiSnips.position import Position, JumpDirection
 from UltiSnips.text_objects.base import EditableTextObject, NoneditableTextObject
 from UltiSnips.text_objects.tabstop import TabStop
@@ -32,6 +33,7 @@ class SnippetInstance(EditableTextObject):
         last_re,
         globals,
         context,
+        _compiled_globals=None,
     ):
         if start is None:
             start = Position(0, 0)
@@ -43,6 +45,7 @@ class SnippetInstance(EditableTextObject):
         self.context = context
         self.locals = {"match": last_re, "context": context}
         self.globals = globals
+        self._compiled_globals = _compiled_globals
         self.visual_content = visual_content
         self.current_placeholder = None
 
@@ -73,19 +76,25 @@ class SnippetInstance(EditableTextObject):
         This might also move the Cursor
 
         """
-        vc = _VimCursor(self)
         done = set()
         not_done = set()
 
         def _find_recursive(obj):
             """Finds all text objects and puts them into 'not_done'."""
+            cursorInsideLowest = None
             if isinstance(obj, EditableTextObject):
+                if obj.start <= vim_helper.buf.cursor <= obj.end and not (
+                    isinstance(obj, TabStop) and obj.number == 0
+                ):
+                    cursorInsideLowest = obj
                 for child in obj._children:
-                    _find_recursive(child)
+                    cursorInsideLowest = _find_recursive(child) or cursorInsideLowest
             not_done.add(obj)
+            return cursorInsideLowest
 
-        _find_recursive(self)
-
+        cursorInsideLowest = _find_recursive(self)
+        if cursorInsideLowest is not None:
+            vc = _VimCursor(cursorInsideLowest)
         counter = 10
         while (done != not_done) and counter:
             # Order matters for python locals!
@@ -94,14 +103,15 @@ class SnippetInstance(EditableTextObject):
                     done.add(obj)
             counter -= 1
         if not counter:
-            raise RuntimeError(
+            raise PebkacError(
                 "The snippets content did not converge: Check for Cyclic "
                 "dependencies or random strings in your snippet. You can use "
                 "'if not snip.c' to make sure to only expand random output "
                 "once."
             )
-        vc.to_vim()
-        self._del_child(vc)
+        if cursorInsideLowest is not None:
+            vc.to_vim()
+            cursorInsideLowest._del_child(vc)
 
     def select_next_tab(self, jump_direction: JumpDirection):
         """Selects the next tabstop in the direction of 'jump_direction'."""
@@ -109,11 +119,11 @@ class SnippetInstance(EditableTextObject):
             return
 
         if jump_direction == JumpDirection.BACKWARD:
-            cts_bf = self._cts
+            current_tabstop_backup = self._cts
 
             res = self._get_prev_tab(self._cts)
             if res is None:
-                self._cts = cts_bf
+                self._cts = current_tabstop_backup
                 return self._tabstops.get(self._cts, None)
             self._cts, ts = res
             return ts
@@ -137,7 +147,12 @@ class SnippetInstance(EditableTextObject):
         else:
             assert False, "Unknown JumpDirection: %r" % jump_direction
 
-        return self._tabstops[self._cts]
+    def has_next_tab(self, jump_direction: JumpDirection):
+        if jump_direction == JumpDirection.BACKWARD:
+            return self._get_prev_tab(self._cts) is not None
+        # There is always a next tabstop if we jump forward, since the snippet
+        # instance is deleted once we reach tabstop 0.
+        return True
 
     def _get_tabstop(self, requester, no):
         # SnippetInstances are completely self contained, therefore, we do not

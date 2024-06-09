@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # encoding: utf-8
 
 """Common code for snipMate and UltiSnips snippet files."""
@@ -8,6 +8,7 @@ import os.path
 
 def normalize_file_path(path: str) -> str:
     """Calls normpath and normcase on path"""
+    path = os.path.realpath(path)
     return os.path.normcase(os.path.normpath(path))
 
 

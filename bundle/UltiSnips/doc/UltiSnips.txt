@@ -1,4 +1,4 @@
-*UltiSnips.txt*    For Vim version 7.4 or later.
+*UltiSnips.txt*    For Vim version 8.0 or later.
 
         The Ultimate Plugin for Snippets in Vim~
 
@@ -22,6 +22,9 @@ UltiSnips                                      *snippet* *snippets* *UltiSnips*
       3.4.1 UltiSnips#AddSnippetWithPriority    |UltiSnips#AddSnippetWithPriority|
       3.4.2 UltiSnips#Anon                      |UltiSnips#Anon|
       3.4.3 UltiSnips#SnippetsInCurrentScope    |UltiSnips#SnippetsInCurrentScope|
+      3.4.4 UltiSnips#CanExpandSnippet          |UltiSnips#CanExpandSnippet|
+      3.4.5 UltiSnips#CanJumpForwards           |UltiSnips#CanJumpForwards|
+      3.4.6 UltiSnips#CanJumpBackwards          |UltiSnips#CanJumpBackwards|
    3.5 Missing python support                   |UltiSnips-python-warning|
 4. Authoring snippets                           |UltiSnips-authoring-snippets|
    4.1 Basics                                   |UltiSnips-basics|
@@ -52,9 +55,10 @@ UltiSnips                                      *snippet* *snippets* *UltiSnips*
 5. UltiSnips and Other Plugins                  |UltiSnips-other-plugins|
    5.1 Existing Integrations                    |UltiSnips-integrations|
    5.2 Extending UltiSnips                      |UltiSnips-extending|
-6. FAQ                                          |UltiSnips-FAQ|
-7. Helping Out                                  |UltiSnips-helping|
-8. Contributors                                 |UltiSnips-contributors|
+6. Debugging                                    |UltiSnips-Debugging|
+7. FAQ                                          |UltiSnips-FAQ|
+8. Helping Out                                  |UltiSnips-helping|
+9. Contributors                                 |UltiSnips-contributors|
 
 This plugin only works if 'compatible' is not set.
 {Vi does not have any of these features}
@@ -89,7 +93,7 @@ http://vimcasts.org/episodes/ultisnips-visual-placeholder/
 1.1 Requirements                                     *UltiSnips-requirements*
 ----------------
 
-This plugin works with Vim version 7.4 or later with Python 3 support enabled.
+This plugin works with Vim version 8.0 or later with Python 3 support enabled.
 It only works if the 'compatible' setting is not set.
 
 The Python 3.x interface must be available. In other words, Vim
@@ -180,6 +184,19 @@ g:UltiSnipsEditSplit        Defines how the edit window is opened. Possible
                             |context|        Splits the window vertically or
                                            horizontally depending on context.
 
+                                                        *g:UltiSnipsSnippetStorageDirectoryForUltiSnipsEdit*
+g:UltiSnipsSnippetStorageDirectoryForUltiSnipsEdit
+                            A single absolute path to a directory which will
+                            be used as the storage for location for
+                            `UltiSnipsEdit`. This means that UltiSnipsEdit no
+                            longer searches all paths in
+                            `g:UltiSnipsSnippetDirectories` for snippets to
+                            edit, but only this one. Note that this does not
+                            imply that the snippet expansion engine also
+                            searches this directory. Please read
+                            |UltiSnips-how-snippets-are-loaded| for details.
+
+
                                                         *g:UltiSnipsSnippetDirectories*
 g:UltiSnipsSnippetDirectories
                             An array of relative directory names OR an array
@@ -229,6 +246,7 @@ The priority will then be rails -> ruby -> programming -> all.
 
                            *g:UltiSnipsExpandTrigger* *g:UltiSnipsListSnippets*
                *g:UltiSnipsJumpForwardTrigger* *g:UltiSnipsJumpBackwardTrigger*
+              *g:UltiSnipsExpandOrJumpTrigger* *g:UltiSnipsJumpOrExpandTrigger*
 
 You can define the keys used to trigger UltiSnips actions by setting global
 variables. Variables define the keys used to expand a snippet, jump forward
@@ -250,26 +268,44 @@ following to your vimrc file or switching to a plugin like Supertab or
 YouCompleteMe. >
    inoremap <c-x><c-k> <c-x><c-k>
 
+If you prefer to use the same trigger for expanding snippets and jumping
+forward, g:UltiSnipsExpandOrJumpTrigger and g:UltiSnipsJumpOrExpandTrigger
+variables are what you want. Try to set g:UltiSnipsExpandOrJumpTrigger if
+you give priority to expanding snippets. It'll expand snippets first when
+you are in a position where you can both expand snippets and jump forward. >
+   let g:UltiSnipsExpandOrJumpTrigger = "<tab>"
+
+Or else, if you have a preference for jumping forward first, set
+g:UltiSnipsJumpOrExpandTrigger instead. >
+   let g:UltiSnipsJumpOrExpandTrigger = "<tab>"
+
+If both g:UltiSnipsExpandOrJumpTrigger and g:UltiSnipsJumpOrExpandTrigger
+is set, g:UltiSnipsExpandOrJumpTrigger variable will take effects.
+
 3.2.2 Using your own trigger functions           *UltiSnips-trigger-functions*
 
-For advanced users there are four functions that you can map directly to a
+For advanced users there are functions that you can map directly to a
 key and that correspond to some of the triggers previously defined:
    g:UltiSnipsExpandTrigger        <--> UltiSnips#ExpandSnippet
    g:UltiSnipsJumpForwardTrigger   <--> UltiSnips#JumpForwards
    g:UltiSnipsJumpBackwardTrigger  <--> UltiSnips#JumpBackwards
+   g:UltiSnipsExpandOrJumpTrigger  <--> UltiSnips#ExpandSnippetOrJump
+   g:UltiSnipsJumpOrExpandTrigger  <--> UltiSnips#JumpOrExpandSnippet
 
 If you have g:UltiSnipsExpandTrigger and g:UltiSnipsJumpForwardTrigger set
 to the same value then the function you are actually going to use is
 UltiSnips#ExpandSnippetOrJump.
 
 Each time any of the functions UltiSnips#ExpandSnippet,
-UltiSnips#ExpandSnippetOrJump, UltiSnips#JumpForwards or
-UltiSnips#JumpBackwards is called a global variable is set that contains the
-return value of the corresponding function.
+UltiSnips#ExpandSnippetOrJump, UltiSnips#JumpOrExpandSnippet,
+UltiSnips#JumpForwards or UltiSnips#JumpBackwards is called a global variable
+is set that contains the return value of the corresponding function.
 
 The corresponding variables and functions are:
 UltiSnips#ExpandSnippet       --> g:ulti_expand_res (0: fail, 1: success)
 UltiSnips#ExpandSnippetOrJump --> g:ulti_expand_or_jump_res (0: fail,
+                                                    1: expand, 2: jump)
+UltiSnips#JumpOrExpandSnippet --> g:ulti_expand_or_jump_res (0: fail,
                                                     1: expand, 2: jump)
 UltiSnips#JumpForwards        --> g:ulti_jump_forwards_res (0: fail, 1: success)
 UltiSnips#JumpBackwards       --> g:ulti_jump_backwards_res (0: fail, 1: success)
@@ -330,7 +366,7 @@ For even more advanced usage, you can directly write python functions using
 UltiSnip's python modules. This is an internal and therefore unstable API and
 not recommended though.
 
-Here is a small example funtion that expands a snippet: >
+Here is a small example function that expands a snippet: >
 
    function! s:Ulti_ExpandSnip()
    Python << EOF
@@ -383,7 +419,7 @@ The first function is UltiSnips#AddSnippetWithPriority(trigger, value, descripti
 options, filetyp, priority). It adds a new snippet to the current list of
 snippets. See |UltiSnips-authoring-snippets| for details most of the function
 arguments. The priority is a number that defines which snippet should be
-preferred over others. See the priority keyword in |UltiSnips-add-snippets|.
+preferred over others. See the priority keyword in |UltiSnips-basic-syntax|.
 
 
  3.4.2 UltiSnips#Anon                                        *UltiSnips#Anon*
@@ -460,6 +496,36 @@ function! GetAllSnippets()
   return list
 endfunction
 
+ 3.4.4 UltiSnips#CanExpandSnippet    *UltiSnips#CanExpandSnippet*
+
+This function returns 1 if UltiSnips can actually do a meaningful expansion in
+the current situation. This is useful in conditional mappings.
+
+ 3.4.5 UltiSnips#CanJumpForwards    *UltiSnips#CanJumpForwards*
+
+This function returns 1 if UltiSnips can jump forward in the current
+situation. This is useful in conditional mappings.
+
+ 3.4.6 UltiSnips#CanJumpBackwards    *UltiSnips#CanJumpBackwards*
+
+This function returns 1 if UltiSnips can jump backwards in the current
+situation. This is useful in conditional mappings.
+
+ 3.4.7 UltiSnips#ToggleAutoTrigger              *UltiSnips#ToggleAutoTrigger*
+
+This function toggles the `autotrigger` functionality. Its return value
+corresponds to the new state of the `autotrigger` (0: disabled, 1: enabled).
+
+For example, the following mapping can be used to toggle the `autotrigger`
+in the Insert mode: >
+    inoremap <silent> <C-t> <CMD>call UltiSnips#ToggleAutoTrigger()<CR>
+<
+                                                    *g:UltiSnipsAutoTrigger*
+By default, `autotrigger` is enabled (relevant for snippets with the option 'A').
+If you want to disable it by default, add the following line to your vimrc: >
+    let g:UltiSnipsAutoTrigger = 0
+
+
 3.5 Warning about missing python support           *UltiSnips-python-warning*
 ----------------------------------------
 
@@ -490,7 +556,8 @@ list variable, set by default to >
    let g:UltiSnipsSnippetDirectories=["UltiSnips"]
 
 Note that "snippets" is reserved for snipMate snippets and cannot be used in
-this list.
+this list. Whether snipMate snippets are active or not is controlled by the
+variable `g:UltiSnipsEnableSnipMate`.
 
 UltiSnips will search each 'runtimepath' directory for the subdirectory names
 defined in g:UltiSnipsSnippetDirectories in the order they are defined. For
@@ -518,6 +585,13 @@ An example configuration could be: >
 You can also redefine the search path on a buffer by buffer basis by setting
 the variable b:UltiSnipsSnippetDirectories. This variable takes precedence
 over the global variable.
+
+There is an additional variable which does not control the search path for
+snippets at expansion time, but controls where `:UltiSnipsEdit` is looking for
+snippets. If this variable is set to a single absolute path it will only
+affect where the edit command is looking for and writing snippets too. This is
+useful if you want to use third party snippets, but have all your self created
+snippets in a single place without being asked where to put the file on edit.
 
 Using a strategy similar to how Vim detects |ftplugins|, UltiSnips iterates
 over the snippet definition directories looking for files with names of the
@@ -645,7 +719,7 @@ The options currently supported are: >
        preceded and followed by non-word characters. Word characters are
        defined by the 'iskeyword' setting. Use this option, for example, to
        permit expansion where the tab trigger follows punctuation without
-       expanding suffixes of larger words.
+       expanding suffixes of larger words. This option overrides 'i'.
 
    r   Regular expression - With this option, the tab trigger is expected to
        be a python regular expression. The snippet is expanded if the recently
@@ -653,7 +727,10 @@ The options currently supported are: >
        expression MUST be quoted (or surrounded with another character) like a
        multi-word tab trigger (see above) whether it has spaces or not. A
        resulting match is passed to any python code blocks in the snippet
-       definition as the local variable "match".
+       definition as the local variable "match". Regular expression snippets
+       can be triggered in-word by default. To avoid this you can start your
+       regex pattern with '\b', although this will not respect your
+       'iskeyword' setting.
 
    t   Do not expand tabs - If a snippet definition includes leading tab
        characters, by default UltiSnips expands the tab characters honoring
@@ -716,10 +793,12 @@ but you can also just run >
 Add this snippet to 'all.snippets' and save the file.
 
 ------------------- SNIP -------------------
-snippet bye "My mail signature"
-Good bye, Sir. Hope to talk to you soon.
-- Arthur, King of Britain
-endsnippet
+>
+    snippet bye "My mail signature"
+    Good bye, Sir. Hope to talk to you soon.
+    - Arthur, King of Britain
+    endsnippet
+<
 ------------------- SNAP -------------------
 
 UltiSnips detects when you write changes to a snippets file and automatically
@@ -761,9 +840,11 @@ will take selected text, replace every instance of "should" within it with
 "is", and wrap the result in tags.
 
 ------------------- SNIP -------------------
-snippet t
-<tag>${VISUAL:inside text/should/is/g}</tag>
-endsnippet
+>
+    snippet t
+    <tag>${VISUAL:inside text/should/is/g}</tag>
+    endsnippet
+<
 ------------------- SNAP -------------------
 
 Start with this line of text: >
@@ -798,9 +879,11 @@ Here are some examples. This snippet uses a shell command to insert the
 current date.
 
 ------------------- SNIP -------------------
-snippet today
-Today is the `date +%d.%m.%y`.
-endsnippet
+>
+    snippet today
+    Today is the `date +%d.%m.%y`.
+    endsnippet
+<
 ------------------- SNAP -------------------
 
 today<tab> ->
@@ -810,10 +893,12 @@ Today is the 15.07.09.
 This example inserts the current date using perl.
 
 ------------------- SNIP -------------------
-snippet today
-Today is `#!/usr/bin/perl
-@a = localtime(); print $a[3] . '.' . $a[4] . '.' . ($a[5]+1900);`.
-endsnippet
+>
+    snippet today
+    Today is `#!/usr/bin/perl
+    @a = localtime(); print $a[3] . '.' . $a[4] . '.' . ($a[5]+1900);`.
+    endsnippet
+<
 ------------------- SNAP -------------------
 today<tab> ->
 Today is 15.6.2009.
@@ -827,9 +912,11 @@ it as a Vim script, start the code with '!v'. Here is an example that counts
 the indent of the current line:
 
 ------------------- SNIP -------------------
-snippet indent
-Indent is: `!v indent(".")`.
-endsnippet
+>
+    snippet indent
+    Indent is: `!v indent(".")`.
+    endsnippet
+<
 ------------------- SNAP -------------------
     (note the 4 spaces in front): indent<tab> ->
     (note the 4 spaces in front): Indent is: 4.
@@ -936,9 +1023,11 @@ snippet mirrors the first tabstop value on the same line but right aligned and
 in uppercase.
 
 ------------------- SNIP -------------------
-snippet wow
-${1:Text}`!p snip.rv = (75-2*len(t[1]))*' '+t[1].upper()`
-endsnippet
+>
+    snippet wow
+    ${1:Text}`!p snip.rv = (75-2*len(t[1]))*' '+t[1].upper()`
+    endsnippet
+<
 ------------------- SNAP -------------------
 wow<tab>Hello World ->
 Hello World                                                     HELLO WORLD
@@ -949,12 +1038,14 @@ expansion of a snippet can depend on the tab trigger used to define the
 snippet, and that tab trigger itself can vary.
 
 ------------------- SNIP -------------------
-snippet "be(gin)?( (\S+))?" "begin{} / end{}" br
-\begin{${1:`!p
-snip.rv = match.group(3) if match.group(2) is not None else "something"`}}
-    ${2:${VISUAL}}
-\end{$1}$0
-endsnippet
+>
+    snippet "be(gin)?( (\S+))?" "begin{} / end{}" br
+    \begin{${1:`!p
+    snip.rv = match.group(3) if match.group(2) is not None else "something"`}}
+        ${2:${VISUAL}}
+    \end{$1}$0
+    endsnippet
+<
 ------------------- SNAP -------------------
 be<tab>center<c-j> ->
 \begin{center}
@@ -979,17 +1070,21 @@ account the text preceding a "trigger". This way, you can use it to create
 postfix snippets, which are popular in some IDEs.
 
 ------------------- SNIP -------------------
-snippet "(\w+).par" "Parenthesis (postfix)" r
-(`!p snip.rv = match.group(1)`$1)$0
-endsnippet
+>
+    snippet "(\w+).par" "Parenthesis (postfix)" r
+    (`!p snip.rv = match.group(1)`$1)$0
+    endsnippet
+<
 ------------------- SNAP -------------------
 something.par<tab> ->
 (something)
 
 ------------------- SNIP -------------------
-snippet "([^\s].*)\.return" "Return (postfix)" r
-return `!p snip.rv = match.group(1)`$0
-endsnippet
+>
+    snippet "([^\s].*)\.return" "Return (postfix)" r
+    return `!p snip.rv = match.group(1)`$0
+    endsnippet
+<
 ------------------- SNAP -------------------
 value.return<tab> ->
 return value
@@ -1006,22 +1101,24 @@ following snippet produces the same output as the last example . However, with
 this syntax the 'upper_right' snippet can be reused by other snippets.
 
 ------------------- SNIP -------------------
-global !p
-def upper_right(inp):
-    return (75 - 2 * len(inp))*' ' + inp.upper()
-endglobal
+>
+    global !p
+    def upper_right(inp):
+        return (75 - 2 * len(inp))*' ' + inp.upper()
+    endglobal
 
-snippet wow
-${1:Text}`!p snip.rv = upper_right(t[1])`
-endsnippet
+    snippet wow
+    ${1:Text}`!p snip.rv = upper_right(t[1])`
+    endsnippet
+<
 ------------------- SNAP -------------------
 wow<tab>Hello World ->
 Hello World                                                     HELLO WORLD
 
 Python global functions can be stored in a python module and then imported.
-This makes global functions easily accessible to all snippet files. Since Vim
-7.4 you can just drop python files into ~/.vim/pythonx and import them
-directly inside your snippets. For example to use
+This makes global functions easily accessible to all snippet files. You can
+just drop python files into ~/.vim/pythonx and import them directly inside
+your snippets. For example to use
 ~/.vim/pythonx/my_snippets_helpers.py  >
 
    global !p
@@ -1048,12 +1145,14 @@ snippet no matter how many tabstops are defined. If there is no '$0' defined,
 Here is a simple example.
 
 ------------------- SNIP -------------------
-snippet letter
-Dear $1,
-$0
-Yours sincerely,
-$2
-endsnippet
+>
+    snippet letter
+    Dear $1,
+    $0
+    Yours sincerely,
+    $2
+    endsnippet
+<
 ------------------- SNAP -------------------
 letter<tab>Ben<c-j>Paul<c-j>Thanks for suggesting UltiSnips!->
 Dear Ben,
@@ -1075,11 +1174,13 @@ The following example illustrates a snippet for the shell 'case' statement.
 The tabstops use default values to remind the user of what value is expected.
 
 ------------------- SNIP -------------------
-snippet case
-case ${1:word} in
-    ${2:pattern} ) $0;;
-esac
-endsnippet
+>
+    snippet case
+    case ${1:word} in
+        ${2:pattern} ) $0;;
+    esac
+    endsnippet
+<
 ------------------- SNAP -------------------
 
 case<tab>$option<c-j>-v<c-j>verbose=true
@@ -1093,11 +1194,13 @@ include the nested tabstop as part of the default text. Consider the following
 example illustrating an HTML anchor snippet.
 
 ------------------- SNIP -------------------
-snippet a
-<a href="${1:http://www.${2:example.com}}"</a>
-    $0
-</a>
-endsnippet
+>
+    snippet a
+    <a href="${1:http://www.${2:example.com}}"
+        $0
+    </a>
+    endsnippet
+<
 ------------------- SNAP -------------------
 
 When this snippet is expanded, the first tabstop has a default value of
@@ -1127,11 +1230,13 @@ intentionally as a handy way for providing optional tabstop values to the
 user. Here is an example to illustrate.
 
 ------------------- SNIP -------------------
-snippet a
-<a href="$1"${2: class="${3:link}"}>
-    $0
-</a>
-endsnippet
+>
+    snippet a
+    <a href="$1"${2: class="${3:link}"}>
+        $0
+    </a>
+    endsnippet
+<
 ------------------- SNAP -------------------
 
 Here, '$1' marks the first tabstop. It is assumed you always want to add a
@@ -1153,6 +1258,24 @@ a<tab>http://www.google.com<c-j><BS><c-j>Google ->
 <a href="http://www.google.com">
     Google
 </a>
+
+Another special type of tabstop is choice tabstop. It let's you to choose
+from a predefined list of items. The syntax of a choice tabstop is >
+    ${1|item1,item2,item3,...|}
+Here is an example to illustrate this feature.
+
+------------------- SNIP -------------------
+>
+    snippet q
+    Your age: ${1|<18,18~60,>60|}
+    Your height: ${2|<120cm,120cm~180cm,>180cm|}
+    endsnippet
+<
+------------------- SNAP -------------------
+
+q<tab>2<c-j>2
+Your age: 18~60
+Your height: 120cm~180cm
 
 The default text of tabstops can also contain mirrors, transformations or
 interpolation.
@@ -1176,11 +1299,13 @@ labels, XML and HTML tags, and C code #ifndef blocks. Here are some snippet
 examples.
 
 ------------------- SNIP -------------------
-snippet env
-\begin{${1:enumerate}}
-    $0
-\end{$1}
-endsnippet
+>
+    snippet env
+    \begin{${1:enumerate}}
+        $0
+    \end{$1}
+    endsnippet
+<
 ------------------- SNAP -------------------
 env<tab>itemize ->
 \begin{itemize}
@@ -1188,12 +1313,14 @@ env<tab>itemize ->
 \end{itemize}
 
 ------------------- SNIP -------------------
-snippet ifndef
-#ifndef ${1:SOME_DEFINE}
-#define $1
-$0
-#endif /* $1 */
-endsnippet
+>
+    snippet ifndef
+    #ifndef ${1:SOME_DEFINE}
+    #define $1
+    $0
+    #endif /* $1 */
+    endsnippet
+<
 ------------------- SNAP -------------------
 ifndef<tab>WIN32 ->
 #ifndef WIN32
@@ -1281,10 +1408,12 @@ Hopefully the demos below help illustrate transformation features.
 
 Demo: Uppercase one character
 ------------------- SNIP -------------------
-snippet title "Title transformation"
-${1:a text}
-${1/\w+\s*/\u$0/}
-endsnippet
+>
+    snippet title "Title transformation"
+    ${1:a text}
+    ${1/\w+\s*/\u$0/}
+    endsnippet
+<
 ------------------- SNAP -------------------
 title<tab>big small ->
 big small
@@ -1293,10 +1422,12 @@ Big small
 
 Demo: Uppercase one character and global replace
 ------------------- SNIP -------------------
-snippet title "Titlelize in the Transformation"
-${1:a text}
-${1/\w+\s*/\u$0/g}
-endsnippet
+>
+    snippet title "Titlelize in the Transformation"
+    ${1:a text}
+    ${1/\w+\s*/\u$0/g}
+    endsnippet
+<
 ------------------- SNAP -------------------
 title<tab>this is a title ->
 this is a title
@@ -1305,10 +1436,12 @@ This Is A Title
 
 Demo: ASCII transformation
 ------------------- SNIP -------------------
-snippet ascii "Replace non ascii chars"
-${1: an accentued text}
-${1/.*/$0/a}
-endsnippet
+>
+    snippet ascii "Replace non ascii chars"
+    ${1: an accentued text}
+    ${1/.*/$0/a}
+    endsnippet
+<
 ------------------- SNAP -------------------
 ascii<tab>à la pêche aux moules
 à la pêche aux moules
@@ -1320,9 +1453,11 @@ Demo: Regular expression grouping
       when there is a format (%) character in the first tabstop.
 
 ------------------- SNIP -------------------
-snippet printf
-printf("${1:%s}\n"${1/([^%]|%%)*(%.)?.*/(?2:, :\);)/}$2${1/([^%]|%%)*(%.)?.*/(?2:\);)/}
-endsnippet
+>
+    snippet printf
+    printf("${1:%s}\n"${1/([^%]|%%)*(%.)?.*/(?2:, :\);)/}$2${1/([^%]|%%)*(%.)?.*/(?2:\);)/}
+    endsnippet
+<
 ------------------- SNAP -------------------
 printf<tab>Hello<c-j> // End of line ->
 printf("Hello\n"); // End of line
@@ -1342,7 +1477,9 @@ To remove snippets for the current file type, use the 'clearsnippets'
 directive.
 
 ------------------- SNIP -------------------
-clearsnippets
+>
+    clearsnippets
+<
 ------------------- SNAP -------------------
 
 'clearsnippets' removes all snippets with a priority lower than the current
@@ -1350,13 +1487,15 @@ one. For example, the following cleares all snippets that have priority <= 1,
 even though the example snippet is defined after the 'clearsnippets'.
 
 ------------------- SNIP -------------------
-priority 1
-clearsnippets
+>
+    priority 1
+    clearsnippets
 
-priority -1
-snippet example "Cleared example"
-	This will never be expanded.
-endsnippet
+    priority -1
+    snippet example "Cleared example"
+        This will never be expanded.
+    endsnippet
+<
 ------------------- SNAP -------------------
 
 To clear one or more specific snippet, provide the triggers of the snippets as
@@ -1364,7 +1503,9 @@ arguments to the 'clearsnippets' command. The following example will clear the
 snippets 'trigger1' and 'trigger2'.
 
 ------------------- SNIP -------------------
-clearsnippets trigger1 trigger2
+>
+    clearsnippets trigger1 trigger2
+<
 ------------------- SNAP -------------------
 
 
@@ -1377,7 +1518,7 @@ In that case snippet should be defined using this syntax: >
 
     snippet trigger_word "description" "expression" options
 
-The context can be defined using a special header: >
+The context can also be defined using a special header: >
 
     context "python_expression"
     snippet trigger_word "description" options
@@ -1408,13 +1549,22 @@ Global variable `snip` will be available with following properties:
         - 'current_text' - text in the placeholder on the moment of selection;
         - 'start' - placeholder start on the moment of selection;
         - 'end' - placeholder end on the moment of selection;
+    'snip.before' - contains the text in the current line up to and including
+        the matched snippet. Since 'snip.column' counts bytes, not characters,
+        this is **not** equivalent to 'snip.buffer[snip.line][:snip.column+1]'.
+        This property is only available in the scope of contexts but not in
+        that of actions.
 
 
+For regular expression triggered snippets the variable `match` will contain
+the return value of the match of the regular expression. See http://docs.python.org/library/re.html#match-objects.
 
 ------------------- SNIP -------------------
-snippet r "return" "re.match('^\s+if err ', snip.buffer[snip.line-1])" be
-return err
-endsnippet
+>
+    snippet r "return" "re.match('^\s+if err ', snip.buffer[snip.line-1])" be
+    return err
+    endsnippet
+<
 ------------------- SNAP -------------------
 
 That snippet will expand to 'return err' only if the previous line is starting
@@ -1424,17 +1574,19 @@ Note: custom context snippets are prioritized over other snippets. It makes poss
 to use other snippets as a fallback if no context can be matched:
 
 ------------------- SNIP -------------------
-snippet i "if ..." b
-if $1 {
-    $2
-}
-endsnippet
+>
+    snippet i "if ..." b
+    if $1 {
+        $2
+    }
+    endsnippet
 
-snippet i "if err != nil" "re.match('^\s+[^=]*err\s*:?=', snip.buffer[snip.line-1])" be
-if err != nil {
-    $1
-}
-endsnippet
+    snippet i "if err != nil" "re.match('^\s+[^=]*err\s*:?=', snip.buffer[snip.line-1])" be
+    if err != nil {
+        $1
+    }
+    endsnippet
+<
 ------------------- SNAP -------------------
 
 That snippet will expand into 'if err != nil' if the previous line will match
@@ -1445,16 +1597,18 @@ used by other UltiSnips users. In that case, module should be imported
 using 'global' keyword, like this:
 
 ------------------- SNIP -------------------
-global !p
-import my_utils
-endglobal
+>
+    global !p
+    import my_utils
+    endglobal
 
-snippet , "return ..., nil/err" "my_utils.is_return_argument(snip)" ie
-, `!p if my_utils.is_in_err_condition():
-    snip.rv = "err"
-else:
-    snip.rv = "nil"`
-endsnippet
+    snippet , "return ..., nil/err" "my_utils.is_return_argument(snip)" ie
+    , `!p if my_utils.is_in_err_condition():
+        snip.rv = "err"
+    else:
+        snip.rv = "nil"`
+    endsnippet
+<
 ------------------- SNAP -------------------
 
 That snippet will expand only if the cursor is located in the return statement,
@@ -1468,9 +1622,11 @@ expanded. The evaluated value of 'condition' is available in the 'snip.context'
 variable inside the snippet:
 
 ------------------- SNIP -------------------
-snippet + "var +=" "re.match('\s*(.*?)\s*:?=', snip.buffer[snip.line-1])" ie
-`!p snip.rv = snip.context.group(1)` += $1
-endsnippet
+>
+    snippet + "var +=" "re.match('\s*(.*?)\s*:?=', snip.buffer[snip.line-1])" ie
+    `!p snip.rv = snip.context.group(1)` += $1
+    endsnippet
+<
 ------------------- SNAP -------------------
 
 That snippet will expand to 'var1 +=' after line, which begins from 'var1 :='.
@@ -1480,9 +1636,11 @@ That snippet will expand to 'var1 +=' after line, which begins from 'var1 :='.
 You can capture placeholder text from the previous snippet by using the
 following trick:
 ------------------- SNIP -------------------
-snippet = "desc" "snip.last_placeholder" Ae
-`!p snip.rv = snip.context.current_text` == nil
-endsnippet
+>
+    snippet = "desc" "snip.last_placeholder" Ae
+    `!p snip.rv = snip.context.current_text` == nil
+    endsnippet
+<
 ------------------- SNAP -------------------
 
 That snippet will be expanded only if you will replace selected tabstop in
@@ -1506,7 +1664,7 @@ There are three types of actions:
 
 Specified code will be evaluated at stages defined above and same global
 variables and modules will be available that are stated in
-the |UltiSnips-custom-context-snippets| section.
+the |UltiSnips-custom-context-snippets| section (except 'snip.before').
 
                                                 *UltiSnips-buffer-proxy*
 
@@ -1546,22 +1704,26 @@ Following snippet will be expanded at 4 spaces indentation level no matter
 where it was triggered.
 
 ------------------- SNIP -------------------
-pre_expand "snip.buffer[snip.line] = ' '*4; snip.cursor.set(snip.line, 4)"
-snippet d
-def $1():
-    $0
-endsnippet
+>
+    pre_expand "snip.buffer[snip.line] = ' '*4; snip.cursor.set(snip.line, 4)"
+    snippet d
+    def $1():
+        $0
+    endsnippet
+<
 ------------------- SNAP -------------------
 
 Following snippet will move the selected code to the end of file and create
 new method definition for it:
 
 ------------------- SNIP -------------------
-pre_expand "del snip.buffer[snip.line]; snip.buffer.append(''); snip.cursor.set(len(snip.buffer)-1, 0)"
-snippet x
-def $1():
-	${2:${VISUAL}}
-endsnippet
+>
+    pre_expand "del snip.buffer[snip.line]; snip.buffer.append(''); snip.cursor.set(len(snip.buffer)-1, 0)"
+    snippet x
+    def $1():
+        ${2:${VISUAL}}
+    endsnippet
+<
 ------------------- SNAP -------------------
 
 4.10.2 Post-expand actions                     *UltiSnips-post-expand-actions*
@@ -1592,11 +1754,13 @@ additional newline after end of the snippet. It's very useful to create a
 function that will insert as many newlines as required in specific context.
 
 ------------------- SNIP -------------------
-post_expand "snip.buffer[snip.snippet_end[0]+1:snip.snippet_end[0]+1] = ['']"
-snippet d "Description" b
-def $1():
-	$2
-endsnippet
+>
+    post_expand "snip.buffer[snip.snippet_end[0]+1:snip.snippet_end[0]+1] = ['']"
+    snippet d "Description" b
+    def $1():
+        $2
+    endsnippet
+<
 ------------------- SNAP -------------------
 
 4.10.3 Post-jump actions                         *UltiSnips-post-jump-actions*
@@ -1632,12 +1796,14 @@ Following snippet will insert section in the Table of Contents in the vim-help
 file:
 
 ------------------- SNIP -------------------
-post_jump "if snip.tabstop == 0: insert_toc_item(snip.tabstops[1], snip.buffer)"
-snippet s "section" b
-`!p insert_delimiter_0(snip, t)`$1`!p insert_section_title(snip, t)`
-`!p insert_delimiter_1(snip, t)`
-$0
-endsnippet
+>
+    post_jump "if snip.tabstop == 0: insert_toc_item(snip.tabstops[1], snip.buffer)"
+    snippet s "section" b
+    `!p insert_delimiter_0(snip, t)`$1`!p insert_section_title(snip, t)`
+    `!p insert_delimiter_1(snip, t)`
+    $0
+    endsnippet
+<
 ------------------- SNAP -------------------
 
 'insert_toc_item' will be called after first jump and will add newly entered
@@ -1651,23 +1817,23 @@ Following example will insert method call at the end of file after user jump
 out of method declaration snippet.
 
 ------------------- SNIP -------------------
-global !p
-def insert_method_call(name):
-	vim.command('normal G')
-	snip.expand_anon(name + '($1)\n')
-endglobal
+>
+    global !p
+    def insert_method_call(name):
+        vim.command('normal G')
+        snip.expand_anon(name + '($1)\n')
+    endglobal
 
-post_jump "if snip.tabstop == 0: insert_method_call(snip.tabstops[1].current_text)"
-snippet d "method declaration" b
-def $1():
-	$2
-endsnippet
+    post_jump "if snip.tabstop == 0: insert_method_call(snip.tabstops[1].current_text)"
+    snippet d "method declaration" b
+    def $1():
+        $2
+    endsnippet
+<
 ------------------- SNAP -------------------
 
 4.11 Autotrigger                                       *UltiSnips-autotrigger*
 ----------------
-
-Note: vim must be newer than 7.4.214 to support this feature.
 
 Many language constructs can occur only at specific places, so it's
 possible to use snippets without manually triggering them.
@@ -1682,22 +1848,28 @@ will be triggered.
 *Warning:* using of this feature might lead to significant vim slowdown. If
 you discovered that, please report an issue.
 
+If you want to temporarily disable autotriggering, the `autotrigger` behavior
+can be toggled via |UltiSnips#ToggleAutoTrigger|. By default it is enabled,
+but it is possible to customize it with |g:UltiSnipsAutoTrigger|.
+
 Consider following useful Go snippets:
 ------------------- SNIP -------------------
-snippet "^p" "package" rbA
-package ${1:main}
-endsnippet
+>
+    snippet "^p" "package" rbA
+    package ${1:main}
+    endsnippet
 
-snippet "^m" "func main" rbA
-func main() {
-	$1
-}
-endsnippet
+    snippet "^m" "func main" rbA
+    func main() {
+        $1
+    }
+    endsnippet
+<
 ------------------- SNAP -------------------
 
 When "p" character will occur in the beginning of the line, it will be
 automatically expanded into "package main". Same with "m" character. There is
-no need to press trigger key after "m""
+no need to press the trigger key after "m"
 
 ==============================================================================
 5. UltiSnips and Other Plugins                      *UltiSnips-other-plugins*
@@ -1724,7 +1896,12 @@ offers a really nice completion dialogue for snippets.
 neocomplete - UltiSnips ships with a source for neocomplete and therefore
 offers out of the box completion dialogue support for it too.
 
-deoplete - The successor of neocomplete is also supported.
+deoplete - The successor of neocomplete is also supported. The completion 
+source is called 'ultisnips'.
+
+vim-easycomplete - Vim-EasyComplete needs ultisnips and vim-snippets for 
+snippets support. This two plugin is compatible with EasyComplete out of
+the box. More information: <https://github.com/jayli/vim-easycomplete>
 
 unite - UltiSnips has a source for unite. As an example of how you can use
 it add the following function and mappings to your vimrc: >
@@ -1756,7 +1933,18 @@ AddNewSnippetSource. Please contact us on github if you integrate UltiSnips
 with your plugin so it can be listed in the docs.
 
 =============================================================================
-6. FAQ                                                        *UltiSnips-FAQ*
+6. Debugging                                            *UltiSnips-Debugging*
+
+UltiSnips comes with a remote debugger disabled
+by default. When authoring a complex snippet
+with python code, you may want to be able to
+set breakpoints to inspect variables.
+It is also useful when debugging UltiSnips itself.
+
+See |UltiSnips-Advanced-Debugging| for more informations
+
+=============================================================================
+7. FAQ                                                        *UltiSnips-FAQ*
 
 Q: Do I have to call UltiSnips#ExpandSnippet() to check if a snippet is
    expandable? Is there instead an analog of neosnippet#expandable?
@@ -1780,7 +1968,7 @@ A: Yes there is, try
   endfunction
 
 =============================================================================
-7. Helping Out                                            *UltiSnips-helping*
+8. Helping Out                                            *UltiSnips-helping*
 
 UltiSnips needs the help of the Vim community to keep improving. Please
 consider joining this effort by providing new features or bug reports.
@@ -1794,7 +1982,7 @@ You can contribute by fixing or reporting bugs in our issue tracker:
 https://github.com/sirver/ultisnips/issues
 
 =============================================================================
-8. Contributors                                      *UltiSnips-contributors*
+9. Contributors                                      *UltiSnips-contributors*
 
 UltiSnips has been started and maintained from Jun 2009 - Dec 2015 by Holger
 Rapp (@SirVer, SirVer@gmx.de). Up to April 2018 it was maintained by Stanislav

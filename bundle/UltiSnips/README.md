@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/SirVer/ultisnips.svg?branch=master)](https://travis-ci.org/SirVer/ultisnips)
+![Build Status](https://github.com/SirVer/ultisnips/actions/workflows/main.yml/badge.svg)
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/SirVer/ultisnips?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 UltiSnips
@@ -12,7 +12,8 @@ speed being one of them.
 In this demo I am editing a python file. I first expand the `#!` snippet, then
 the `class` snippet. The completion menu comes from
 [YouCompleteMe](https://github.com/Valloric/YouCompleteMe), UltiSnips also
-integrates with [deoplete](https://github.com/Shougo/deoplete.nvim). I can
+integrates with [deoplete](https://github.com/Shougo/deoplete.nvim),
+[vim-easycomplete](https://github.com/jayli/vim-easycomplete) and more. I can
 jump through placeholders and add text while the snippet inserts text in other
 places automatically: when I add `Animal` as a base class, `__init__` gets
 updated to call the base class constructor. When I add arguments to the
@@ -44,7 +45,9 @@ for your plugin manager of choice. Put this into your `.vimrc`.
     " Snippets are separated from the engine. Add this if you want them:
     Plugin 'honza/vim-snippets'
 
-    " Trigger configuration. Do not use <tab> if you use https://github.com/Valloric/YouCompleteMe.
+    " Trigger configuration. You need to change this to something other than <tab> if you use one of the following:
+    " - https://github.com/Valloric/YouCompleteMe
+    " - https://github.com/nvim-lua/completion-nvim
     let g:UltiSnipsExpandTrigger="<tab>"
     let g:UltiSnipsJumpForwardTrigger="<c-b>"
     let g:UltiSnipsJumpBackwardTrigger="<c-z>"

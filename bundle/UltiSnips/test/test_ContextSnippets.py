@@ -48,6 +48,20 @@ class ContextSnippets_DoNotExpandOnFalse(_VimTest):
     wanted = keys
 
 
+class ContextSnippets_Before(_VimTest):
+    files = {
+        "us/all.snippets": r"""
+        context "len(snip.before) >= 5 and snip.before"
+        snippet dup "desc" i
+        [`!p snip.rv = snip.context[:-3]`]
+        endsnippet
+        """
+    }
+    word = "Süßölgefäß"
+    keys = "adup" + EX + "\n" + word + "dup" + EX
+    wanted = "adup" + EX + "\n" + word + "[" + word + "]"
+
+
 class ContextSnippets_UseContext(_VimTest):
     files = {
         "us/all.snippets": r"""
@@ -230,3 +244,18 @@ class ContextSnippets_Header_DoNotExpandOnFalse(_VimTest):
     }
     keys = "a" + EX
     wanted = keys
+
+
+class ContextSnippets_ContextHasAccessToReMatch(_VimTest):
+    files = {
+        "us/all.snippets": r"""
+        context "match.group(1) != 'no'"
+        snippet "(\w*) xxx" "desc" r
+        HERE
+        endsnippet
+        """
+    }
+    negative = "no xxx"
+    positive = "yes xxx"
+    keys = negative + EX + positive + EX
+    wanted = negative + EX + "HERE"

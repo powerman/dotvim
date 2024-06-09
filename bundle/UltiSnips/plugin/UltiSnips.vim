@@ -3,12 +3,30 @@ if exists('did_plugin_ultisnips') || &cp
 endif
 let did_plugin_ultisnips=1
 
-if version < 704
+if version < 800
    echohl WarningMsg
-   echom  "UltiSnips requires Vim >= 7.4"
+   echom  "UltiSnips requires Vim >= 8.0"
    echohl None
    finish
 endif
+
+" Enable Post debug server config
+if !exists("g:UltiSnipsDebugServerEnable")
+   let g:UltiSnipsDebugServerEnable = 0
+endif
+
+if !exists("g:UltiSnipsDebugHost")
+   let g:UltiSnipsDebugHost = 'localhost'
+endif
+
+if !exists("g:UltiSnipsDebugPort")
+   let g:UltiSnipsDebugPort = 8080
+endif
+
+if !exists("g:UltiSnipsPMDebugBlocking")
+   let g:UltiSnipsPMDebugBlocking = 0
+endif
+
 
 " The Commands we define.
 command! -bang -nargs=? -complete=customlist,UltiSnips#FileTypeComplete UltiSnipsEdit

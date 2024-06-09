@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # encoding: utf-8
 
 """Wrapper functionality around the functions we need from Vim."""
@@ -7,9 +7,10 @@ from contextlib import contextmanager
 import os
 import platform
 
-from UltiSnips.snippet.source.file.common import normalize_file_path
 from UltiSnips.compatibility import col2byte, byte2col
+from UltiSnips.error import PebkacError
 from UltiSnips.position import Position
+from UltiSnips.snippet.source.file.common import normalize_file_path
 from vim import error  # pylint:disable=import-error,unused-import
 import vim  # pylint:disable=import-error
 
@@ -119,6 +120,9 @@ def command(cmd):
 
 def eval(text):
     """Wraps vim.eval."""
+    # Replace null bytes with newlines, as vim raises a ValueError and neovim
+    # treats it as a terminator for the entire command.
+    text = text.replace("\x00", "\n")
     return vim.eval(text)
 
 
@@ -213,7 +217,7 @@ def select(start, end):
 
 
 def get_dot_vim():
-    """Returns the likely place for ~/.vim for the current setup."""
+    """Returns the likely places for ~/.vim for the current setup."""
     home = vim.eval("$HOME")
     candidates = []
     if platform.system() == "Windows":
@@ -224,12 +228,20 @@ def get_dot_vim():
 
     candidates.append(os.path.join(home, ".vim"))
 
-    my_vimrc = os.path.expandvars(os.environ["MYVIMRC"])
-    candidates.append(normalize_file_path(os.path.dirname(my_vimrc)))
+    # Note: this potentially adds a duplicate on nvim
+    # I assume nvim sets the MYVIMRC env variable (to beconfirmed)
+    if "MYVIMRC" in os.environ:
+        my_vimrc = os.path.expandvars(os.environ["MYVIMRC"])
+        candidates.append(normalize_file_path(os.path.dirname(my_vimrc)))
+
+    candidates_normalized = []
     for candidate in candidates:
         if os.path.isdir(candidate):
-            return normalize_file_path(candidate)
-    raise RuntimeError(
+            candidates_normalized.append(normalize_file_path(candidate))
+    if candidates_normalized:
+        # We remove duplicates on return
+        return sorted(set(candidates_normalized))
+    raise PebkacError(
         "Unable to find user configuration directory. I tried '%s'." % candidates
     )
 

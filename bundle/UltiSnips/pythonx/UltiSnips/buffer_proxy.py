@@ -2,8 +2,9 @@
 
 import vim
 from UltiSnips import vim_helper
-from UltiSnips.position import Position
 from UltiSnips.diff import diff
+from UltiSnips.error import PebkacError
+from UltiSnips.position import Position
 
 from contextlib import contextmanager
 
@@ -81,7 +82,7 @@ class VimBufferProxy(vim_helper.VimBuffer):
         Raises exception if buffer is changes beyound proxy object.
         """
         if self.is_buffer_changed_outside():
-            raise RuntimeError(
+            raise PebkacError(
                 "buffer was modified using vim.command or "
                 + "vim.current.buffer; that changes are untrackable and leads to "
                 + "errors in snippet expansion; use special variable `snip.buffer` "
@@ -196,7 +197,6 @@ class VimBufferProxy(vim_helper.VimBuffer):
             diff = Position(direction, 0)
             if len(change) != 5:
                 diff = Position(0, direction * len(change_text))
-            print(change, diff)
 
             self._snippets_stack[0]._move(Position(line_number, column_number), diff)
         else:

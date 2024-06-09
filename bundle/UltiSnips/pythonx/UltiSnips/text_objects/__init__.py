@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # encoding: utf-8
 
 """Public facing classes for TextObjects."""
@@ -12,3 +12,4 @@ from UltiSnips.text_objects.tabstop import TabStop
 from UltiSnips.text_objects.transformation import Transformation
 from UltiSnips.text_objects.viml_code import VimLCode
 from UltiSnips.text_objects.visual import Visual
+from UltiSnips.text_objects.choices import Choices

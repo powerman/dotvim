@@ -35,8 +35,8 @@ class VimTestCase(unittest.TestCase, TempFileManager):
     maxDiff = None  # Show all diff output, always.
     vim_flavor = None  # will be 'vim' or 'neovim'.
     expected_python_version = (
-        None
-    )  # If set, we need to check that our Vim is running this python version.
+        None  # If set, we need to check that our Vim is running this python version.
+    )
 
     def __init__(self, *args, **kwargs):
         unittest.TestCase.__init__(self, *args, **kwargs)
@@ -135,6 +135,15 @@ class VimTestCase(unittest.TestCase, TempFileManager):
         vim_config.append('let g:UltiSnipsJumpForwardTrigger="?"')
         vim_config.append('let g:UltiSnipsJumpBackwardTrigger="+"')
         vim_config.append('let g:UltiSnipsListSnippets="@"')
+
+        vim_config.append(
+            "let g:UltiSnipsDebugServerEnable={}".format(1 if self.pdb_enable else 0)
+        )
+        vim_config.append('let g:UltiSnipsDebugHost="{}"'.format(self.pdb_host))
+        vim_config.append("let g:UltiSnipsDebugPort={}".format(self.pdb_port))
+        vim_config.append(
+            "let g:UltiSnipsPMDebugBlocking={}".format(1 if self.pdb_block else 0)
+        )
 
         # Work around https://github.com/vim/vim/issues/3117 for testing >
         # py3.7 on Vim 8.1. Actually also reported against UltiSnips

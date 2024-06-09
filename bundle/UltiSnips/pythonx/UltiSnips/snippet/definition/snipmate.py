@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # encoding: utf-8
 
 """A snipMate snippet after parsing."""
@@ -20,7 +20,7 @@ class SnipMateSnippetDefinition(SnippetDefinition):
             trigger,
             value,
             description,
-            "",
+            "w",
             {},
             location,
             None,
