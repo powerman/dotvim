@@ -1,16 +1,2 @@
-syn match cssTextProp contained "\<text-space-\(collapse\|trim\)\>"
-syn match cssTextProp contained "\<text-\(wrap\|spacing\|group-align\)\>"
-syn match cssTextProp contained "\<wrap-\(before\|after\|inside\)\>"
-syn match cssTextProp contained "\<hyphenate-\(character\|limit-\(zone\|chars\|lines\|last\)\)\>"
-syn match cssTextProp contained "\<line-padding\>"
-syn keyword cssTextAttr contained spread punctuation
-syn match cssTextAttr contained "\<preserve-\(breaks\|spaces\)\>"
-syn match cssTextAttr contained "\<trim-inner\>"
-syn match cssTextAttr contained "\<discard-\(before\|after\)\>"
-syn match cssTextAttr contained "\<avoid-\(line\|flex\)\>"
-syn match cssTextAttr contained "\<pre-wrap-auto\>"
-syn match cssTextAttr contained "\<no-limit\>"
-syn match cssTextAttr contained "\<\(trim\|space\)-\(start\|end\|adjacent\)\>"
-syn match cssTextAttr contained "\<space-first\>"
-syn match cssTextAttr contained "\<no-compress\>"
-syn match cssTextAttr contained "\<ideograph-\(alpha\|numeric\)\>"
+syn keyword cssFontProp contained white-space-collapse white-space-trim text-space-trim text-wrap text-autospace text-spacing-trim text-spacing text-group-align wrap-before wrap-after wrap-inside hyphenate-character hyphenate-limit-zone hyphenate-limit-chars hyphenate-limit-lines hyphenate-limit-last line-padding word-boundary-detection word-space-transform
+syn keyword cssFontAttr contained spread punctuation preserve-breaks preserve-spaces discard-inner discard-before discard-after pretty avoid-line avoid-flex pre-wrap-auto no-limit space-all trim-auto space-first trim-all no-compress ideograph-alpha ideograph-numeric ideographic-space

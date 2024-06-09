@@ -1,7 +1,2 @@
-syn match cssFontProp contained "\<shape-inside\>"
-syn match cssFontProp contained "\<border-boundary\>"
-syn match cssFontProp contained "\<polar-\(angle\|distance\)\>"
-syn keyword cssFontAttr contained parent polar
-syn match cssFontAttr contained "\<outside-shape\>"
-syn match cssFontAttr contained "\<shape-box\>"
-syn match cssMediaProp contained /device-radius/
+syn keyword cssFontProp contained shape-inside border-boundary polar-angle polar-distance device-radius
+syn keyword cssFontAttr contained parent polar contained outside-shape contained shape-box

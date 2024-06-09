@@ -1,2 +1,3 @@
-syn match cssValueLength contained "[-+]\=\d\+\(\.\d*\)\=\(vi\|vb\|ic\|cap\|lh\|rlh\)"
-syn region cssFunction contained matchgroup=cssFunctionName start="\<\(min\|max\|clamp\|toggle\)\s*(" end=")" oneline keepend
+syn match cssValueLength contained "[-+]\=\d\+\(\.\d*\)\=\(rex\|cap\|rcap\|rch\|ic\|ric\|lh\|rlh\)"
+syn match cssValueLength contained "[-+]\=\d\+\(\.\d*\)\=\(s\|l\|d\)\=v\(h\|w\|i\|b\|min\|max\)"
+syn region cssFunction contained matchgroup=cssFunctionName start="\<\(min\|max\|clamp\|round\|mod\|rem\|a\=\(sin\|cos\|tan\)\|atan2\|pow\|sqrt\|hypot\|log\|exp\|abs\|sign\)\s*(" end=")" oneline keepend

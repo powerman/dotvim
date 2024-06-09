@@ -1,2 +1,1 @@
-syn match cssFontProp contained "\<offset-\(before\|end\|after\|start\)\>"
-syn keyword cssFontAttr contained sticky
+syn keyword cssFontProp contained inset inset-block inset-inline inset-block-start inset-block-end inset-inline-start inset-inline-end

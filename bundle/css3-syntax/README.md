@@ -5,11 +5,20 @@ CSS3 syntax (and syntax defined in some foreign specifications) support for
 [Vim][1]’s built-in `syntax/css.vim`
 
 
+COMPATIBILITY
+-------------
+
+This syntax files are compatible with the default runtime files that come with
+**Vim 9.0 or higher**. If you still use Vim 8.x or lower, you must:
+
+  - Copy [latest CSS syntax file][2] to your `~/.vim/` directory (recommended)
+  - Update runtime files
+  - Use [older version][3]
+  - Switch to [`vim80` branch][4]
+
+
 INSTALLATION
 ------------
-
-I **strongly** recommend to install this plugin on *Vim 8.1 or higher with
-default runtime files*.
 
 
 ### Vim package
@@ -33,25 +42,6 @@ to your `~/.vim` directory.
 
 NOTES
 -----
-
-### Highlighting problems on: `vertical-align`, `box-shadow`, and others
-
-Some properties do not highlight correctly by default. This is a limitation of
-Vim’s highlight priority mechanism. To fix this problems, put following lines
-in your `~/.vim/after/css.vim`:
-
-    setlocal iskeyword+=-
-
-Or in your `~/.vimrc`:
-
-    augroup VimCSS3Syntax
-      autocmd!
-
-      autocmd FileType css setlocal iskeyword+=-
-    augroup END
-
-This setting have side effects. So, use it at your own risk.
-
 
 ### Vendor Prefixes
 
@@ -83,13 +73,16 @@ want to highlight Media Queries correctly, you must update Vim to 8.0+.
 AUTHOR
 ------
 
-Kyo Nagashima <hail2u@gmail.com> (https://kyonagashima.com/)
+Kyo Nagashima <hail2u@gmail.com> (https://hail2u.net/)
 
 
 LICENSE
 -------
 
-MIT License
+MIT
 
 
 [1]: http://www.vim.org/
+[2]: https://github.com/vim/vim/blob/master/runtime/syntax/css.vim
+[3]: https://github.com/hail2u/vim-css3-syntax/releases/tag/v1.10.2
+[4]: https://github.com/hail2u/vim-css3-syntax/tree/vim80

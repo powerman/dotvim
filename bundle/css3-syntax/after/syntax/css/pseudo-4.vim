@@ -1,2 +1,1 @@
-syn match cssPseudoClassId contained "\<inactive-selection\>"
-syn match cssPseudoClassId contained "\<\(spelling\|grammer\)-error\>"
+syn keyword cssPseudoClassId contained prefix postfix target-text spelling-error grammer-error file-selectors-button

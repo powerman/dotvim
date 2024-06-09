@@ -1,5 +1,2 @@
-syn match cssFontProp contained "\<\(dominant\|alignment\)-baseline\>"
-syn match cssFontProp contained "\<baseline-shift\>"
-syn match cssFontProp contained "\<inline-sizing\>"
-syn match cssFontProp contained "\<initial-letters\(-\(align\|wrap\)\)\="
-syn keyword cssFontAttr contained mathematical ideographic
+syn keyword cssFontProp contained dominant-baseline alignment-baseline baseline-shift baseline-source text-box-edge text-box-trim inline-sizing initial-letter initial-letter-align initial-letter-wrap
+syn keyword cssFontAttr contained central mathematical leading cap ex drop raise ideographic ideographic-ink

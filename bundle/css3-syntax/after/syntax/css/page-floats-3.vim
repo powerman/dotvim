@@ -1,4 +1,3 @@
-syn match cssPositioningProp contained "\<float-\(reference\|defer\|offset\)\>"
-syn match cssPositioningAttr contained "\<inline-\(start\|end\)\>"
-syn match cssPositioningAttr contained "\<snap-\(block\|inline\)\>"
+syn keyword cssFontProp contained float-reference float-defer float-offset
+syn keyword cssFontAttr contained inline-start inline-end snap-block snap-inline
 syn region cssURL contained matchgroup=cssFunctionName start="\<snap-\(block\|inline\)\s*(" end=")" oneline keepend
