@@ -6,7 +6,7 @@
 [subrepo]
 	remote = https://github.com/tpope/vim-abolish.git
 	branch = master
-	commit = 7e4da6e78002344d499af9b6d8d5d6fcd7c92125
-	parent = bf3b0678194fc2c2b9b2a7de0f2ca36ee0a4c055
+	commit = dcbfe065297d31823561ba787f51056c147aa682
+	parent = a55a1b886430fea56e2ffefcbdfc2c9842712d0b
 	method = merge
 	cmdver = 0.4.1
