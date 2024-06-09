@@ -206,6 +206,37 @@ function! s:log(msg) abort
     endif
 endfunction
 
+function! s:ObserveOptions()
+    augroup Undotree_OptionsObserver
+        try
+            autocmd!
+            if exists('+fdo')
+                let s:open_folds = &fdo =~# 'undo'
+                if exists('##OptionSet')
+                    autocmd OptionSet foldopen let s:open_folds = v:option_new =~# 'undo'
+                endif
+            endif
+        finally
+            augroup END
+        endtry
+endfunction
+
+" Whether to open folds on undo/redo.
+" Is 1 when 'undo' is in &fdo (see :help 'foldopen').
+" default: 1
+let s:open_folds = 1
+
+if exists('v:vim_did_enter')
+    if !v:vim_did_enter
+        autocmd VimEnter * call s:ObserveOptions()
+    else
+        call s:ObserveOptions()
+    endif
+else
+    autocmd VimEnter * call s:ObserveOptions()
+    call s:ObserveOptions()
+endif
+
 "=================================================
 "Base class for panels.
 let s:panel = {}
@@ -345,6 +376,10 @@ function! s:undotree.ActionInTarget(cmd) abort
     " Target should be a normal buffer.
     if (&bt == '' || &bt == 'acwrite') && (&modifiable == 1) && (mode() == 'n')
         call s:exec(a:cmd)
+        " Open folds so that the change being undone/redone is visible.
+        if s:open_folds
+            call s:exec('normal! zv')
+        endif
         call self.Update()
     endif
     " Update not always set current focus.
@@ -426,10 +461,12 @@ function! s:undotree.ActionClearHistory() abort
         return
     endif
     let ul_bak = &undolevels
+    let mod_bak = &modified
     let &undolevels = -1
     call s:exec("norm! a \<BS>\<Esc>")
     let &undolevels = ul_bak
-    unlet ul_bak
+    let &modified = mod_bak
+    unlet ul_bak mod_bak
     let self.targetBufnr = -1 "force update
     call self.Update()
 endfunction
@@ -528,12 +565,17 @@ function! s:undotree.Show() abort
     setlocal buftype=nowrite
     setlocal bufhidden=delete
     setlocal nowrap
+    setlocal nolist
     setlocal foldcolumn=0
     setlocal nobuflisted
     setlocal nospell
     setlocal nonumber
     setlocal norelativenumber
-    setlocal cursorline
+    if g:undotree_CursorLine
+        setlocal cursorline
+    else
+        setlocal nocursorline
+    endif
     setlocal nomodifiable
     setlocal statusline=%!t:undotree.GetStatusLine()
     setfiletype undotree
@@ -930,10 +972,10 @@ function! s:undotree.Render() abort
             if index+1 != len(slots) " not the last one, append '\'
                 for i in range(len(slots))
                     if i < index
-                        let newline = newline.'| '
+                        let newline = newline.g:undotree_TreeVertShape.' '
                     endif
                     if i > index
-                        let newline = newline.' \'
+                        let newline = newline.' '.g:undotree_TreeReturnShape
                     endif
                 endfor
             endif
@@ -946,7 +988,7 @@ function! s:undotree.Render() abort
                 if index == i
                     let newline = newline.g:undotree_TreeNodeShape.' '
                 else
-                    let newline = newline.'| '
+                    let newline = newline.g:undotree_TreeVertShape.' '
                 endif
             endfor
             let newline = newline.'   '.(node.seq).'    '.
@@ -967,13 +1009,13 @@ function! s:undotree.Render() abort
             let newmeta = s:new(s:node) "invalid node.
             for k in range(len(slots))
                 if k < index
-                    let newline = newline."| "
+                    let newline = newline.g:undotree_TreeVertShape." "
                 endif
                 if k == index
-                    let newline = newline."|/ "
+                    let newline = newline.g:undotree_TreeVertShape.g:undotree_TreeSplitShape." "
                 endif
                 if k > index
-                    let newline = newline."/ "
+                    let newline = newline.g:undotree_TreeSplitShape." "
                 endif
             endfor
             call remove(slots,index)
@@ -1030,11 +1072,8 @@ function! s:diffpanel.Update(seq,targetBufnr,targetid) abort
             call s:log("diff cache hit.")
             let diffresult = self.cache[a:targetBufnr.'_'.a:seq]
         else
-            let ei_bak = &eventignore
-            set eventignore=all
-            let targetWinnr = -1
-
             " Double check the target winnr and bufnr
+            let targetWinnr = -1
             for winnr in range(1, winnr('$')) "winnr starts from 1
                 if (getwinvar(winnr,'undotree_id') == a:targetid)
                             \&& winbufnr(winnr) == a:targetBufnr
@@ -1044,6 +1083,10 @@ function! s:diffpanel.Update(seq,targetBufnr,targetid) abort
             if targetWinnr == -1
                 return
             endif
+
+            let ei_bak = &eventignore
+            set eventignore=all
+
             call s:exec_silent(targetWinnr." wincmd w")
 
             " remember and restore cursor and window position.
@@ -1193,9 +1236,14 @@ function! s:diffpanel.Init() abort
     let self.bufname = "diffpanel_".s:getUniqueID()
     let self.cache = {}
     let self.changes = {'add':0, 'del':0}
-    let self.diffexecutable = executable('diff')
+    let self.diffexecutable = executable(g:undotree_DiffCommand)
     if !self.diffexecutable
-        echoerr '"diff" is not executable.'
+        " If the command contains parameters, strip out the executable itself
+        let cmd = matchstr(g:undotree_DiffCommand.' ', '.\{-}\ze\s.*')
+        let self.diffexecutable = executable(cmd)
+        if !self.diffexecutable
+            echoerr '"'.cmd.'" is not executable.'
+        endif
     endif
 endfunction
 
@@ -1238,6 +1286,7 @@ function! s:diffpanel.Show() abort
     setlocal buftype=nowrite
     setlocal bufhidden=delete
     setlocal nowrap
+    setlocal nolist
     setlocal nobuflisted
     setlocal nospell
     setlocal nonumber
@@ -1365,6 +1414,8 @@ function! undotree#UndotreeToggle() abort
         endif
         if !exists('t:undotree')
             let t:undotree = s:new(s:undotree)
+        endif
+        if !exists('t:diffpanel')
             let t:diffpanel = s:new(s:diffpanel)
         endif
         call t:undotree.Toggle()
@@ -1418,3 +1469,26 @@ function! undotree#UndotreeFocus() abort
     endif
 endfunction
 
+function! undotree#UndotreePersistUndo(goSetUndofile) abort
+    call s:log("undotree#UndotreePersistUndo(" . a:goSetUndofile . ")")
+    if ! &undofile
+        if !isdirectory(g:undotree_UndoDir)
+            call mkdir(g:undotree_UndoDir, 'p', 0700)
+            call s:log(" > [Dir " . g:undotree_UndoDir . "] created.")
+        endif
+        exe "set undodir=" . fnameescape(g:undotree_UndoDir)
+        call s:log(" > [set undodir=" . g:undotree_UndoDir . "] executed.")
+        if filereadable(undofile(expand('%'))) || a:goSetUndofile
+            setlocal undofile
+            call s:log(" > [setlocal undofile] executed")
+        endif
+        if a:goSetUndofile
+            silent! write
+            echo "A persistence undo file has been created."
+        endif
+    else
+        call s:log(" > Undofile has been set. Do nothing.")
+    endif
+endfunction
+
+" vim: set et fdm=marker sts=4 sw=4:

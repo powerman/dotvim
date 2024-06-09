@@ -14,11 +14,11 @@ let g:loaded_undotree = 0
 " Refer to https://github.com/mbbill/undotree/issues/4 for details.
 " Thanks kien
 if v:version < 703
-    command! -n=0 -bar UndotreeToggle :echoerr "undotree.vim needs Vim version >= 7.3"
+    command! -nargs=0 -bar UndotreeToggle :echoerr "undotree.vim needs Vim version >= 7.3"
     finish
 endif
 if (v:version == 703 && !has("patch005"))
-    command! -n=0 -bar UndotreeToggle :echoerr "undotree.vim needs vim7.3 with patch005 applied."
+    command! -nargs=0 -bar UndotreeToggle :echoerr "undotree.vim needs vim7.3 with patch005 applied."
     finish
 endif
 let g:loaded_undotree = 1   " Signal plugin availability with a value of 1.
@@ -114,6 +114,21 @@ if !exists('g:undotree_TreeNodeShape')
     let g:undotree_TreeNodeShape = '*'
 endif
 
+" tree vertical shape.
+if !exists('g:undotree_TreeVertShape')
+    let g:undotree_TreeVertShape = '|'
+endif
+
+" tree split shape.
+if !exists('g:undotree_TreeSplitShape')
+    let g:undotree_TreeSplitShape = '/'
+endif
+
+" tree return shape.
+if !exists('g:undotree_TreeReturnShape')
+    let g:undotree_TreeReturnShape = '\'
+endif
+
 if !exists('g:undotree_DiffCommand')
     let g:undotree_DiffCommand = "diff"
 endif
@@ -156,11 +171,33 @@ if !exists('g:undotree_HelpLine')
     let g:undotree_HelpLine = 1
 endif
 
+" Show cursorline
+if !exists('g:undotree_CursorLine')
+    let g:undotree_CursorLine = 1
+endif
+
+" Define the default persistence undo directory if not defined in vim/nvim
+" startup script.
+if !exists('g:undotree_UndoDir')
+    let s:undoDir = &undodir
+    let s:subdir = has('nvim') ? 'nvim' : 'vim'
+    if s:undoDir == "."
+        let s:undoDir = $HOME . '/.local/state/' . s:subdir . '/undo/'
+    endif
+    let g:undotree_UndoDir = s:undoDir
+endif
+
+augroup undotreeDetectPersistenceUndo
+    au!
+    au BufReadPost * call undotree#UndotreePersistUndo(0)
+augroup END
+
 "=================================================
 " User commands.
-command! -n=0 -bar UndotreeToggle   :call undotree#UndotreeToggle()
-command! -n=0 -bar UndotreeHide     :call undotree#UndotreeHide()
-command! -n=0 -bar UndotreeShow     :call undotree#UndotreeShow()
-command! -n=0 -bar UndotreeFocus    :call undotree#UndotreeFocus()
+command! -nargs=0 -bar UndotreeToggle      :call undotree#UndotreeToggle()
+command! -nargs=0 -bar UndotreeHide        :call undotree#UndotreeHide()
+command! -nargs=0 -bar UndotreeShow        :call undotree#UndotreeShow()
+command! -nargs=0 -bar UndotreeFocus       :call undotree#UndotreeFocus()
+command! -nargs=0 -bar UndotreePersistUndo :call undotree#UndotreePersistUndo(1)
 
 " vim: set et fdm=marker sts=4 sw=4:
