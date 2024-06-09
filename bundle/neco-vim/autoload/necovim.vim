@@ -13,9 +13,16 @@ let g:necovim#keyword_pattern =
 
 
 function! necovim#get_complete_position(input) abort
+  if v:version < 800
+    echohl Error
+    echomsg '[neco-vim] Vim 8.0 compatible is required'
+    echohl None
+    return -1
+  endif
+
   let cur_text = necovim#get_cur_text(a:input)
 
-  if cur_text =~ '^\s*"'
+  if cur_text =~# '^\s*"'
     " Comment.
     return -1
   endif
@@ -25,7 +32,7 @@ function! necovim#get_complete_position(input) abort
 
   let [complete_pos, complete_str] =
         \ necovim#match_word(a:input, pattern)
-  if complete_pos < 0
+  if a:input =~# '\<e\%[dit]\s' || complete_pos < 0
     " Use args pattern.
     let [complete_pos, complete_str] =
           \ necovim#match_word(a:input, '\S\+$')
@@ -35,9 +42,16 @@ function! necovim#get_complete_position(input) abort
 endfunction
 
 function! necovim#gather_candidates(input, complete_str) abort
+  if v:version < 800
+    echohl Error
+    echomsg '[neco-vim] Vim 8.0 compatible is required'
+    echohl None
+    return []
+  endif
+
   let cur_text = necovim#get_cur_text(a:input)
 
-  if cur_text =~ '\h\w*\.\%(\h\w*\)\?$'
+  if cur_text =~# '\h\w*\.\%(\h\w*\)\?$'
     " Dictionary.
     let complete_str = matchstr(cur_text, '.\%(\h\w*\)\?$')
     return necovim#helper#var_dictionary(
@@ -70,7 +84,7 @@ function! necovim#gather_candidates(input, complete_str) abort
   elseif cur_text =~# '\<expand([''"][<>[:alnum:]]*$'
     " Expand.
     let list = necovim#helper#expand(cur_text, a:complete_str)
-  elseif a:complete_str =~ '^\$'
+  elseif a:complete_str =~# '^\$'
     " Environment.
     let list = necovim#helper#environment(cur_text, a:complete_str)
   else
@@ -83,14 +97,14 @@ endfunction
 
 function! necovim#get_cur_text(input) abort
   let cur_text = a:input
-  if &filetype == 'vimshell' && exists('*vimshell#get_secondary_prompt')
+  if &filetype ==# 'vimshell' && exists('*vimshell#get_secondary_prompt')
         \   && empty(b:vimshell.continuation)
     return cur_text[len(vimshell#get_secondary_prompt()) :]
   endif
 
   let line = line('.')
   let cnt = 0
-  while cur_text =~ '^\s*\\' && line > 1 && cnt < 5
+  while cur_text =~# '^\s*\\' && line > 1 && cnt < 5
     let cur_text = getline(line - 1) .
           \ substitute(cur_text, '^\s*\\', '', '')
     let line -= 1
@@ -98,10 +112,6 @@ function! necovim#get_cur_text(input) abort
   endwhile
 
   return split(cur_text, '\s\+|\s\+\|<bar>', 1)[-1]
-endfunction
-function! necovim#get_command(cur_text) abort
-  return matchstr(a:cur_text, '\<\%(\d\+\)\?\zs\h\w*\ze!\?\|'.
-        \ '\<\%([[:digit:],[:space:]$''<>]\+\)\?\zs\h\w*\ze/.*')
 endfunction
 
 function! necovim#match_word(cur_text, pattern) abort
