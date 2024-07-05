@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 golang:1.22.3
+FROM --platform=linux/amd64 golang:1.23rc1
 
 RUN apt-get update -y --allow-insecure-repositories && \
   apt-get install -y build-essential curl git libncurses5-dev python3-pip && \
