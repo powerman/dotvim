@@ -75,7 +75,7 @@ experience.
 ==============================================================================
 INSTALL                                                           *go-install*
 
-vim-go requires at least Vim 8.1.2269 or Neovim 0.4.0. On macOS, if you are
+vim-go requires at least Vim 8.2.5072 or Neovim 0.4.0. On macOS, if you are
 still using your system version of vim, you can use homebrew to keep your
 version of Vim up-to-date with the following terminal command:
 >
@@ -601,7 +601,7 @@ CTRL-t
     Changes the build tags for various commands. If you have any file that
     uses a custom build tag, such as `// +build integration`, this command
     can be used to pass it to all tools that accepts tags, such as gopls,
-    gorename, etc.
+    go test, etc.
 
     The build tags is cleared (unset) if `""` is given. If no arguments are
     given it prints the current build tags.
@@ -1511,7 +1511,7 @@ window. The list to use can be set using |'g:go_list_type_commands'|.
                                           *'g:go_metalinter_autosave_enabled'*
 
 Specifies the enabled linters for auto |:GoMetaLinter| on save. When the
-metalinter is `golangci-lint`, if any are enabled, `--disable-all` will be
+metalinter is `golangci-lint`, if any are enabled, `--default=none` will be
 sent to the metalinter.
 
 When `g:go_metalinter_command` is set to `staticcheck`, the default value is
@@ -1522,12 +1522,12 @@ an empty list; `staticcheck`'s `-checks` flag will not be used.
 
 When `g:go_metalinter_command is set to `golangci-lint`, the default value is
 >
-  let g:go_metalinter_autosave_enabled = ['vet', 'revive']
+  let g:go_metalinter_autosave_enabled = ['govet', 'revive']
 <
                                                    *'g:go_metalinter_enabled'*
 
 Specifies the linters to enable for the |:GoMetaLinter| command. For
-`golangci-lint`, if any are enabled, `--disable-all` will be passed to the
+`golangci-lint`, if any are enabled, `--default=none` will be passed to the
 metalinter.
 
 When `g:go_metalinter_command` is set to `staticcheck`, the default value is
@@ -1539,7 +1539,7 @@ an empty list; `staticcheck`'s `-checks` flag will not be used.
 When `g:go_metalinter_command` is set to `golangci-lint`, the default value
 is
 >
-  let g:go_metalinter_enabled = ['vet', 'revive', 'errcheck']
+  let g:go_metalinter_enabled = ['govet', 'revive', 'errcheck']
 <
                                                    *'g:go_metalinter_command'*
 
@@ -1676,7 +1676,7 @@ default it is set to edit.
                                                        *'g:go_rename_command'*
 
 Use this option to define which tool is used to rename. By default `gopls`
-is used. Valid options are `gorename` and `gopls`.
+is used. Valid options are `gopls`, `gopls rename`, and `gorename`.
 >
   let g:go_rename_command = 'gopls'
 <
@@ -2580,7 +2580,7 @@ Vim becomes slow while editing Go files~
 
 The most common cause for this is using an older version of Vim that doesn't
 support asynchronous jobs. |'g:go_auto_sameids'| and |'g:go_auto_type_info'|
-run jobs that can cause noticable delays when used with vim74. The problem is
+run jobs that can cause noticeable delays when used with vim74. The problem is
 most pronounced on vim74, but can occur on vim8 and nvim. On vim8 and nvim,
 the problem should be restricted to a short period when the first buffer in a
 package is first loaded.
@@ -2591,7 +2591,7 @@ disabling |'g:go_auto_sameids'| and |'g:go_auto_type_info'|.
 
 To a lesser extent, this can be caused by `g:go_highlight_*` options. If Vim
 is just slower than normal, but doesn't render unexpected characters in the
-currrent window, then the problem is most likely the `g:go_highlight_*`
+current window, then the problem is most likely the `g:go_highlight_*`
 options. Try disabling them if you've enabled some of them.
 
 I get errors when using GoInstallBinaries~

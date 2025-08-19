@@ -1,6 +1,18 @@
 ## unplanned
 
 BACKWARDS INCOMPATIBILITIES:
+* Update golangci-lint support to expect golangci-lint/v2.
+  [[GH-3710]](https://github.com/fatih/vim-go/pull/3710)
+
+IMPROVEMENTS:
+
+BUG FIXES:
+* Fix delay when listing breakpoints when stepping in Neovim.
+  [[GH-3714]](https://github.com/fatih/vim-go/pull/3714)
+
+## v1.29 - (April 18, 2025)
+
+BACKWARDS INCOMPATIBILITIES:
 * Drop support for [guru](https://docs.google.com/document/d/1_Y9xCEMj5S-7rv2ooHpZNH15JgRT5iM742gJkw5LtmQ/edit?pli=1&tab=t.0#heading=h.ojv16z1d1gas).
   [[GH-3650]](https://github.com/fatih/vim-go/pull/3650)
   [[GH-3654]](https://github.com/fatih/vim-go/pull/3654)
@@ -57,6 +69,15 @@ IMPROVEMENTS:
   [[GH-3633]](https://github.com/fatih/vim-go/pull/3633)
 * Add fuzz snippet.
   [[GH-3636]](https://github.com/fatih/vim-go/pull/3636)
+* Update gopls code action handling.
+  [[GH-3695]](https://github.com/fatih/vim-go/pull/3695)
+* Remove installation of `gorename`.
+  [[GH-3697]](https://github.com/fatih/vim-go/pull/3697)
+* Add support for `gopls rename`.
+  [[GH-3698]](https://github.com/fatih/vim-go/pull/3698)
+* Use a double border around doc popup.
+  [[GH-3705]](https://github.com/fatih/vim-go/pull/3705)
+
 
 BUG FIXES:
 * Update [impl](https://github.com/josharian/impl) source path after its default branch was changed from master to main.
@@ -87,6 +108,14 @@ BUG FIXES:
   [[GH-3652]](https://github.com/fatih/vim-go/pull/3652)
 * Fix parsing of gopls error message to determine debug port.
   [[GH-3672]](https://github.com/fatih/vim-go/pull/3672)
+* Handle unexpected code action commands from `gopls`.
+  [[GH-3678]](https://github.com/fatih/vim-go/pull/3678)
+* Fix substitution paths in debug stacktrace window.
+  [[GH-3675]](https://github.com/fatih/vim-go/pull/3675)
+* Fix handling of gopls restarts.
+  [[GH-3685]](https://github.com/fatih/vim-go/pull/3685)
+* Fix :GoDocBrowser's handling of arguments.
+  [[GH-3703]](https://github.com/fatih/vim-go/pull/3703)
 
 ## v1.28 - (December 17, 2022)
 
