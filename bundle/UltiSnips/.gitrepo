@@ -6,7 +6,7 @@
 [subrepo]
 	remote = https://github.com/SirVer/ultisnips.git
 	branch = master
-	commit = 49dc8cb2086db19d385791c8e1635723b0fd95c7
-	parent = 61a22eef501455e773ac776f4a726f5192b62b38
+	commit = b22a86f9dcc5257624bff3c72d8b902eac468aad
+	parent = 8763d7fdd6ebb89825370dc8fbaca26e70197549
 	method = merge
-	cmdver = 0.4.6
+	cmdver = 0.4.9
