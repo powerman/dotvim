@@ -14,10 +14,12 @@ CONTENTS                                          *splitjoin* *splitjoin-content
     Elixir.................................: |splitjoin-elixir|
     Elm....................................: |splitjoin-elm|
     Eruby..................................: |splitjoin-eruby|
+    FASTA..................................: |splitjoin-fasta|
     Go.....................................: |splitjoin-go|
     HAML...................................: |splitjoin-haml|
-    Handlebars.............................: |splitjoin-handlebars|
     HTML...................................: |splitjoin-html|
+    Handlebars.............................: |splitjoin-handlebars|
+    Hare...................................: |splitjoin-hare|
     Java...................................: |splitjoin-java|
     Javascript.............................: |splitjoin-javascript| |splitjoin-json|
     JSX/TSX................................: |splitjoin-jsx| |splitjoin-tsx|
@@ -513,6 +515,20 @@ Option hashes ~
 <
 
 ==============================================================================
+FASTA                                                          *splitjoin-fasta*
+
+Sequences ~
+>
+    > E.coli_K12 Cysteine--tRNA ligase
+    MLKIFNTLTRQKEEFKPIHAGEVGMYVCGITVYDLCHIGHGRTFVAFDVVARYLRFLGYKLKYVRNITDIDDK...
+
+    > E.coli_K12 Cysteine--tRNA ligase
+    MLKIFNTLTRQKEEFKPIHAGEVGMYVCGITVYDLCHIGHGRTFVAFDVVARYLRFLGYK
+    LKYVRNITDIDDKIIKRANENGESFVAMVDRMIAEMHKDFDALNILRPDMEPRATHHIAE
+    ...
+<
+
+==============================================================================
 GO                                                                *splitjoin-go*
 
 Imports ~
@@ -573,6 +589,53 @@ Block components ~
       Some contents
     {{/component-name}}
 <
+
+==============================================================================
+HARE                                                            *splitjoin-hare*
+
+Structs ~
+>
+    struct { source: str, line: 1 };
+
+    struct {
+        source: str,
+        line: 1,
+    };
+<
+Function definitions, calls, and arrays ~
+>
+    fn function_def(values: []u8, s: str) void = {};
+    fn function_def(
+        values: []u8,
+        s: str,
+    ) void = {};
+
+    function_call(values: []u8, s: str);
+    function_call(
+        values: []u8,
+        s: str,
+    );
+
+    let x = [1, 2, 3];
+    let x = [
+        1,
+        2,
+        3,
+    ];
+<
+Question mark operator ~
+>
+    const num = getnumber()?;
+
+    const num = match (getnumber()) {
+    case error => abort();
+    case let t: type =>
+        yield t;
+    };
+<
+Note that, at the moment, only splitting question marks is supported, joining
+an appropriate match expression into a question-mark operator is not.
+
 
 ==============================================================================
 HTML                                                            *splitjoin-html*
@@ -937,6 +1000,11 @@ Imports ~
 
     from foo import bar,\
             baz
+    " or, depending on `g:splitjoin_python_import_style`:
+    from foo import (
+        bar,
+        baz,
+    )
 <
 Ternary assignment ~
 >
@@ -962,6 +1030,19 @@ Multiple assignment ~
 Note that splitting `a, b = b, a` would not result in an expression that works
 the same way, due to the special handling by python of this case to swap two
 values.
+
+Strings ~
+>
+    db.execute('UPDATE table SET value = ?', value)
+
+    db.execute('''
+        UPDATE table SET value = ?
+    ''', value)
+<
+To avoid string-splitting overriding argument-splitting, it only triggers when
+the cursor is on the string delimiter. It's recommended to use f'/f"/F'/F" to
+position the cursor precisely before splitting.
+
 
 ==============================================================================
 R                                                                  *splitjoin-r*
@@ -1916,6 +1997,29 @@ plugin (https://github.com/hynek/vim-python-pep8-indent), it should look quite
 reasonable.
 
 
+                                                 *splitjoin_python_import_style*
+>
+    let g:splitjoin_python_import_style = 'round_brackets'
+<
+Default value: 'newline_escape'
+
+The default splitting for python imports is to add line escapes after the
+commas. I have no idea why I originally implemented it like this, but it seems
+perfectly acceptable to just surround the imports in round brackets. Example:
+>
+    " Style: 'newline_escape':
+    from foo import bar,\
+            baz
+
+    " Style: 'round_brackets':
+    from foo import (
+        bar,
+        baz,
+    )
+<
+The default is "newline_escape" since it's been this way for a long time.
+
+
                              *splitjoin_handlebars_closing_bracket_on_same_line*
 >
     let g:splitjoin_handlebars_closing_bracket_on_same_line = 1
@@ -2070,6 +2174,18 @@ Whether to leave a single space after the `\` of a line break. In many cases,
 when breaking a line, one space is left between the backslash and the line
 part. However, if it's broken at a `.`, it could cause parsing problems. Not
 leaving a space might be safer, set to 0 to do that.
+
+
+                                                     *splitjoin_fasta_textwidth*
+>
+    let g:splitjoin_fasta_textwidth = 100
+<
+Default value: 0
+
+Fasta files get split into lines based on textwidth. If this variable is set
+to anything greater than 0, that will be considered the desired textwidth.
+Otherwise, the built-in 'textwidth' will be used. If that's set to 0, the
+plugin will arbitrarily use 100 as the threshold.
 
 
 ==============================================================================

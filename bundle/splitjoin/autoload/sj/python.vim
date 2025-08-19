@@ -53,26 +53,23 @@ endfunction
 function! sj#python#JoinDict()
   let line = getline('.')
 
-  if line =~ '{\s*$'
-    call search('{', 'c', line('.'))
-    let body = sj#GetMotion('Vi{')
-
-    let lines = sj#TrimList(split(body, "\n"))
-    if sj#settings#Read('normalize_whitespace')
-      let lines = map(lines, 'substitute(v:val, ":\\s\\+", ": ", "")')
-    endif
-
-    let body = join(lines, ' ')
-    if sj#settings#Read('trailing_comma')
-      let body = substitute(body, ',\?$', '', '')
-    endif
-
-    call sj#ReplaceMotion('Va{', '{'.body.'}')
-
-    return 1
-  else
+  if line !~ '{\s*$'
     return 0
   endif
+
+  call search('{', 'c', line('.'))
+  let body = sj#GetMotion('Vi{')
+
+  let lines = sj#TrimList(split(body, "\n"))
+  if sj#settings#Read('normalize_whitespace')
+    let lines = map(lines, 'substitute(v:val, ":\\s\\+", ": ", "")')
+  endif
+
+  let body = join(lines, ' ')
+  let body = substitute(body, ',\?$', '', '')
+
+  call sj#ReplaceMotion('Va{', '{'.body.'}')
+  return 1
 endfunction
 
 function! sj#python#SplitArray()
@@ -87,33 +84,73 @@ function! sj#python#SplitTuple()
   return s:SplitList('(.\{-})', '(', ')')
 endfunction
 
+function! sj#python#SplitArgs()
+  if search('\%#[[:keyword:].]\+(', 'e', line('.'))
+    return sj#python#SplitTuple()
+  endif
+endfunction
+
 function! sj#python#JoinTuple()
-  return s:JoinList('([^)]*\s*$', '(', ')')
+  return s:JoinList('([^()]*\s*$', '(', ')')
+endfunction
+
+function! sj#python#JoinArgs()
+  if search('\%#[[:keyword:].]\+(', 'e', line('.'))
+    return sj#python#JoinTuple()
+  endif
 endfunction
 
 function! sj#python#SplitImport()
-  let import_pattern = '^from \%(.*\) import \zs.*$'
+  let import_pattern = '^\s*from \%(.*\) import \zs.*$'
 
   normal! 0
   if search(import_pattern, 'Wc', line('.')) <= 0
     return 0
   endif
 
+  let import_lineno = line('.')
+  let indent = indent('.')
   let import_list = sj#GetMotion('vg_')
 
-  if stridx(import_list, ',') < 0
-    return 0
+  let imports = split(import_list, ',\s*')
+  let import_style = sj#settings#Read('python_import_style')
+
+  if import_style == 'newline_escape'
+    " from foo import bar,\
+    "   baz
+    call sj#ReplaceMotion('vg_', join(imports, ",\\\n"))
+  elseif import_style == 'round_brackets'
+    " from foo import (
+    "   bar,
+    "   baz
+    " )
+    let replacement = join(imports, ",\n")
+    if sj#settings#Read('python_brackets_on_separate_lines')
+      if sj#settings#Read('trailing_comma')
+        let replacement .= ','
+      endif
+      let replacement = "(\n"..replacement.."\n)"
+    else
+      let replacement = "("..replacement..")"
+    endif
+    call sj#ReplaceMotion('vg_', replacement)
+
+    if sj#settings#Read('python_brackets_on_separate_lines')
+      " number of imports plus one for the round bracket
+      let last_lineno = import_lineno + len(imports) + 1
+
+      call sj#SetIndent(import_lineno + 1, last_lineno - 1, indent + shiftwidth())
+      call sj#SetIndent(last_lineno, last_lineno, indent)
+    endif
+  else
+    echoerr "Unknown splitjoin_python_import_style: "..import_style
   endif
 
-  let imports = split(import_list, ',\s*')
-
-  call sj#ReplaceMotion('vg_', join(imports, ",\\\n"))
   return 1
 endfunction
 
-function! sj#python#JoinImport()
-  let import_pattern = '^from \%(.*\) import .*\\\s*$'
-
+function! sj#python#JoinImportWithNewlineEscape()
+  let import_pattern = '^\s*from \%(.*\) import .*\\\s*$'
   if getline('.') !~ import_pattern
     return 0
   endif
@@ -128,6 +165,21 @@ function! sj#python#JoinImport()
   let end_lineno = current_lineno
 
   exe start_lineno.','.end_lineno.'s/,\\\n\s*/, /e'
+  return 1
+endfunction
+
+function! sj#python#JoinImportWithRoundBrackets()
+  let import_pattern = '^\s*from \%(.*\) import \zs('
+  if search(import_pattern, 'Wc') <= 0
+    return 0
+  endif
+
+  let import_body = sj#GetMotion('vi(')
+  let imports = split(import_body, ',\_s*')
+  let replacement = sj#Trim(join(imports, ', '))
+  let replacement = substitute(replacement, ',$', '', '')
+
+  call sj#ReplaceMotion('va(', replacement)
   return 1
 endfunction
 
@@ -274,6 +326,7 @@ endfunction
 function! sj#python#JoinTernaryAssignment()
   let include_syntax = sj#IncludeSyntax(['pythonConditional'])
   let start_lineno = line('.')
+  let indent = indent('.')
   normal! 0
 
   if sj#SearchSkip('^\s*\zsif\>', include_syntax, 'Wc', line('.')) <= 0
@@ -313,6 +366,140 @@ function! sj#python#JoinTernaryAssignment()
 
   let body = lhs_if_true . ' ' . body_if_true . ' ' . if_clause . ' else ' . body_if_false
   call sj#ReplaceLines(start_lineno, start_lineno + 3, body)
+  call sj#SetIndent(start_lineno, start_lineno, indent)
+
+  return 1
+endfunction
+
+function! sj#python#SplitString()
+  let char = getline('.')[col('.') - 1]
+  if char != '"' && char != "'"
+    return 0
+  endif
+
+  let string_pattern       = '\(\%(^\|[^\\]\)\zs\([''"]\)\).\{-}[^\\]\+\2'
+  let empty_string_pattern = '\%(''''\|""\)'
+
+  let lineno = line('.')
+
+  let [match_start, match_end] = sj#SearchColsUnderCursor(string_pattern)
+  if match_start <= 0
+    let [match_start, match_end] = sj#SearchColsUnderCursor(empty_string_pattern)
+    if match_start <= 0
+      return 0
+    endif
+  endif
+
+  let string    = sj#GetCols(match_start, match_end - 1)
+  let delimiter = string[0]
+  let body      = string[1:-2]
+  let indent    = indent(lineno)
+
+  if body =~ '^[''"]$'
+    " our body is a single quote, we're trying to split a triple-quoted string
+    return 0
+  endif
+
+  if body =~ '^\(''''\s*''''\|""\s*""\)$'
+    if search('\(''''\zs\s*''''\|""\zs\s*""\)', 'W', line('.')) <= 0
+      return 0
+    endif
+
+    if delimiter == '"'
+      call sj#ReplaceMotion('va"', "\"\n\"")
+    elseif delimiter == "'"
+      call sj#ReplaceMotion("va'", "'\n'")
+    else
+      return 0
+    endif
+
+    return 1
+  endif
+
+  if body =~ '^\(''''\|""\)\S'
+    " then the string is already triple-quoted, just replace the insides
+    if search('\(''''\|""\)\zs\S', 'W', line('.')) <= 0
+      return 0
+    endif
+
+    if delimiter == '"'
+      let inner_body = sj#GetMotion('vi"')
+      call sj#ReplaceMotion('vi"', "\n"..inner_body.."\n")
+    elseif delimiter == "'"
+      let inner_body = sj#GetMotion("vi'")
+      call sj#ReplaceMotion("vi'", "\n"..inner_body.."\n")
+    else
+      return 0
+    endif
+
+    call sj#SetIndent(lineno + 1, lineno + 1, indent + shiftwidth())
+    return 1
+  endif
+
+  if delimiter == '"'
+    if len(body) == 0
+      call sj#ReplaceMotion('vi"', '"""'.."\n"..'"""')
+    else
+      let body = substitute(body, '\\"', '"', 'g')
+      call sj#ReplaceMotion('vi"', '""'.."\n"..body.."\n".'""')
+    endif
+  elseif delimiter == "'"
+    if len(body) == 0
+      call sj#ReplaceMotion("vi'", "'''\n'''")
+    else
+      let body = substitute(body, "\\''", "'", 'g')
+      call sj#ReplaceMotion("vi'", "''\n"..body.."\n''")
+    endif
+  else
+    return 0
+  endif
+
+  if len(body) == 0
+    call sj#SetIndent(lineno + 1, lineno + 1, indent)
+  else
+    call sj#SetIndent(lineno + 1, lineno + 1, indent + shiftwidth())
+    call sj#SetIndent(lineno + 2, lineno + 2, indent)
+  endif
+
+  return 1
+endfunction
+
+function! sj#python#JoinMultilineString()
+  if sj#SearchUnderCursor('\("""\|''''''\)\s*$') <= 0
+    return 0
+  endif
+
+  let start_lineno = line('.')
+  let prefix       = getline('.')[0            : col('.') - 2]
+  let delimiter    = getline('.')[col('.') - 1 : col('.') + 2]
+
+  if search('^\s*'.delimiter, 'W') <= 0
+    return 0
+  endif
+
+  let end_lineno = line('.')
+  let suffix     = matchstr(getline(end_lineno), '^\s*'.delimiter.'\zs.*\ze')
+
+  if end_lineno - start_lineno > 1
+    let lines = sj#GetLines(start_lineno + 1, end_lineno - 1)
+    let lines = sj#TrimList(lines)
+    let body  = join(lines, " ")
+  else
+    let body = ''
+  endif
+
+  if delimiter == '"""'
+    let quote = '"'
+    let body = escape(body, '"')
+  elseif delimiter == "'''"
+    let quote = "'"
+    let body = escape(body, "'")
+  else
+    return 0
+  endif
+
+  let replacement = prefix..quote..body..quote..suffix
+  call sj#ReplaceLines(start_lineno, end_lineno, replacement)
 
   return 1
 endfunction
@@ -326,7 +513,7 @@ function! s:SplitList(regex, opening_char, closing_char)
   call sj#PushCursor()
 
   let items = sj#ParseJsonObjectBody(from + 1, to - 1)
-  if len(items) <= 1
+  if len(items) < 1
     call sj#PopCursor()
     return 0
   endif
@@ -354,11 +541,7 @@ function! s:JoinList(regex, opening_char, closing_char)
   let body = sj#GetMotion('va'.a:opening_char)
   let body = substitute(body, '\_s\+', ' ', 'g')
   let body = substitute(body, '^'.a:opening_char.'\s\+', a:opening_char, '')
-  if sj#settings#Read('trailing_comma')
-    let body = substitute(body, ',\?\s\+'.a:closing_char.'$', a:closing_char, '')
-  else
-    let body = substitute(body, '\s\+'.a:closing_char.'$', a:closing_char, '')
-  endif
+  let body = substitute(body, ',\?\s\+'.a:closing_char.'$', a:closing_char, '')
 
   call sj#ReplaceMotion('va'.a:opening_char, body)
 

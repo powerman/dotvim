@@ -1,5 +1,4 @@
 [![GitHub version](https://badge.fury.io/gh/andrewradev%2Fsplitjoin.vim.svg)](https://badge.fury.io/gh/andrewradev%2Fsplitjoin.vim)
-[![Build Status](https://circleci.com/gh/AndrewRadev/splitjoin.vim/tree/main.svg?style=shield)](https://circleci.com/gh/AndrewRadev/splitjoin.vim?branch=main)
 
 ## Usage
 
@@ -52,6 +51,7 @@ This currently works for various constructs in the following languages:
 - Eruby
 - Go
 - HAML
+- Hare
 - HTML (and HTML-like markup)
 - Handlebars
 - JSON

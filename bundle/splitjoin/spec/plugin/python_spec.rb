@@ -6,6 +6,9 @@ describe "python" do
   before :each do
     vim.set(:expandtab)
     vim.set(:shiftwidth, 4)
+
+    vim.command 'unlet! b:splitjoin_python_import_style'
+    vim.command 'unlet! b:splitjoin_python_brackets_on_separate_lines'
   end
 
   specify "dictionaries" do
@@ -61,19 +64,71 @@ describe "python" do
     assert_file_contents 'spam = [1, [2, 3], 4]'
   end
 
-  specify "imports" do
-    set_file_contents 'from foo import bar, baz'
+  specify "function arguments" do
+    set_file_contents 'spam = callable(one, [2, 3], four)'
 
+    vim.search 'callable'
     split
 
     assert_file_contents <<~EOF
-      from foo import bar,\\
-              baz
+      spam = callable(one,
+                      [2, 3],
+                      four)
     EOF
 
     join
 
-    assert_file_contents 'from foo import bar, baz'
+    assert_file_contents 'spam = callable(one, [2, 3], four)'
+  end
+
+  specify "imports" do
+    set_file_contents <<~EOF
+      def surrounding_function():
+          from foo import bar, baz
+    EOF
+
+    vim.search('from foo')
+    split
+
+    assert_file_contents <<~EOF
+      def surrounding_function():
+          from foo import bar,\\
+                  baz
+    EOF
+
+    join
+    assert_file_contents <<~EOF
+      def surrounding_function():
+          from foo import bar, baz
+    EOF
+
+    vim.command 'let b:splitjoin_python_import_style = "round_brackets"'
+    split
+
+    assert_file_contents <<~EOF
+      def surrounding_function():
+          from foo import (bar,
+                           baz)
+    EOF
+
+    join
+    assert_file_contents <<~EOF
+      def surrounding_function():
+          from foo import bar, baz
+    EOF
+
+    vim.command 'let b:splitjoin_python_brackets_on_separate_lines = 1'
+    split
+
+    assert_file_contents <<~EOF
+      def surrounding_function():
+          from foo import (
+              bar,
+              baz
+          )
+    EOF
+
+    join
   end
 
   specify "statements" do
@@ -222,6 +277,15 @@ describe "python" do
     assert_file_contents <<~EOF
       out = ("one", {"two": "three"}, "four")
     EOF
+
+    vim.search('two')
+    split
+
+    assert_file_contents <<~EOF
+      out = ("one", {
+          "two": "three"
+          }, "four")
+    EOF
   end
 
   specify "tuple within dictionary" do
@@ -244,6 +308,30 @@ describe "python" do
 
     assert_file_contents <<~EOF
       out = {"one": "two", "key": ("three", "four")}
+    EOF
+  end
+
+  specify "tuple within tuple" do
+    set_file_contents <<~EOF
+      out = Foo(Bar(baz, bla))
+    EOF
+
+    vim.command 'let b:splitjoin_python_brackets_on_separate_lines = 1'
+    vim.search('baz')
+    split
+
+    assert_file_contents <<~EOF
+      out = Foo(Bar(
+          baz,
+          bla
+          ))
+    EOF
+
+    vim.search('Bar\zs(')
+    join
+
+    assert_file_contents <<~EOF
+      out = Foo(Bar(baz, bla))
     EOF
   end
 
@@ -270,5 +358,167 @@ describe "python" do
     assert_file_contents <<~EOF
       result = [x * y for x in range(1, 10) for y in range(10, 20) if x != y]
     EOF
+  end
+
+  describe "strings" do
+    it "joins ''' strings into single-quoted strings" do
+      set_file_contents <<~EOF
+        string = '''
+            something, "anything"
+        '''
+      EOF
+
+      vim.search "'''"
+      join
+
+      assert_file_contents <<~EOF
+        string = 'something, "anything"'
+      EOF
+    end
+
+    it "joins \"\"\" strings into double-quoted strings" do
+      set_file_contents <<~EOF
+        string = """
+            something, 'anything'
+        """
+      EOF
+
+      vim.search '"""'
+      join
+
+      assert_file_contents <<~EOF
+        string = "something, 'anything'"
+      EOF
+    end
+
+    it "splits single-line \"\"\" strings" do
+      set_file_contents <<~EOF
+        string = """something, 'anything'"""
+      EOF
+
+      vim.search '"""'
+      split
+
+      assert_file_contents <<~EOF
+        string = """
+            something, 'anything'
+        """
+      EOF
+    end
+
+    it "splits single-line ''' strings" do
+      set_file_contents <<~EOF
+        string = '''something, "anything"'''
+      EOF
+
+      vim.search "'''"
+      split
+
+      assert_file_contents <<~EOF
+        string = '''
+            something, "anything"
+        '''
+      EOF
+    end
+
+    it "splits empty single-line ''' strings" do
+      set_file_contents <<~EOF
+        string = ''' '''
+      EOF
+
+      vim.search "'''"
+      split
+
+      assert_file_contents <<~EOF
+        string = '''
+        '''
+      EOF
+    end
+
+    it "splits empty single-line \"\"\" strings" do
+      set_file_contents <<~EOF
+        string = """ """
+      EOF
+
+      vim.search '"""'
+      split
+
+      assert_file_contents <<~EOF
+        string = """
+        """
+      EOF
+    end
+
+    it "doesn't split already-multiline \"\"\"-strings" do
+      set_file_contents <<~EOF
+        string = """
+            something, 'anything'
+        """
+      EOF
+
+      vim.search '"""'
+      split
+
+      assert_file_contents <<~EOF
+        string = """
+            something, 'anything'
+        """
+      EOF
+    end
+
+    it "doesn't split already-multiline '''-strings" do
+      set_file_contents <<~EOF
+        string = '''
+            something, 'anything'
+        '''
+      EOF
+
+      vim.search "'''"
+      split
+
+      assert_file_contents <<~EOF
+        string = '''
+            something, 'anything'
+        '''
+      EOF
+    end
+
+    it "splits normal strings into multiline strings" do
+      set_file_contents 'string = "\"anything\""'
+
+      vim.search '"\"'
+      split
+
+      assert_file_contents <<~EOF
+        string = """
+            "anything"
+        """
+      EOF
+    end
+
+    it "splits empty strings into empty multiline strings" do
+      set_file_contents 'string = ""'
+
+      vim.search '"'
+      split
+
+      assert_file_contents <<~EOF
+        string = """
+        """
+      EOF
+    end
+
+    it "keeps content around the string, only splits with cursor on delimiter" do
+      set_file_contents 'string = function_call(one, "two", three)'
+
+      vim.search '"'
+      split
+
+      assert_file_contents <<~EOF
+        string = function_call(one, """
+            two
+        """, three)
+      EOF
+    end
   end
 end
