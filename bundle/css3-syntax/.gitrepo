@@ -6,7 +6,7 @@
 [subrepo]
 	remote = https://github.com/hail2u/vim-css3-syntax.git
 	branch = master
-	commit = 44dd2e6bada1a48f6697ec1596cfe5a1386418b3
-	parent = c0e5c4030be144399fc3c221a04504177969ba9e
+	commit = 84924b89341175d40253aad63bad47ee0aed37b0
+	parent = f5ad2ab21569dcd588a0f47dafe63965f54aad57
 	method = merge
-	cmdver = 0.4.1
+	cmdver = 0.4.9
