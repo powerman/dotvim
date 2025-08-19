@@ -204,25 +204,14 @@ let htmlperl_string_as_statement = 1    " perl внутри html (без POD, н
 " This should be set before loading TComment plugin.
 let g:tcomment_textobject_inlinecomment = ''
 
-" Fix icon width for Nerd Fonts v3.2.1.
+" Fix icon width for Nerd Fonts v3 (non-Mono variant).
 call setcellwidths([
 \   [ 0x23fb, 0x23fe, 2 ],
 \   [ 0x2665, 0x2665, 2 ],
 \   [ 0x2b58, 0x2b58, 2 ],
-\   [ 0xe000, 0xe00a, 2 ],
-\   [ 0xe0b8, 0xe0c8, 2 ],
-\   [ 0xe0ca, 0xe0ca, 2 ],
-\   [ 0xe0cc, 0xe0d7, 2 ],
-\   [ 0xe200, 0xe2a9, 2 ],
-\   [ 0xe300, 0xe3e3, 2 ],
-\   [ 0xe5fa, 0xe6b5, 2 ],
-\   [ 0xe700, 0xe7c5, 2 ],
-\   [ 0xea60, 0xec1e, 2 ],
-\   [ 0xed00, 0xefce, 2 ],
-\   [ 0xf000, 0xf2ff, 2 ],
-\   [ 0xf300, 0xf375, 2 ],
-\   [ 0xf400, 0xf533, 2 ],
-\   [ 0xf0001, 0xf1af0, 2 ],
+\   [ 0xe000, 0xe09f, 2 ],
+\   [ 0xe0c0, 0xf8ff, 2 ],
+\   [ 0xf0001, 0xfffff, 2 ],
 \ ])
 
 
