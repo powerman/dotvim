@@ -3,6 +3,9 @@
 My settings for Vim. See comments in link:vimrc[] for list of supported
 features (in Russian).
 
+Since 2024-07 I'm using Neovim, so do not expect much updates in this repo.
+My Neovim config: https://github.com/powerman/config.nvim.
+
 == Install
 
 Remove `~/.vimrc` and `~/.vim/`, then:
