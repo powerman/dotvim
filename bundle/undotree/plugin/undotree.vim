@@ -160,6 +160,20 @@ if !exists('g:undotree_HighlightSyntaxDel')
     let g:undotree_HighlightSyntaxDel = "DiffDelete"
 endif
 
+" Signs to display in the gutter where the file has been modified
+if !exists('g:undotree_SignAdded')
+    let g:undotree_SignAdded = "++"
+endif
+if !exists('g:undotree_SignChanged')
+    let g:undotree_SignChanged = "~~"
+endif
+if !exists('g:undotree_SignDeleted')
+    let g:undotree_SignDeleted = "--"
+endif
+if !exists('g:undotree_SignDeletedEnd')
+    let g:undotree_SignDeletedEnd = "-v"
+endif
+
 " Deprecates the old style configuration.
 if exists('g:undotree_SplitLocation')
     echo "g:undotree_SplitLocation is deprecated,
@@ -174,6 +188,11 @@ endif
 " Show cursorline
 if !exists('g:undotree_CursorLine')
     let g:undotree_CursorLine = 1
+endif
+
+" Ignored filetypes
+if !exists('g:undotree_DisabledFiletypes')
+    let g:undotree_DisabledFiletypes = []
 endif
 
 " Define the default persistence undo directory if not defined in vim/nvim
