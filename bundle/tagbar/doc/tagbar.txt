@@ -548,7 +548,7 @@ g:tagbar_position~
 Default: 'botright vertical'
 
 By default the Tagbar window will be opened on the right-hand side of vim in a
-vertical split. Set this option to one of the standart vim split options such
+vertical split. Set this option to one of the standard vim split options such
 as 'topleft', 'botright', 'leftabove', or 'rightbelow' to open in the
 corresponding position instead. If desiring a vertically split window, then
 include a ' vertical' in the field value as well. This can be useful when
@@ -820,6 +820,37 @@ Possible values are:
 Example:
 >
         let g:tagbar_show_linenumbers = 2
+<
+                                                          *g:tagbar_show_prefix*
+g:tagbar_show_prefix~
+Default: 1
+
+Controls if the prefix information is shown before the tag. The prefix info is
+usually defined as the variable scope. For example, if a variable is private
+scope only, then a '-' symbol will be used by default.
+
+Possible values are:
+  0: Don't show the prefix.
+  1: Show the prefix.
+
+Example:
+>
+        let g:tagbar_show_prefix = 0
+<
+                                                          *g:tagbar_show_suffix*
+g:tagbar_show_suffix~
+Default: 1
+
+Controls if the suffix information is shown after the tag. The suffix info is
+usually data type.
+
+Possible values are:
+  0: Don't show the suffix.
+  1: Show the suffix.
+
+Example:
+>
+        let g:tagbar_show_suffix = 0
 <
                                                  *g:tagbar_show_tag_linenumbers*
 g:tagbar_show_tag_linenumbers~
@@ -2058,7 +2089,7 @@ tracking HEAD in the default branch rather than tagged releases.
     - Periodic rollup, see `git log v3.0.0..v3.1.1`
 
 3.1.0 (2022-11-04)
-    - Periodic rollup (inclomplete merge, suggest 3.1.1)
+    - Periodic rollup (incomplete merge, suggest 3.1.1)
 
 3.0.0 (2021-01-21)
     - Massive rollup with years of small changes, see `git log v2.7..v3.0.0`
