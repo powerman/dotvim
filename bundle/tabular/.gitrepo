@@ -6,7 +6,7 @@
 [subrepo]
 	remote = https://github.com/godlygeek/tabular.git
 	branch = master
-	commit = 339091ac4dd1f17e225fe7d57b48aff55f99b23a
-	parent = c69f13f81ed366612289748d7a37c0bd95d5e561
+	commit = 12437cd1b53488e24936ec4b091c9324cafee311
+	parent = 49195c76f124048ef06c11976c559a05040e194e
 	method = merge
-	cmdver = 0.4.1
+	cmdver = 0.4.9
