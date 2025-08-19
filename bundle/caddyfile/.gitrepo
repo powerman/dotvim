@@ -6,7 +6,7 @@
 [subrepo]
 	remote = https://github.com/isobit/vim-caddyfile
 	branch = master
-	commit = 24fe0720551883e407cb70ae1d7c03f162d1d5a0
-	parent = 685e0a44585538f768276b54d81f10845f33cba1
+	commit = 6d60d5af0d73f20b88ec388a9d70188d55ed8223
+	parent = c0a2056e299261ca8a9911a2e33ec682c6667bfd
 	method = merge
-	cmdver = 0.4.1
+	cmdver = 0.4.9
