@@ -10,6 +10,7 @@
 " Last Change:	2022 Jun 09
 " 		2013 Jun 12: adjusted tmpljavaScriptRegexpString (Kevin Locke)
 " 		2018 Apr 14: adjusted tmpljavaScriptRegexpString (LongJohnCoder)
+" 		2024 Aug 14: fix a few stylistic issues (#15480)
 
 " tuning parameters:
 " unlet tmpljavaScript_fold
@@ -59,14 +60,15 @@ syn keyword tmpljavaScriptType		Array Boolean Date Function Number Object String
 syn keyword tmpljavaScriptStatement		return with await yield
 syn keyword tmpljavaScriptBoolean		true false
 syn keyword tmpljavaScriptNull		null undefined
-syn keyword tmpljavaScriptIdentifier	arguments this var let
+syn keyword tmpljavaScriptIdentifier	arguments this
 syn keyword tmpljavaScriptLabel		case default
 syn keyword tmpljavaScriptException		try catch finally throw
 syn keyword tmpljavaScriptMessage		alert confirm prompt status
 syn keyword tmpljavaScriptGlobal		self window top parent
 syn keyword tmpljavaScriptMember		document event location 
 syn keyword tmpljavaScriptDeprecated	escape unescape
-syn keyword tmpljavaScriptReserved		abstract boolean byte char class const debugger double enum export extends final float goto implements import int interface long native package private protected public short static super synchronized throws transient volatile async
+syn keyword tmpljavaScriptReserved		abstract boolean byte char class const debugger double enum export extends final float from goto implements import int interface let long native package private protected public short super synchronized throws transient var volatile async
+syn keyword tmpljavaScriptModifier  static
 
 syn cluster  tmpljavaScriptEmbededExpr	contains=tmpljavaScriptBoolean,tmpljavaScriptNull,tmpljavaScriptIdentifier,tmpljavaScriptStringD,tmpljavaScriptStringS,tmpljavaScriptStringT
 
@@ -110,7 +112,7 @@ hi def link tmpljavaScriptBranch		Conditional
 hi def link tmpljavaScriptOperator		Operator
 hi def link tmpljavaScriptType			Type
 hi def link tmpljavaScriptStatement		Statement
-hi def link tmpljavaScriptFunction		Function
+hi def link tmpljavaScriptFunction		Keyword
 hi def link tmpljavaScriptBraces		Function
 hi def link tmpljavaScriptError		Error
 hi def link tmpljavaScrParenError		tmpljavaScriptError
@@ -126,6 +128,7 @@ hi def link tmpljavaScriptGlobal		Keyword
 hi def link tmpljavaScriptMember		Keyword
 hi def link tmpljavaScriptDeprecated		Exception 
 hi def link tmpljavaScriptReserved		Keyword
+hi def link tmpljavaScriptModifier		StorageClass
 hi def link tmpljavaScriptDebug		Debug
 hi def link tmpljavaScriptConstant		Label
 hi def link tmpljavaScriptEmbed		Special
