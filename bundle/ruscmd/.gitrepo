@@ -6,7 +6,7 @@
 [subrepo]
 	remote = https://github.com/powerman/vim-plugin-ruscmd
 	branch = master
-	commit = e952abbea092e420b128936a0c284fb522612c3a
-	parent = edc259a019747ceb2de2bd042e44cb25186765bd
+	commit = b4c6cf0b4ff76641d84c2ea1e90ab258f8ff7415
+	parent = 1a3a71d3d8b32f9f950d8a5bc71049c0fe99c220
 	method = merge
-	cmdver = 0.4.1
+	cmdver = 0.4.9
